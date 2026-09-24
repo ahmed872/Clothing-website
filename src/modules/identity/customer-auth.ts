@@ -83,9 +83,9 @@ export const {
   pages: { signIn: '/ar/account/login' },
   useSecureCookies,
   cookies: {
-    sessionToken: { name: `${securePrefix}luxedrive.customer-session-token` },
-    callbackUrl: { name: `${securePrefix}luxedrive.customer-callback-url` },
-    csrfToken: { name: `${hostPrefix}luxedrive.customer-csrf-token` },
+    sessionToken: { name: `${securePrefix}clothing.customer-session-token` },
+    callbackUrl: { name: `${securePrefix}clothing.customer-callback-url` },
+    csrfToken: { name: `${hostPrefix}clothing.customer-csrf-token` },
   },
   providers: [
     Credentials({

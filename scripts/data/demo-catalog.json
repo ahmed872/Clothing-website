@@ -1,254 +1,418 @@
-[
-  {
-    "id": 1,
-    "name": "Mercedes-Benz S-Class",
-    "brand": "Mercedes-Benz",
-    "model": "S 500",
-    "year": 2024,
-    "price": 125000,
-    "fuelType": "Hybrid",
-    "transmission": "Automatic",
-    "engine": "3.0L V6 Turbo",
-    "mileage": 1200,
-    "color": "Obsidian Black",
-    "seating": 5,
-    "description": "The pinnacle of luxury and technology, the Mercedes-Benz S-Class offers unparalleled comfort, cutting-edge safety features, and a powerful yet efficient hybrid powertrain.",
-    "images": [
-      "https://images.unsplash.com/photo-1617531653332-bd46c24f2068?w=800&q=80",
-      "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=800&q=80",
-      "https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=800&q=80"
+{
+  "categories": [
+    {
+      "slug": "women",
+      "nameAr": "نسائي",
+      "nameEn": "Women",
+      "descriptionAr": "عبايات وفساتين وقطع يومية مريحة، مختارة لكل مناسبة.",
+      "descriptionEn": "Abayas, dresses and easy everyday pieces, chosen for every occasion.",
+      "seoTitleAr": "ملابس نسائية",
+      "seoTitleEn": "Women's Clothing",
+      "seoDescriptionAr": "تسوّقي العبايات والفساتين والبناطيل والتيشيرتات النسائية.",
+      "seoDescriptionEn": "Shop women's abayas, dresses, trousers and tees.",
+      "image": "classic-black-abaya-black"
+    },
+    {
+      "slug": "men",
+      "nameAr": "رجالي",
+      "nameEn": "Men",
+      "descriptionAr": "أثواب وقمصان وجينز وجاكيتات بقَصّات مريحة وخامات تدوم.",
+      "descriptionEn": "Thobes, shirts, jeans and jackets in comfortable cuts and fabrics that last.",
+      "seoTitleAr": "ملابس رجالية",
+      "seoTitleEn": "Men's Clothing",
+      "seoDescriptionAr": "تسوّق الأثواب والقمصان والجينز والهوديز الرجالية.",
+      "seoDescriptionEn": "Shop men's thobes, shirts, jeans and hoodies.",
+      "image": "classic-white-thobe-white"
+    },
+    {
+      "slug": "kids",
+      "nameAr": "أطفال",
+      "nameEn": "Kids",
+      "descriptionAr": "ملابس قطنية ناعمة وملوّنة تتحمّل اللعب طوال اليوم.",
+      "descriptionEn": "Soft, colourful cotton clothes made for a full day of play.",
+      "seoTitleAr": "ملابس أطفال",
+      "seoTitleEn": "Kids' Clothing",
+      "seoDescriptionAr": "تسوّق تيشيرتات وهوديز وفساتين الأطفال.",
+      "seoDescriptionEn": "Shop kids' tees, hoodies and dresses.",
+      "image": "kids-striped-tee-yellow"
+    }
+  ],
+
+  "attributes": [
+    {
+      "key": "material",
+      "labelAr": "الخامة",
+      "labelEn": "Material",
+      "type": "SELECT",
+      "allowedValues": [
+        "Cotton",
+        "Linen",
+        "Denim",
+        "Wool",
+        "Fleece",
+        "Crepe",
+        "Viscose",
+        "Polyester"
+      ],
+      "required": true,
+      "filterable": true
+    },
+    {
+      "key": "fit",
+      "labelAr": "القَصّة",
+      "labelEn": "Fit",
+      "type": "SELECT",
+      "allowedValues": ["Regular", "Slim", "Relaxed", "Oversized"],
+      "required": true,
+      "filterable": true
+    }
+  ],
+
+  "brands": [
+    { "slug": "essentials", "nameAr": "أساسيات", "nameEn": "Essentials" },
+    { "slug": "urban-line", "nameAr": "أوربان لاين", "nameEn": "Urban Line" },
+    { "slug": "heritage", "nameAr": "تراث", "nameEn": "Heritage" },
+    { "slug": "little-steps", "nameAr": "خطوات صغيرة", "nameEn": "Little Steps" }
+  ],
+
+  "sizeSets": {
+    "adult": [
+      { "en": "S", "ar": "S" },
+      { "en": "M", "ar": "M" },
+      { "en": "L", "ar": "L" },
+      { "en": "XL", "ar": "XL" }
     ],
-    "featured": true
+    "thobe": [
+      { "en": "52", "ar": "52" },
+      { "en": "54", "ar": "54" },
+      { "en": "56", "ar": "56" },
+      { "en": "58", "ar": "58" },
+      { "en": "60", "ar": "60" }
+    ],
+    "abaya": [
+      { "en": "52", "ar": "52" },
+      { "en": "54", "ar": "54" },
+      { "en": "56", "ar": "56" },
+      { "en": "58", "ar": "58" }
+    ],
+    "waist": [
+      { "en": "30", "ar": "30" },
+      { "en": "32", "ar": "32" },
+      { "en": "34", "ar": "34" },
+      { "en": "36", "ar": "36" }
+    ],
+    "kids": [
+      { "en": "2-3Y", "ar": "2-3 سنوات" },
+      { "en": "4-5Y", "ar": "4-5 سنوات" },
+      { "en": "6-7Y", "ar": "6-7 سنوات" },
+      { "en": "8-9Y", "ar": "8-9 سنوات" }
+    ]
   },
-  {
-    "id": 2,
-    "name": "BMW 7 Series",
-    "brand": "BMW",
-    "model": "740i",
-    "year": 2024,
-    "price": 98000,
-    "fuelType": "Petrol",
-    "transmission": "Automatic",
-    "engine": "3.0L Inline-6 Turbo",
-    "mileage": 800,
-    "color": "Alpine White",
-    "seating": 5,
-    "description": "Experience the perfect blend of performance and luxury with the BMW 7 Series. Advanced driver assistance systems and a refined interior make every journey exceptional.",
-    "images": [
-      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&q=80",
-      "https://images.unsplash.com/photo-1617531653520-bd788c6823e9?w=800&q=80",
-      "https://images.unsplash.com/photo-1617531653520-bd788c6823e9?w=800&q=80"
-    ],
-    "featured": true
-  },
-  {
-    "id": 3,
-    "name": "Audi A8",
-    "brand": "Audi",
-    "model": "A8 L 55 TFSI",
-    "year": 2023,
-    "price": 89000,
-    "fuelType": "Petrol",
-    "transmission": "Automatic",
-    "engine": "3.0L V6 TFSI",
-    "mileage": 5000,
-    "color": "Mythos Black",
-    "seating": 5,
-    "description": "The Audi A8 combines sophisticated design with innovative technology. Enjoy the spacious interior, quattro all-wheel drive, and advanced infotainment system.",
-    "images": [
-      "https://images.unsplash.com/photo-1610768764270-790fbec18178?w=800&q=80",
-      "https://images.unsplash.com/photo-1614200187524-dc4b892acf16?w=800&q=80",
-      "https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=800&q=80"
-    ],
-    "featured": true
-  },
-  {
-    "id": 4,
-    "name": "Porsche Panamera",
-    "brand": "Porsche",
-    "model": "Panamera 4S",
-    "year": 2024,
-    "price": 115000,
-    "fuelType": "Petrol",
-    "transmission": "Automatic",
-    "engine": "2.9L V6 Twin-Turbo",
-    "mileage": 600,
-    "color": "Carrara White",
-    "seating": 4,
-    "description": "The Porsche Panamera delivers sports car performance in a luxury sedan package. With its powerful engine and precise handling, it's a driver's dream.",
-    "images": [
-      "https://images.unsplash.com/photo-1614200187524-dc4b892acf16?w=800&q=80",
-      "https://images.unsplash.com/photo-1610768764270-790fbec18178?w=800&q=80",
-      "https://images.unsplash.com/photo-1617531653332-bd46c24f2068?w=800&q=80"
-    ],
-    "featured": false
-  },
-  {
-    "id": 5,
-    "name": "Lexus LS 500",
-    "brand": "Lexus",
-    "model": "LS 500",
-    "year": 2023,
-    "price": 78000,
-    "fuelType": "Hybrid",
-    "transmission": "Automatic",
-    "engine": "3.5L V6 Hybrid",
-    "mileage": 8000,
-    "color": "Sonic Silver",
-    "seating": 5,
-    "description": "The Lexus LS 500 offers exceptional comfort and reliability. Its hybrid powertrain ensures efficiency without compromising on performance.",
-    "images": [
-      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&q=80",
-      "https://images.unsplash.com/photo-1617531653520-bd788c6823e9?w=800&q=80",
-      "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=800&q=80"
-    ],
-    "featured": false
-  },
-  {
-    "id": 6,
-    "name": "Jaguar XJ",
-    "brand": "Jaguar",
-    "model": "XJ Portfolio",
-    "year": 2022,
-    "price": 72000,
-    "fuelType": "Petrol",
-    "transmission": "Automatic",
-    "engine": "3.0L V6 Supercharged",
-    "mileage": 12000,
-    "color": "British Racing Green",
-    "seating": 5,
-    "description": "The Jaguar XJ is a statement of British luxury and elegance. With its distinctive design and powerful engine, it stands out in any crowd.",
-    "images": [
-      "https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=800&q=80",
-      "https://images.unsplash.com/photo-1617531653332-bd46c24f2068?w=800&q=80",
-      "https://images.unsplash.com/photo-1614200187524-dc4b892acf16?w=800&q=80"
-    ],
-    "featured": false
-  },
-  {
-    "id": 7,
-    "name": "Tesla Model S",
-    "brand": "Tesla",
-    "model": "Model S Plaid",
-    "year": 2024,
-    "price": 135000,
-    "fuelType": "Electric",
-    "transmission": "Automatic",
-    "engine": "Tri-Motor Electric",
-    "mileage": 500,
-    "color": "Pearl White",
-    "seating": 5,
-    "description": "The Tesla Model S Plaid is the fastest production sedan in the world. With instant acceleration and cutting-edge autopilot features, it redefines electric luxury.",
-    "images": [
-      "https://images.unsplash.com/photo-1617788138017-80ad40651399?w=800&q=80",
-      "https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=800&q=80",
-      "https://images.unsplash.com/photo-1536700503339-1e4b06520771?w=800&q=80"
-    ],
-    "featured": true
-  },
-  {
-    "id": 8,
-    "name": "Bentley Flying Spur",
-    "brand": "Bentley",
-    "model": "Flying Spur V8",
-    "year": 2023,
-    "price": 215000,
-    "fuelType": "Petrol",
-    "transmission": "Automatic",
-    "engine": "4.0L V8 Twin-Turbo",
-    "mileage": 3000,
-    "color": "Moonbeam",
-    "seating": 5,
-    "description": "The Bentley Flying Spur represents the ultimate in handcrafted luxury. Every detail is meticulously designed to provide an unparalleled driving experience.",
-    "images": [
-      "https://images.unsplash.com/photo-1563720360172-67b8f3dce741?w=800&q=80",
-      "https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=800&q=80",
-      "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=800&q=80"
-    ],
-    "featured": false
-  },
-  {
-    "id": 9,
-    "name": "Rolls-Royce Ghost",
-    "brand": "Rolls-Royce",
-    "model": "Ghost Extended",
-    "year": 2024,
-    "price": 385000,
-    "fuelType": "Petrol",
-    "transmission": "Automatic",
-    "engine": "6.75L V12 Twin-Turbo",
-    "mileage": 200,
-    "color": "Arctic White",
-    "seating": 5,
-    "description": "The Rolls-Royce Ghost is the epitome of automotive excellence. With bespoke craftsmanship and whisper-quiet performance, it's a sanctuary on wheels.",
-    "images": [
-      "https://images.unsplash.com/photo-1563720360172-67b8f3dce741?w=800&q=80",
-      "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=800&q=80",
-      "https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=800&q=80"
-    ],
-    "featured": true
-  },
-  {
-    "id": 10,
-    "name": "Maserati Quattroporte",
-    "brand": "Maserati",
-    "model": "Quattroporte Trofeo",
-    "year": 2023,
-    "price": 145000,
-    "fuelType": "Petrol",
-    "transmission": "Automatic",
-    "engine": "3.8L V8 Twin-Turbo",
-    "mileage": 4500,
-    "color": "Blu Emozione",
-    "seating": 5,
-    "description": "The Maserati Quattroporte Trofeo combines Italian passion with performance. Its distinctive exhaust note and elegant design make it truly special.",
-    "images": [
-      "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=800&q=80",
-      "https://images.unsplash.com/photo-1563720360172-67b8f3dce741?w=800&q=80",
-      "https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=800&q=80"
-    ],
-    "featured": false
-  },
-  {
-    "id": 11,
-    "name": "Range Rover Autobiography",
-    "brand": "Land Rover",
-    "model": "Range Rover Autobiography",
-    "year": 2024,
-    "price": 165000,
-    "fuelType": "Hybrid",
-    "transmission": "Automatic",
-    "engine": "3.0L Inline-6 Hybrid",
-    "mileage": 1000,
-    "color": "Santorini Black",
-    "seating": 5,
-    "description": "The Range Rover Autobiography offers luxury and capability in equal measure. Whether on-road or off-road, it delivers a commanding presence.",
-    "images": [
-      "https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=800&q=80",
-      "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&q=80",
-      "https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=800&q=80"
-    ],
-    "featured": false
-  },
-  {
-    "id": 12,
-    "name": "Cadillac CT6",
-    "brand": "Cadillac",
-    "model": "CT6 Platinum",
-    "year": 2022,
-    "price": 68000,
-    "fuelType": "Petrol",
-    "transmission": "Automatic",
-    "engine": "3.0L V6 Twin-Turbo",
-    "mileage": 15000,
-    "color": "Radiant Silver",
-    "seating": 5,
-    "description": "The Cadillac CT6 Platinum offers American luxury with advanced technology. Its spacious cabin and smooth ride make it perfect for long journeys.",
-    "images": [
-      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&q=80",
-      "https://images.unsplash.com/photo-1617531653520-bd788c6823e9?w=800&q=80",
-      "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=800&q=80"
-    ],
-    "featured": false
-  }
-]
+
+  "products": [
+    {
+      "slug": "classic-white-thobe",
+      "skuPrefix": "HER-THOBE",
+      "category": "men",
+      "brand": "heritage",
+      "nameAr": "ثوب أبيض كلاسيكي",
+      "nameEn": "Classic White Thobe",
+      "descriptionAr": "ثوب يومي أنيق بياقة صينية وأزرار مخفية وجيوب جانبية. قَصّة مستقيمة مريحة تناسبك من صلاة الفجر حتى سهرات المساء.",
+      "descriptionEn": "A crisp everyday thobe with a mandarin collar, hidden button placket and side pockets. Cut straight for an easy fit that takes you from morning prayers to evening gatherings.",
+      "featured": true,
+      "attributes": { "material": "Cotton", "fit": "Regular" },
+      "price": 189,
+      "garment": "thobe",
+      "sizes": "thobe",
+      "colors": [
+        { "en": "White", "ar": "أبيض", "hex": "#F4F2EC" },
+        { "en": "Ivory", "ar": "عاجي", "hex": "#E6DCC6" }
+      ]
+    },
+    {
+      "slug": "oxford-button-down-shirt",
+      "skuPrefix": "URB-OXFORD",
+      "category": "men",
+      "brand": "urban-line",
+      "nameAr": "قميص أكسفورد بياقة بأزرار",
+      "nameEn": "Oxford Button-Down Shirt",
+      "descriptionAr": "قطن أكسفورد ناعم بياقة مثبّتة بأزرار وجيب واحد على الصدر. أنيق بما يكفي للمكتب ومريح بما يكفي لعطلة نهاية الأسبوع.",
+      "descriptionEn": "Soft brushed Oxford cotton with a button-down collar and a single chest pocket. Smart enough for the office, relaxed enough for the weekend.",
+      "featured": false,
+      "attributes": { "material": "Cotton", "fit": "Slim" },
+      "price": 149,
+      "garment": "shirt",
+      "sizes": "adult",
+      "colors": [
+        { "en": "Light Blue", "ar": "أزرق فاتح", "hex": "#A9C3DF" },
+        { "en": "White", "ar": "أبيض", "hex": "#F4F2EC" }
+      ]
+    },
+    {
+      "slug": "essential-crew-neck-tee",
+      "skuPrefix": "ESS-CREW-TEE",
+      "category": "men",
+      "brand": "essentials",
+      "nameAr": "تيشيرت أساسي برقبة دائرية",
+      "nameEn": "Essential Crew-Neck T-Shirt",
+      "descriptionAr": "قطن ممشّط متوسط الوزن يحافظ على شكله مع كل غسلة. رقبة دائرية نظيفة وقَصّة عادية تجعله التيشيرت الذي تختاره أولًا.",
+      "descriptionEn": "Midweight combed cotton that keeps its shape wash after wash. A clean crew neck and a regular fit make it the tee you reach for first.",
+      "featured": true,
+      "attributes": { "material": "Cotton", "fit": "Regular" },
+      "price": 59,
+      "garment": "tshirt",
+      "sizes": "adult",
+      "colors": [
+        { "en": "Black", "ar": "أسود", "hex": "#232326" },
+        { "en": "White", "ar": "أبيض", "hex": "#F4F2EC" },
+        { "en": "Olive", "ar": "زيتي", "hex": "#6B7043" }
+      ]
+    },
+    {
+      "slug": "slim-fit-jeans",
+      "skuPrefix": "URB-SLIM-JEANS",
+      "category": "men",
+      "brand": "urban-line",
+      "nameAr": "جينز بقَصّة ضيقة",
+      "nameEn": "Slim Fit Jeans",
+      "descriptionAr": "جينز مرن بساق ضيقة وخصر متوسط، بتصميم الجيوب الخمسة الكلاسيكي وخياطة بارزة.",
+      "descriptionEn": "Stretch denim with a slim leg and a mid rise, finished with classic five-pocket styling and contrast stitching.",
+      "featured": false,
+      "attributes": { "material": "Denim", "fit": "Slim" },
+      "price": 199,
+      "garment": "jeans",
+      "sizes": "waist",
+      "colors": [
+        { "en": "Indigo", "ar": "نيلي", "hex": "#2F3F66" },
+        { "en": "Black", "ar": "أسود", "hex": "#2A2A2E" }
+      ]
+    },
+    {
+      "slug": "fleece-zip-hoodie",
+      "skuPrefix": "URB-HOODIE",
+      "category": "men",
+      "brand": "urban-line",
+      "nameAr": "هودي فليس بسحّاب",
+      "nameEn": "Fleece Zip Hoodie",
+      "descriptionAr": "فليس ناعم من الداخل بسحّاب كامل وقبعة مبطّنة. دافئ بلا ثقل لأمسيات الصحراء الباردة.",
+      "descriptionEn": "Brushed-back fleece with a full-length zip and a lined hood. Warm without the bulk for cool desert evenings.",
+      "featured": false,
+      "attributes": { "material": "Fleece", "fit": "Relaxed" },
+      "price": 179,
+      "garment": "hoodie",
+      "sizes": "adult",
+      "colors": [
+        { "en": "Charcoal", "ar": "فحمي", "hex": "#3E4046" },
+        { "en": "Navy", "ar": "كحلي", "hex": "#1F2D4A" }
+      ]
+    },
+    {
+      "slug": "lightweight-bomber-jacket",
+      "skuPrefix": "URB-BOMBER",
+      "category": "men",
+      "brand": "urban-line",
+      "nameAr": "جاكيت بومبر خفيف",
+      "nameEn": "Lightweight Bomber Jacket",
+      "descriptionAr": "جاكيت مقاوم للماء بأساور وحافة مضلّعة، وجيب عملي على الكم، وسحّاب ناعم باتجاهين.",
+      "descriptionEn": "A water-repellent shell with ribbed cuffs and hem, a sleeve utility pocket and a smooth two-way zip.",
+      "featured": true,
+      "attributes": { "material": "Polyester", "fit": "Regular" },
+      "price": 289,
+      "garment": "bomber",
+      "sizes": "adult",
+      "colors": [
+        { "en": "Olive", "ar": "زيتي", "hex": "#5F6640" },
+        { "en": "Black", "ar": "أسود", "hex": "#232326" }
+      ]
+    },
+    {
+      "slug": "classic-black-abaya",
+      "skuPrefix": "HER-ABAYA",
+      "category": "women",
+      "brand": "heritage",
+      "nameAr": "عباية سوداء كلاسيكية",
+      "nameEn": "Classic Black Abaya",
+      "descriptionAr": "عباية من الكريب الانسيابي بأكمام واسعة وتطريز ناعم بنفس اللون على الأطراف. خفيفة وغير شفافة وسهلة التنسيق.",
+      "descriptionEn": "A flowing crepe abaya with wide sleeves and a subtle tonal trim along the opening. Light, opaque and easy to layer.",
+      "featured": true,
+      "attributes": { "material": "Crepe", "fit": "Relaxed" },
+      "price": 249,
+      "garment": "abaya",
+      "sizes": "abaya",
+      "stockBySize": { "52": 1 },
+      "colors": [{ "en": "Black", "ar": "أسود", "hex": "#1D1D20" }]
+    },
+    {
+      "slug": "linen-shirt-dress",
+      "skuPrefix": "ESS-LINEN-DRESS",
+      "category": "women",
+      "brand": "essentials",
+      "nameAr": "فستان قميص من الكتان",
+      "nameEn": "Linen Shirt Dress",
+      "descriptionAr": "كتان يسمح بمرور الهواء بياقة مريحة وأزرار أمامية وحزام قابل للفك. يصل إلى أسفل الركبة بقليل.",
+      "descriptionEn": "Breathable linen with a relaxed collar, a button front and a removable tie belt. Falls just below the knee.",
+      "featured": true,
+      "attributes": { "material": "Linen", "fit": "Relaxed" },
+      "price": 219,
+      "garment": "shirtdress",
+      "sizes": "adult",
+      "colors": [
+        { "en": "Sand", "ar": "رملي", "hex": "#D8C4A2" },
+        { "en": "Sage", "ar": "أخضر مريمي", "hex": "#A2B09A" }
+      ]
+    },
+    {
+      "slug": "wide-leg-trousers",
+      "skuPrefix": "ESS-WIDE-TROUSERS",
+      "category": "women",
+      "brand": "essentials",
+      "nameAr": "بنطلون بساق واسعة",
+      "nameEn": "Wide-Leg Trousers",
+      "descriptionAr": "بنطلون من الفسكوز الانسيابي بخصر عالٍ وكسرات أمامية وساق واسعة تلامس الأرض.",
+      "descriptionEn": "Fluid viscose trousers with a high waist, front pleats and a wide, floor-grazing leg.",
+      "featured": false,
+      "attributes": { "material": "Viscose", "fit": "Relaxed" },
+      "price": 169,
+      "garment": "widepants",
+      "sizes": "adult",
+      "colors": [
+        { "en": "Beige", "ar": "بيج", "hex": "#D6C3A8" },
+        { "en": "Black", "ar": "أسود", "hex": "#232326" }
+      ]
+    },
+    {
+      "slug": "pleated-midi-skirt",
+      "skuPrefix": "URB-MIDI-SKIRT",
+      "category": "women",
+      "brand": "urban-line",
+      "nameAr": "تنورة ميدي بكسرات",
+      "nameEn": "Pleated Midi Skirt",
+      "descriptionAr": "كسرات شعاعية تتحرك مع خطواتك، وخصر مطاطي من الخلف، وطول ميدي يناسب الأحذية المسطحة والكعب.",
+      "descriptionEn": "Sunray pleats that move as you walk, an elasticated back waist and a midi length that works with flats or heels.",
+      "featured": false,
+      "attributes": { "material": "Polyester", "fit": "Regular" },
+      "price": 159,
+      "garment": "skirt",
+      "sizes": "adult",
+      "colors": [
+        { "en": "Dusty Rose", "ar": "وردي باهت", "hex": "#C48E92" },
+        { "en": "Navy", "ar": "كحلي", "hex": "#1F2D4A" }
+      ]
+    },
+    {
+      "slug": "soft-knit-cardigan",
+      "skuPrefix": "ESS-CARDIGAN",
+      "category": "women",
+      "brand": "essentials",
+      "nameAr": "كارديجان تريكو ناعم",
+      "nameEn": "Soft Knit Cardigan",
+      "descriptionAr": "تريكو دافئ من مزيج الصوف برقبة على شكل V وأزرار بمظهر القرن وحواف مضلّعة. البسيه فوق الفساتين أو التيشيرتات.",
+      "descriptionEn": "A cosy wool-blend knit with a V-neck, horn-effect buttons and ribbed trims. Layer it over dresses or tees.",
+      "featured": false,
+      "attributes": { "material": "Wool", "fit": "Relaxed" },
+      "price": 189,
+      "garment": "cardigan",
+      "sizes": "adult",
+      "colors": [
+        { "en": "Cream", "ar": "كريمي", "hex": "#EEE4CF" },
+        { "en": "Camel", "ar": "جملي", "hex": "#B8895B" }
+      ]
+    },
+    {
+      "slug": "oversized-cotton-tee",
+      "skuPrefix": "ESS-OVERSIZED-TEE",
+      "category": "women",
+      "brand": "essentials",
+      "nameAr": "تيشيرت قطني واسع",
+      "nameEn": "Oversized Cotton T-Shirt",
+      "descriptionAr": "قطن ثقيل بقَصّة مربعة وأكتاف منسدلة. أدخليه في البنطلون أو اتركيه منسدلًا.",
+      "descriptionEn": "Heavyweight cotton in a boxy, dropped-shoulder cut. Tuck it in or wear it loose.",
+      "featured": false,
+      "attributes": { "material": "Cotton", "fit": "Oversized" },
+      "price": 69,
+      "garment": "oversizedtee",
+      "sizes": "adult",
+      "colors": [
+        { "en": "White", "ar": "أبيض", "hex": "#F4F2EC" },
+        { "en": "Black", "ar": "أسود", "hex": "#232326" },
+        { "en": "Lilac", "ar": "ليلكي", "hex": "#B7A5D1" }
+      ]
+    },
+    {
+      "slug": "kids-striped-tee",
+      "skuPrefix": "LS-STRIPED-TEE",
+      "category": "kids",
+      "brand": "little-steps",
+      "nameAr": "تيشيرت مخطط للأطفال",
+      "nameEn": "Kids Striped T-Shirt",
+      "descriptionAr": "قطن جيرسي ناعم بخطوط مبهجة، ورقبة بدون ملصق حتى لا تزعج طفلك.",
+      "descriptionEn": "Soft cotton jersey in cheerful stripes, with a tagless neck that won't scratch.",
+      "featured": true,
+      "attributes": { "material": "Cotton", "fit": "Regular" },
+      "price": 45,
+      "garment": "stripedtee",
+      "sizes": "kids",
+      "colors": [
+        { "en": "Yellow", "ar": "أصفر", "hex": "#F2C84B" },
+        { "en": "Sky Blue", "ar": "سماوي", "hex": "#8CC3E6" }
+      ]
+    },
+    {
+      "slug": "kids-zip-hoodie",
+      "skuPrefix": "LS-HOODIE",
+      "category": "kids",
+      "brand": "little-steps",
+      "nameAr": "هودي أطفال بسحّاب",
+      "nameEn": "Kids Zip Hoodie",
+      "descriptionAr": "هودي فليس دافئ بسحّاب سهل على الأيدي الصغيرة وجيوب أمامية واسعة.",
+      "descriptionEn": "A warm fleece hoodie with a zip little hands can manage and roomy front pockets.",
+      "featured": false,
+      "attributes": { "material": "Fleece", "fit": "Regular" },
+      "price": 99,
+      "garment": "hoodie",
+      "sizes": "kids",
+      "colors": [
+        { "en": "Red", "ar": "أحمر", "hex": "#C0392B" },
+        { "en": "Mustard", "ar": "خردلي", "hex": "#D9A52B" }
+      ]
+    },
+    {
+      "slug": "kids-jogger-pants",
+      "skuPrefix": "LS-JOGGERS",
+      "category": "kids",
+      "brand": "little-steps",
+      "nameAr": "بنطلون رياضي للأطفال",
+      "nameEn": "Kids Jogger Pants",
+      "descriptionAr": "بنطلون رياضي قطني مرن بخصر قابل للتعديل بحبل وأساور مضلّعة، للجري والتسلق وكل ما بينهما.",
+      "descriptionEn": "Stretchy cotton joggers with an adjustable drawstring waist and ribbed cuffs, for running, climbing and everything in between.",
+      "featured": false,
+      "attributes": { "material": "Cotton", "fit": "Relaxed" },
+      "price": 79,
+      "garment": "joggers",
+      "sizes": "kids",
+      "colors": [
+        { "en": "Grey", "ar": "رمادي", "hex": "#8D9096" },
+        { "en": "Navy", "ar": "كحلي", "hex": "#1F2D4A" }
+      ]
+    },
+    {
+      "slug": "girls-floral-summer-dress",
+      "skuPrefix": "LS-FLORAL-DRESS",
+      "category": "kids",
+      "brand": "little-steps",
+      "nameAr": "فستان صيفي مورّد للبنات",
+      "nameEn": "Girls Floral Summer Dress",
+      "descriptionAr": "فستان قطني مثالي للدوران بنقشة ورود ناعمة وأحزمة كتف متموجة وفيونكة عند الخصر.",
+      "descriptionEn": "A twirl-ready cotton dress with a scattered floral print, flutter straps and a bow at the waist.",
+      "featured": false,
+      "attributes": { "material": "Cotton", "fit": "Regular" },
+      "price": 109,
+      "garment": "girlsdress",
+      "sizes": "kids",
+      "colors": [
+        { "en": "Pink", "ar": "وردي", "hex": "#F2A6B8" },
+        { "en": "Mint", "ar": "نعناعي", "hex": "#A6DAC3" }
+      ]
+    }
+  ]
+}

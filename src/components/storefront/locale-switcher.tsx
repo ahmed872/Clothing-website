@@ -33,7 +33,7 @@ export function LocaleSwitcher({ locale, label }: LocaleSwitcherProps) {
         href={href}
         onClick={() => {
           try {
-            document.cookie = `luxedrive-locale=${otherLocale};path=/;max-age=${60 * 60 * 24 * 365}`;
+            document.cookie = `clothing-locale=${otherLocale};path=/;max-age=${60 * 60 * 24 * 365}`;
           } catch {
             // Cookies disabled — the navigation itself still works.
           }

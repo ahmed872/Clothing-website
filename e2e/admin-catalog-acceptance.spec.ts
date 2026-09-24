@@ -133,7 +133,8 @@ test('a store owner builds and publishes a product from scratch, with no code ch
   await expect(page.getByLabel('Color')).toBeVisible();
   await expect(page.getByLabel('Size')).toBeVisible();
   await expect(page.getByLabel('Material')).toBeVisible();
-  await expect(page.getByLabel('Fuel type')).toHaveCount(0);
+  // …and none of another category's: the demo clothing categories' Fit.
+  await expect(page.getByLabel('Fit')).toHaveCount(0);
 
   await page.getByLabel('Color').click();
   await page.getByRole('option', { name: 'Black' }).click();

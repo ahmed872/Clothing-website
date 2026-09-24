@@ -6,15 +6,15 @@ immediately and loudly instead of surfacing later as a confusing runtime error.
 
 ## The separation
 
-|            | development                                 | test                                                       | production                                    |
-| ---------- | ------------------------------------------- | ---------------------------------------------------------- | --------------------------------------------- |
-| Database   | local PostgreSQL, `luxedrive_dev`           | local/CI PostgreSQL, `luxedrive_test` (CI: `luxedrive_ci`) | managed PostgreSQL                            |
-| Env source | `.env` (gitignored)                         | `.env.test` (gitignored) / CI job env                      | Vercel project environment variables          |
-| Data       | disposable seed data                        | wiped and recreated by the test run                        | real customer data — never copied to a laptop |
-| Migrations | `pnpm db:migrate` (creates migration files) | `pnpm db:deploy`                                           | `pnpm db:deploy` in the deploy pipeline only  |
+|            | development                                 | test                                                     | production                                    |
+| ---------- | ------------------------------------------- | -------------------------------------------------------- | --------------------------------------------- |
+| Database   | local PostgreSQL, `clothing_dev`            | local/CI PostgreSQL, `clothing_test` (CI: `clothing_ci`) | managed PostgreSQL                            |
+| Env source | `.env` (gitignored)                         | `.env.test` (gitignored) / CI job env                    | Vercel project environment variables          |
+| Data       | disposable seed data                        | wiped and recreated by the test run                      | real customer data — never copied to a laptop |
+| Migrations | `pnpm db:migrate` (creates migration files) | `pnpm db:deploy`                                         | `pnpm db:deploy` in the deploy pipeline only  |
 
 The three never share a database. A destructive migration tried on
-`luxedrive_dev` costs nothing; the same command against production is an
+`clothing_dev` costs nothing; the same command against production is an
 incident.
 
 ## The two rules that keep secrets out of the browser
@@ -194,20 +194,20 @@ link out of it. Nothing under `console` or `smtp` ever writes there.
 
 ```bash
 # 1. PostgreSQL 16 running locally, then:
-createuser luxedrive --createdb --pwprompt
-createdb luxedrive_dev -O luxedrive
-createdb luxedrive_test -O luxedrive
+createuser clothing --createdb --pwprompt
+createdb clothing_dev -O clothing
+createdb clothing_test -O clothing
 
 # 2. Environment
 cp .env.example .env          # set DATABASE_URL to match the user you created
-cp .env .env.test             # point it at luxedrive_test
+cp .env .env.test             # point it at clothing_test
 # .env.example already sets STORAGE_PROVIDER=local; replace
 # MEDIA_UPLOAD_SIGNING_SECRET's and AUTH_SECRET's placeholders with real
 # random values (`openssl rand -base64 32`) in both files.
 
 # 3. Schema and client
 pnpm install                  # runs `prisma generate` via postinstall
-pnpm db:migrate               # applies migrations to luxedrive_dev
+pnpm db:migrate               # applies migrations to clothing_dev
 pnpm db:smoke                 # proves the connection and the typed client work
 
 # 4. First admin account (P06) — one-off, values never committed:
@@ -268,7 +268,7 @@ pnpm db:seed-e2e-orders         # the fixed order the order specs open
 pnpm db:seed-e2e-account        # the fixed customer account the account specs use
 ```
 
-`db:seed-demo-catalog` refuses to run twice (it stops if a `cars` category
+`db:seed-demo-catalog` refuses to run twice (it stops if a demo category — `women`, `men` or `kids` —
 already exists); the other three are idempotent.
 
 ## Production (Vercel)

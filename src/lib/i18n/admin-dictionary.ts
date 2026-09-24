@@ -23,7 +23,7 @@ export const adminDictionary = {
     },
     dashboard: {
       welcomeTitle: 'مرحبًا بك',
-      welcomeBody: 'تم تسجيل دخولك بنجاح إلى لوحة تحكم لوكس درايف.',
+      welcomeBody: 'تم تسجيل دخولك بنجاح إلى لوحة تحكم المتجر.',
       accountTitle: 'حسابك',
       email: 'البريد الإلكتروني',
       role: 'الدور',
@@ -32,7 +32,7 @@ export const adminDictionary = {
     },
     login: {
       title: 'تسجيل الدخول',
-      subtitle: 'لوحة تحكم لوكس درايف',
+      subtitle: 'لوحة تحكم المتجر',
       emailLabel: 'البريد الإلكتروني',
       emailPlaceholder: 'name@example.com',
       passwordLabel: 'كلمة المرور',
@@ -777,7 +777,7 @@ export const adminDictionary = {
       mediaSectionTitle: 'الصورة والمظهر',
       listingSectionTitle: 'ما يُعرض',
       fieldCtaHref: 'رابط الزر',
-      ctaHrefHelp: 'رابط داخلي يبدأ بشرطة مائلة، مثل ‎/c/cars — بدون اسم اللغة.',
+      ctaHrefHelp: 'رابط داخلي يبدأ بشرطة مائلة، مثل ‎/c/women — بدون اسم اللغة.',
       ctaHrefInvalid: 'أدخل رابطًا داخليًا يبدأ بـ / أو رابطًا كاملًا يبدأ بـ https://.',
       fieldImage: 'الصورة',
       removeImage: 'إزالة الصورة',
@@ -996,7 +996,7 @@ export const adminDictionary = {
     },
     dashboard: {
       welcomeTitle: 'Welcome',
-      welcomeBody: "You're signed in to the LuxeDrive admin.",
+      welcomeBody: "You're signed in to the store admin.",
       accountTitle: 'Your account',
       email: 'Email',
       role: 'Role',
@@ -1005,7 +1005,7 @@ export const adminDictionary = {
     },
     login: {
       title: 'Sign in',
-      subtitle: 'LuxeDrive Admin',
+      subtitle: 'Store Admin',
       emailLabel: 'Email',
       emailPlaceholder: 'name@example.com',
       passwordLabel: 'Password',
@@ -1759,7 +1759,7 @@ export const adminDictionary = {
       mediaSectionTitle: 'Image and appearance',
       listingSectionTitle: 'What is shown',
       fieldCtaHref: 'Button link',
-      ctaHrefHelp: 'An internal path starting with a slash, e.g. /c/cars — without the language.',
+      ctaHrefHelp: 'An internal path starting with a slash, e.g. /c/women — without the language.',
       ctaHrefInvalid: 'Enter an internal path starting with / or a full https:// URL.',
       fieldImage: 'Image',
       removeImage: 'Remove image',

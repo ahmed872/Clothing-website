@@ -9,11 +9,11 @@ import { expect, test } from '@playwright/test';
 const PAGES: { url: string; label: string }[] = [
   { url: '/ar', label: 'homepage (ar)' },
   { url: '/en', label: 'homepage (en)' },
-  { url: '/ar/c/cars', label: 'category listing (ar)' },
-  { url: '/en/c/cars', label: 'category listing (en)' },
-  { url: '/ar/p/mercedes-benz-s-class', label: 'product detail (ar)' },
-  { url: '/en/p/mercedes-benz-s-class', label: 'product detail (en)' },
-  { url: '/ar/search?q=car', label: 'search results (ar)' },
+  { url: '/ar/c/women', label: 'category listing (ar)' },
+  { url: '/en/c/women', label: 'category listing (en)' },
+  { url: '/ar/p/essential-crew-neck-tee', label: 'product detail (ar)' },
+  { url: '/en/p/essential-crew-neck-tee', label: 'product detail (en)' },
+  { url: '/ar/search?q=shirt', label: 'search results (ar)' },
 ];
 
 test.describe('storefront — accessibility (axe, light theme)', () => {
@@ -29,7 +29,7 @@ test.describe('storefront — accessibility (axe, light theme)', () => {
 test.describe('storefront — accessibility (axe, dark theme)', () => {
   for (const { url, label } of PAGES) {
     test(label, async ({ page }) => {
-      await page.addInitScript(() => localStorage.setItem('luxedrive-theme', 'dark'));
+      await page.addInitScript(() => localStorage.setItem('clothing-theme', 'dark'));
       await page.goto(url);
       const results = await new AxeBuilder({ page }).include('body').analyze();
       expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
@@ -52,7 +52,7 @@ test.describe('storefront — keyboard navigation', () => {
   test('the quick-view dialog opens via keyboard and closes back to its trigger', async ({
     page,
   }) => {
-    await page.goto('/ar/c/cars');
+    await page.goto('/ar/c/women');
     const trigger = page.getByRole('button', { name: 'عرض سريع' }).first();
     await trigger.focus();
     await page.keyboard.press('Enter');
@@ -64,7 +64,7 @@ test.describe('storefront — keyboard navigation', () => {
 
   test('the filters drawer is reachable and operable by keyboard on mobile', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto('/ar/c/cars');
+    await page.goto('/ar/c/women');
     const trigger = page.getByRole('button', { name: 'الفلاتر' });
     await trigger.focus();
     await page.keyboard.press('Enter');
@@ -75,8 +75,8 @@ test.describe('storefront — keyboard navigation', () => {
   test('every product card image link is keyboard-focusable with a visible focus ring', async ({
     page,
   }) => {
-    await page.goto('/ar/c/cars');
-    const firstCard = page.getByRole('link', { name: /Audi A8|Mercedes-Benz|BMW/i }).first();
+    await page.goto('/ar/c/women');
+    const firstCard = page.getByRole('link', { name: /عباية|فستان|تيشيرت/ }).first();
     await firstCard.focus();
     await expect(firstCard).toBeFocused();
   });

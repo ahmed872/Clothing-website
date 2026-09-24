@@ -45,8 +45,8 @@ export interface StoreSettingsView {
  * tell "no settings yet" from "settings say so" by a field going missing.
  */
 const FALLBACK_SETTINGS: Omit<StoreSettingsView, 'logo' | 'logoDark' | 'favicon'> = {
-  storeNameAr: 'لوكس درايف',
-  storeNameEn: 'LuxeDrive',
+  storeNameAr: 'متجر الملابس',
+  storeNameEn: 'Clothing Store',
   currency: 'SAR',
   defaultLocale: 'ar',
   contact: {},

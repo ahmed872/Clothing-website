@@ -3,8 +3,8 @@
  *
  * The order accessibility and checkout specs have to *place* orders, and
  * placing an order consumes stock. Running them against the demo catalog
- * would drain the single unit each demo car has and leave every other spec
- * looking at an out-of-stock storefront — a test that breaks its neighbours
+ * would drain the demo variants' stock and leave every other spec looking
+ * at an out-of-stock storefront — a test that breaks its neighbours
  * is not a test. So the order specs get their own product, with enough stock
  * that a whole suite run cannot exhaust it.
  *

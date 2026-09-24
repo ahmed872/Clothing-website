@@ -183,16 +183,14 @@ export function ComponentsSection({ locale }: { locale: Locale }) {
             </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="gallery-category">{locale === 'ar' ? 'التصنيف' : 'Category'}</Label>
-              <Select defaultValue="cars">
+              <Select defaultValue="women">
                 <SelectTrigger id="gallery-category">
-                  <SelectValue>{locale === 'ar' ? 'سيارات' : 'Cars'}</SelectValue>
+                  <SelectValue>{locale === 'ar' ? 'نسائي' : 'Women'}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="cars">{locale === 'ar' ? 'سيارات' : 'Cars'}</SelectItem>
-                  <SelectItem value="shoes">{locale === 'ar' ? 'أحذية' : 'Shoes'}</SelectItem>
-                  <SelectItem value="electronics">
-                    {locale === 'ar' ? 'إلكترونيات' : 'Electronics'}
-                  </SelectItem>
+                  <SelectItem value="women">{locale === 'ar' ? 'نسائي' : 'Women'}</SelectItem>
+                  <SelectItem value="men">{locale === 'ar' ? 'رجالي' : 'Men'}</SelectItem>
+                  <SelectItem value="kids">{locale === 'ar' ? 'أطفال' : 'Kids'}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -336,12 +334,12 @@ export function ComponentsSection({ locale }: { locale: Locale }) {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink href="#">{locale === 'ar' ? 'سيارات' : 'Cars'}</BreadcrumbLink>
+              <BreadcrumbLink href="#">{locale === 'ar' ? 'نسائي' : 'Women'}</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbPage>
-                {locale === 'ar' ? 'رنج روفر 2026' : 'Range Rover 2026'}
+                {locale === 'ar' ? 'فستان قميص من الكتان' : 'Linen Shirt Dress'}
               </BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>

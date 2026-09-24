@@ -42,8 +42,8 @@ const MESSAGE = {
   to: 'shopper@example.com',
   toName: 'Shopper',
   subject: 'Verify your email',
-  html: '<a href="https://luxedrive.example/verify?token=super-secret-token">Verify</a>',
-  text: 'https://luxedrive.example/verify?token=super-secret-token',
+  html: '<a href="https://clothing.example/verify?token=super-secret-token">Verify</a>',
+  text: 'https://clothing.example/verify?token=super-secret-token',
 };
 
 beforeEach(() => {
@@ -64,10 +64,27 @@ describe('smtpEmailProvider.send', () => {
     );
     expect(sendMailMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        from: 'LuxeDrive <no-reply@example.com>',
+        from: 'Clothing Store <no-reply@example.com>',
         to: 'Shopper <shopper@example.com>',
         subject: MESSAGE.subject,
       }),
+    );
+  });
+
+  it('names the sender after the store the message comes from', async () => {
+    sendMailMock.mockResolvedValue({ messageId: 'm' });
+    await smtpEmailProvider.send({ ...MESSAGE, fromName: 'Fashion House' });
+    expect(sendMailMock).toHaveBeenCalledWith(
+      expect.objectContaining({ from: 'Fashion House <no-reply@example.com>' }),
+    );
+  });
+
+  it('lets an explicit EMAIL_FROM_NAME override the store name', async () => {
+    mockEnv({ EMAIL_FROM_NAME: 'Orders Desk' });
+    sendMailMock.mockResolvedValue({ messageId: 'm' });
+    await smtpEmailProvider.send({ ...MESSAGE, fromName: 'Fashion House' });
+    expect(sendMailMock).toHaveBeenCalledWith(
+      expect.objectContaining({ from: 'Orders Desk <no-reply@example.com>' }),
     );
   });
 

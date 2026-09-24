@@ -12,7 +12,7 @@ import * as React from 'react';
  * second fetch for data the visitor's own browser already has.
  */
 
-const STORAGE_KEY = 'luxedrive-recently-viewed';
+const STORAGE_KEY = 'clothing-recently-viewed';
 const MAX_ENTRIES = 12;
 
 export interface RecentlyViewedEntry {

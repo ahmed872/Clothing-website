@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Nightly logical backup of the LuxeDrive database.
+# Nightly logical backup of the store's database.
 #
 # Independent of the provider's own snapshots on purpose: provider snapshots
 # live in the same account as the database, so they disappear with it. See
@@ -62,7 +62,7 @@ DUMP_URL="$(sanitize_connection_url "$DATABASE_URL")"
 mkdir -p "$BACKUP_DIR"
 
 timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
-target="${BACKUP_DIR}/luxedrive-${timestamp}.dump"
+target="${BACKUP_DIR}/clothing-${timestamp}.dump"
 
 echo "Backing up to ${target}"
 
@@ -87,7 +87,7 @@ if ! pg_restore --list "$target" >/dev/null 2>&1; then
 fi
 echo "Verified: archive is readable by pg_restore"
 
-deleted="$(find "$BACKUP_DIR" -name 'luxedrive-*.dump' -type f -mtime "+${RETAIN_DAYS}" -print -delete | wc -l)"
+deleted="$(find "$BACKUP_DIR" -name 'clothing-*.dump' -type f -mtime "+${RETAIN_DAYS}" -print -delete | wc -l)"
 if [[ "$deleted" -gt 0 ]]; then
   echo "Pruned ${deleted} backup(s) older than ${RETAIN_DAYS} days"
 fi

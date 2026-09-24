@@ -42,31 +42,33 @@ test.describe('storefront navigation', () => {
   test('homepage renders real published sections', async ({ page }) => {
     await page.goto('/ar');
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-    await expect(page.getByRole('link', { name: /Mercedes-Benz S-Class/i }).first()).toBeVisible();
+    await expect(
+      page.getByRole('link', { name: /تيشيرت أساسي برقبة دائرية/ }).first(),
+    ).toBeVisible();
   });
 
   test('header category link navigates to a real category page', async ({ page }) => {
     await page.goto('/ar');
-    await page.getByRole('navigation').getByRole('link', { name: 'سيارات' }).click();
-    await expect(page).toHaveURL(/\/ar\/c\/cars$/);
-    await expect(page.getByRole('heading', { name: 'سيارات' })).toBeVisible();
+    await page.getByRole('navigation').getByRole('link', { name: 'رجالي' }).click();
+    await expect(page).toHaveURL(/\/ar\/c\/men$/);
+    await expect(page.getByRole('heading', { name: 'رجالي' })).toBeVisible();
   });
 
   test('breadcrumbs on a product page link back through the category', async ({ page }) => {
-    await page.goto('/ar/p/mercedes-benz-s-class');
+    await page.goto('/ar/p/essential-crew-neck-tee');
     const breadcrumb = page.getByRole('navigation', { name: 'مسار التصفح' });
     await expect(breadcrumb.getByRole('link', { name: 'الرئيسية' })).toBeVisible();
-    await breadcrumb.getByRole('link', { name: 'سيارات' }).click();
-    await expect(page).toHaveURL(/\/ar\/c\/cars$/);
+    await breadcrumb.getByRole('link', { name: 'رجالي' }).click();
+    await expect(page).toHaveURL(/\/ar\/c\/men$/);
   });
 
   test('search bar navigates to search results with the typed query', async ({ page }) => {
     await page.goto('/ar');
     const search = page.getByRole('search').first();
-    await search.getByRole('searchbox').fill('Tesla');
+    await search.getByRole('searchbox').fill('Abaya');
     await search.getByRole('searchbox').press('Enter');
-    await expect(page).toHaveURL(/\/ar\/search\?q=Tesla/);
-    await expect(page.getByRole('link', { name: /Tesla Model S/i }).first()).toBeVisible();
+    await expect(page).toHaveURL(/\/ar\/search\?q=Abaya/);
+    await expect(page.getByRole('link', { name: /عباية سوداء كلاسيكية/ }).first()).toBeVisible();
   });
 
   test('search with no query shows the "search the store" prompt, not results', async ({

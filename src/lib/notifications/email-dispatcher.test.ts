@@ -4,6 +4,7 @@ import { db } from '@/modules/core';
 import { createUser } from '@/modules/identity';
 import { resetIdentityTables } from '@/modules/identity/testing';
 import { resetCustomerTables } from '@/modules/customers/testing';
+import { resetSettingsTable } from '@/modules/settings/testing';
 
 /**
  * The outbox dispatcher (P13 §6/§7/§14) — every property the phase spec
@@ -31,6 +32,7 @@ const { EmailSendError } = await import('@/modules/notifications');
 beforeEach(async () => {
   await resetCustomerTables();
   await resetIdentityTables();
+  await resetSettingsTable();
   sendMock.mockReset();
 });
 
@@ -69,6 +71,24 @@ describe('dispatchPendingEmailEvents — happy path', () => {
 
     // The dispatcher minted a real, usable token — not a placeholder.
     expect(await db.emailVerificationToken.count({ where: { userId: user.id } })).toBe(1);
+  });
+
+  it('names the store the owner configured in Settings, not a hardcoded brand', async () => {
+    await db.storeSettings.create({
+      data: { storeNameAr: 'بيت الأزياء', storeNameEn: 'Fashion House', currency: 'SAR' },
+    });
+    const user = await customer();
+    await queueVerification(user.id);
+    sendMock.mockResolvedValue({ providerMessageId: 'msg_named' });
+
+    await dispatchPendingEmailEvents();
+    const message = sendMock.mock.calls[0]![0];
+    // `user.locale` defaults to Arabic.
+    expect(message.subject).toBe('تأكيد بريدك الإلكتروني — بيت الأزياء');
+    expect(message.fromName).toBe('بيت الأزياء');
+    expect(message.text).toContain('شكرًا لإنشاء حساب في بيت الأزياء');
+    expect(message.text).toContain('© ' + new Date().getFullYear() + ' بيت الأزياء.');
+    expect(message.text).not.toContain('{store}');
   });
 
   it('sends a queued password-reset email the same way', async () => {

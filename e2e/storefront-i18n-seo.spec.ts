@@ -2,31 +2,31 @@ import { expect, test } from '@playwright/test';
 
 test.describe('storefront — i18n / RTL-LTR', () => {
   test('Arabic renders rtl with Arabic labels', async ({ page }) => {
-    await page.goto('/ar/c/cars');
+    await page.goto('/ar/c/men');
     await expect(page.locator('html')).toHaveAttribute('lang', 'ar');
     await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
-    await expect(page.getByRole('heading', { name: 'سيارات' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'رجالي', exact: true })).toBeVisible();
   });
 
   test('English renders ltr with English labels', async ({ page }) => {
-    await page.goto('/en/c/cars');
+    await page.goto('/en/c/men');
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
     await expect(page.locator('html')).toHaveAttribute('dir', 'ltr');
-    await expect(page.getByRole('heading', { name: 'Cars' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Men', exact: true })).toBeVisible();
   });
 
   test('the locale switcher crosses from Arabic to English on the same page', async ({ page }) => {
-    await page.goto('/ar/p/mercedes-benz-s-class');
+    await page.goto('/ar/p/essential-crew-neck-tee');
     await page.getByRole('link', { name: 'English' }).click();
-    await expect(page).toHaveURL(/\/en\/p\/mercedes-benz-s-class$/);
+    await expect(page).toHaveURL(/\/en\/p\/essential-crew-neck-tee$/);
     await expect(page.locator('html')).toHaveAttribute('dir', 'ltr');
   });
 
   test('prices stay Latin-numeral and LTR-isolated even inside an Arabic paragraph', async ({
     page,
   }) => {
-    await page.goto('/ar/p/mercedes-benz-s-class');
-    const price = page.getByText('125,000.00').first();
+    await page.goto('/ar/p/essential-crew-neck-tee');
+    const price = page.getByText('59.00').first();
     await expect(price).toHaveCSS('direction', 'ltr');
   });
 });
@@ -35,10 +35,10 @@ test.describe('storefront — SEO', () => {
   test('product page has canonical + full hreflang alternates including x-default', async ({
     page,
   }) => {
-    await page.goto('/ar/p/mercedes-benz-s-class');
+    await page.goto('/ar/p/essential-crew-neck-tee');
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       'href',
-      /\/ar\/p\/mercedes-benz-s-class$/,
+      /\/ar\/p\/essential-crew-neck-tee$/,
     );
     await expect(page.locator('link[rel="alternate"][hreflang="ar"]')).toHaveCount(1);
     await expect(page.locator('link[rel="alternate"][hreflang="en"]')).toHaveCount(1);
@@ -46,7 +46,7 @@ test.describe('storefront — SEO', () => {
   });
 
   test('product page carries Product and BreadcrumbList JSON-LD', async ({ page }) => {
-    await page.goto('/ar/p/mercedes-benz-s-class');
+    await page.goto('/ar/p/essential-crew-neck-tee');
     const blocks = await page.locator('script[type="application/ld+json"]').allTextContents();
     const parsed = blocks.map((b) => JSON.parse(b));
     expect(parsed.some((d) => d['@type'] === 'Product' && d.offers?.priceCurrency === 'SAR')).toBe(
@@ -56,7 +56,7 @@ test.describe('storefront — SEO', () => {
   });
 
   test('search results are marked noindex', async ({ page }) => {
-    await page.goto('/ar/search?q=tesla');
+    await page.goto('/ar/search?q=abaya');
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
   });
 
@@ -64,7 +64,7 @@ test.describe('storefront — SEO', () => {
     const response = await request.get('/sitemap.xml');
     expect(response.status()).toBe(200);
     const body = await response.text();
-    expect(body).toContain('/ar/p/mercedes-benz-s-class');
+    expect(body).toContain('/ar/p/essential-crew-neck-tee');
     expect(body).toContain('hreflang="x-default"');
   });
 

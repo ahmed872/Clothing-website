@@ -41,6 +41,9 @@ export interface EmailCopy {
    * lookup, just echoed into the markup. */
   htmlLang: string;
   dir: 'rtl' | 'ltr';
+  /** The store's own name, from Settings: the wordmark in the email's header
+   * and the sender's display name. */
+  brandName: string;
   subject: string;
   heading: string;
   greeting: string;
@@ -55,8 +58,7 @@ export interface EmailCopy {
 
 /** Brand color matches `StoreSettings.brandColor`'s own seeded default
  * (`#0D1B2A`) — the one place outside admin settings this app's brand navy
- * is spelled out literally, same as the hardcoded "LuxeDrive" wordmark
- * already used in the admin shell header. */
+ * is spelled out literally. */
 const BRAND_COLOR = '#0D1B2A';
 
 function renderHtml(copy: EmailCopy, ctaUrl: string): string {
@@ -74,7 +76,7 @@ function renderHtml(copy: EmailCopy, ctaUrl: string): string {
 <tr><td align="center">
 <table role="presentation" width="100%" style="max-width:480px;background-color:#FFFFFF;border-radius:8px;overflow:hidden;" cellpadding="0" cellspacing="0">
 <tr><td style="background-color:${BRAND_COLOR};padding:20px 24px;text-align:${align};">
-<span style="color:#FFFFFF;font-size:18px;font-weight:bold;">LuxeDrive</span>
+<span style="color:#FFFFFF;font-size:18px;font-weight:bold;">${escapeHtml(copy.brandName)}</span>
 </td></tr>
 <tr><td style="padding:32px 24px;text-align:${align};color:#111827;">
 <h1 style="margin:0 0 16px;font-size:20px;line-height:1.4;">${escapeHtml(copy.heading)}</h1>
@@ -131,6 +133,7 @@ function build(input: BuildEmailInput): EmailMessage {
   return {
     to: input.to,
     toName: input.toName,
+    fromName: input.copy.brandName,
     subject: input.copy.subject,
     html: renderHtml(input.copy, input.ctaUrl),
     text: renderText(input.copy, input.ctaUrl),

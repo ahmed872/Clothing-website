@@ -8,7 +8,7 @@
  * (P09 §23). A custom event keeps the layout static and the badge live.
  */
 
-export const CART_CHANGED_EVENT = 'luxedrive:cart-changed';
+export const CART_CHANGED_EVENT = 'clothing:cart-changed';
 
 export function notifyCartChanged(): void {
   if (typeof window === 'undefined') return;

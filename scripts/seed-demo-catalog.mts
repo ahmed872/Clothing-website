@@ -1,70 +1,36 @@
 /**
- * Seeds the demo catalog: `scripts/data/demo-catalog.json` → the catalog domain.
+ * Seeds the demo clothing catalog: `scripts/data/demo-catalog.json` → the
+ * catalog domain.
  *
- * The data started life as the original Vite app's `cars.json`, but that
- * application no longer lives in this repository (it was archived to its own
- * repo when the rebuild was finished). The file is now the new app's own
- * demo fixture and nothing here reaches outside `scripts/`.
+ * What it creates, all through the catalog's own services:
+ *   - the categories (Women, Men, Kids), each with the clothing attribute
+ *     definitions (material, fit) marked filterable;
+ *   - the brands;
+ *   - every product as a DRAFT, with a Color × Size option matrix and one
+ *     variant per combination — price, stock and SKU on the variant, the
+ *     same shape the admin's own product form produces;
+ *   - one image per colour, uploaded from `scripts/data/demo-images/`
+ *     through whichever storage provider `STORAGE_PROVIDER` configures
+ *     (local disk or S3), plus the homepage hero image.
  *
- * Every car becomes: Category = "Cars" (created once), a Brand (created once
- * per distinct brand name), a Product, and that product's one required
- * default Variant — exactly the shape every other kind of product goes
- * through too. Nothing here is car-specific at the schema or service level;
- * what makes these "cars" is entirely the AttributeDefinition rows created
- * on the Cars category below.
+ * `db:seed-storefront-demo` then publishes the products and builds the
+ * homepage around them.
  *
  * Run with: pnpm db:seed-demo-catalog
  *
- * Idempotent by refusal, not by silent skipping: if a "cars" category
- * already exists, the script stops immediately rather than risk a partial
- * double-import. Clear the catalog tables first (or point DATABASE_URL at a
- * fresh database) to re-run it.
+ * Idempotent by refusal, not by silent skipping: if any demo category
+ * already exists, the script stops before writing anything rather than risk
+ * a partial double-import. Clear the catalog tables first (or point
+ * DATABASE_URL at a fresh database) to re-run it.
  *
  * `.mts` (not `.ts`) for top-level await; `NODE_OPTIONS=--conditions=react-server`
  * (set in the `db:seed-demo-catalog` script) so `server-only` in `db.ts` resolves to
  * its no-op — Node's own condition mechanism, not a bundler trick, and the
  * exact same real-server context that condition is meant to describe: this
  * script only ever runs in Node, never a browser.
- *
- * ---------------------------------------------------------------------------
- * Field mapping (legacy key → new model), and the one documented gap
- * ---------------------------------------------------------------------------
- *   id           → dropped. It was the array index in the legacy JSON file,
- *                  not business data — nothing in the new schema references
- *                  it, and no field in the mapping list below needed it.
- *   name         → Product.nameEn, and Product.nameAr (see gap below)
- *   model        → not in the phase's explicit field list, but real data —
- *                  added as an extra Cars attribute (`model`, TEXT) rather
- *                  than dropped, so no source field is lost.
- *   brand        → Brand.nameEn / Brand.nameAr (see gap below), matched or
- *                  created once per distinct value, then Product.brandId
- *   year         → Cars attribute `year` (NUMBER)
- *   price        → Variant.priceMinor (source treated as SAR major units:
- *                  125000 → 12,500,000 halalas)
- *   fuelType     → Cars attribute `fuel_type` (SELECT)
- *   transmission → Cars attribute `transmission` (SELECT)
- *   engine       → Cars attribute `engine` (TEXT)
- *   mileage      → Cars attribute `mileage` (NUMBER, unit km)
- *   color        → Cars attribute `color` (TEXT — paint names are too varied
- *                  for a closed SELECT list)
- *   seating      → Cars attribute `seating` (NUMBER)
- *   description  → Product.descriptionEn / Product.descriptionAr (see gap)
- *   images       → MediaAsset (storageKey = the source URL — a real upload
- *                  pipeline is P04; referencing the existing URLs directly
- *                  is the "MediaAsset reference only when needed" P03 allows)
- *                  + ProductImage, first image marked primary
- *   featured     → Product.featured
- *
- *   GAP — no Arabic source content: the legacy data is English-only. nameAr,
- *   descriptionAr and every Brand's/attribute's Arabic label are *not*
- *   translations — they are the English source text copied verbatim,
- *   because inventing a translation would be fabricating data, not migrating
- *   it, and those columns are NOT NULL so leaving them empty isn't an option
- *   either. Flagged again in the summary this script prints; it belongs to a
- *   content/localization task outside P03's scope (domain, not editorial
- *   judgment).
  */
 
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
@@ -79,239 +45,292 @@ loadDotenv({ path: process.env.NODE_ENV === 'test' ? '.env.test' : '.env', quiet
 const {
   createCategory,
   getCategoryBySlug,
+  updateCategory,
   createBrand,
-  getBrandBySlug,
   createAttributeDefinition,
   createProduct,
-  getProductBySlug,
-  ensureUniqueSlug,
   generateSku,
 } = await import('../src/modules/catalog/index.js');
 const { db } = await import('../src/modules/core/index.js');
+const { getStorageProvider } = await import('../src/modules/media/provider-factory.js');
+const { sniffImage } = await import('../src/modules/media/validation.js');
 
-interface LegacyCar {
-  id: number;
-  name: string;
-  brand: string;
-  model: string;
-  year: number;
-  price: number;
-  fuelType: string;
-  transmission: string;
-  engine: string;
-  mileage: number;
-  color: string;
-  seating: number;
-  description: string;
-  images: string[];
-  featured: boolean;
+interface Localized {
+  en: string;
+  ar: string;
 }
 
-const LEGACY_CAR_FIELDS = [
-  'id',
-  'name',
-  'brand',
-  'model',
-  'year',
-  'price',
-  'fuelType',
-  'transmission',
-  'engine',
-  'mileage',
-  'color',
-  'seating',
-  'description',
-  'images',
-  'featured',
-] as const;
+interface DemoColor extends Localized {
+  hex: string;
+}
 
-const dataPath = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  'data/demo-catalog.json',
-);
+interface DemoProduct {
+  slug: string;
+  skuPrefix: string;
+  category: string;
+  brand: string;
+  nameAr: string;
+  nameEn: string;
+  descriptionAr: string;
+  descriptionEn: string;
+  featured: boolean;
+  attributes: Record<string, string>;
+  price: number;
+  garment: string;
+  sizes: string;
+  stockBySize?: Record<string, number>;
+  colors: DemoColor[];
+}
+
+interface DemoCatalog {
+  categories: {
+    slug: string;
+    nameAr: string;
+    nameEn: string;
+    descriptionAr: string;
+    descriptionEn: string;
+    seoTitleAr: string;
+    seoTitleEn: string;
+    seoDescriptionAr: string;
+    seoDescriptionEn: string;
+    /** `<product slug>-<colour slug>`: whose image the category card shows. */
+    image: string;
+  }[];
+  attributes: {
+    key: string;
+    labelAr: string;
+    labelEn: string;
+    type: 'SELECT';
+    allowedValues: string[];
+    required: boolean;
+    filterable: boolean;
+  }[];
+  brands: { slug: string; nameAr: string; nameEn: string }[];
+  sizeSets: Record<string, Localized[]>;
+  products: DemoProduct[];
+}
+
+const PRODUCT_FIELDS = [
+  'slug',
+  'skuPrefix',
+  'category',
+  'brand',
+  'nameAr',
+  'nameEn',
+  'descriptionAr',
+  'descriptionEn',
+  'featured',
+  'attributes',
+  'price',
+  'garment',
+  'sizes',
+  'stockBySize',
+  'colors',
+];
+
+/** Units per variant unless `stockBySize` says otherwise. */
+const DEFAULT_STOCK = 12;
+/** At or below this, the storefront says "only a few left". */
+const LOW_STOCK_THRESHOLD = 3;
+/** Where the uploaded demo files live in storage — `seed-storefront-demo`
+ * finds the hero image again at `media/demo/hero.webp`. */
+const DEMO_MEDIA_PREFIX = 'media/demo/';
+
+const here = path.dirname(fileURLToPath(import.meta.url));
+const dataPath = path.join(here, 'data/demo-catalog.json');
+const imagesDir = path.join(here, 'data/demo-images');
+
+const imageKey = (productSlug: string, color: Localized) =>
+  `${productSlug}-${color.en.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+
+/** Fails before any write, naming every problem, rather than halfway through. */
+function validate(catalog: DemoCatalog): void {
+  const problems: string[] = [];
+  const categories = new Set(catalog.categories.map((c) => c.slug));
+  const brands = new Set(catalog.brands.map((b) => b.slug));
+  const attributeKeys = new Set(catalog.attributes.map((a) => a.key));
+
+  for (const product of catalog.products) {
+    const where = `Product "${product.slug}"`;
+    const unknown = Object.keys(product).filter((key) => !PRODUCT_FIELDS.includes(key));
+    if (unknown.length > 0) problems.push(`${where} has unmapped field(s): ${unknown.join(', ')}`);
+    if (!categories.has(product.category))
+      problems.push(`${where}: unknown category ${product.category}`);
+    if (!brands.has(product.brand)) problems.push(`${where}: unknown brand ${product.brand}`);
+    if (!catalog.sizeSets[product.sizes])
+      problems.push(`${where}: unknown size set ${product.sizes}`);
+    for (const key of Object.keys(product.attributes)) {
+      if (!attributeKeys.has(key)) problems.push(`${where}: unknown attribute ${key}`);
+    }
+    for (const color of product.colors) {
+      try {
+        readFileSync(path.join(imagesDir, `${imageKey(product.slug, color)}.webp`));
+      } catch {
+        problems.push(`${where}: no image for ${color.en} — run \`pnpm demo:images\``);
+      }
+    }
+  }
+
+  if (problems.length > 0) {
+    throw new Error(`demo-catalog.json is not valid:\n  - ${problems.join('\n  - ')}`);
+  }
+}
+
+/** Uploads one file from `demo-images/` and records it as a MediaAsset. */
+async function uploadImage(file: string, altAr: string, altEn: string): Promise<string> {
+  const provider = getStorageProvider();
+  const buffer = readFileSync(path.join(imagesDir, file));
+  const sniffed = await sniffImage(buffer);
+  if (!sniffed) throw new Error(`${file} is not a valid JPEG, PNG or WebP image`);
+
+  // Same bytes, same asset — the platform's content-hash rule
+  // (`confirmUpload`, `migrate-media`), and `contentHash` is unique.
+  const contentHash = createHash('sha256').update(buffer).digest('hex');
+  const existing = await db.mediaAsset.findUnique({ where: { contentHash } });
+  if (existing) return existing.id;
+
+  const storageKey = `${DEMO_MEDIA_PREFIX}${file}`;
+  await provider.putObjectBuffer(storageKey, buffer, sniffed.mime);
+  const asset = await db.mediaAsset.create({
+    data: {
+      provider: provider.name,
+      storageKey,
+      contentHash,
+      mime: sniffed.mime,
+      sizeBytes: buffer.byteLength,
+      width: sniffed.width,
+      height: sniffed.height,
+      altAr,
+      altEn,
+    },
+  });
+  return asset.id;
+}
 
 async function main() {
-  const cars: LegacyCar[] = JSON.parse(readFileSync(dataPath, 'utf-8'));
-  console.log(`Read ${cars.length} cars from ${path.relative(process.cwd(), dataPath)}`);
+  const catalog: DemoCatalog = JSON.parse(readFileSync(dataPath, 'utf-8'));
+  console.log(
+    `Read ${catalog.products.length} products from ${path.relative(process.cwd(), dataPath)}`,
+  );
+  validate(catalog);
 
-  // Fail loudly on a field the mapping above doesn't account for, rather
-  // than silently dropping it — the phase's own instruction.
-  for (const car of cars) {
-    const unknown = Object.keys(car).filter(
-      (key) => !(LEGACY_CAR_FIELDS as readonly string[]).includes(key),
-    );
-    if (unknown.length > 0) {
-      throw new Error(
-        `Car #${car.id} has unmapped field(s): ${unknown.join(', ')}. Stopping — see the mapping table at the top of this script.`,
+  for (const category of catalog.categories) {
+    if (await getCategoryBySlug(category.slug)) {
+      console.error(
+        `A "${category.slug}" category already exists — refusing to run again to avoid a partial double-import.`,
       );
+      console.error('Clear the catalog tables (or use a fresh database) and re-run.');
+      process.exitCode = 1;
+      return;
     }
   }
 
-  const existingCars = await getCategoryBySlug('cars');
-  if (existingCars) {
-    console.error(
-      'A "cars" category already exists — refusing to run again to avoid a partial double-import.',
-    );
-    console.error('Clear the catalog tables (or use a fresh database) and re-run.');
-    process.exitCode = 1;
-    return;
-  }
-
-  const category = await createCategory({ slug: 'cars', nameAr: 'Cars', nameEn: 'Cars' });
-  console.log(`Created category: ${category.nameEn} (${category.id})`);
-
-  const attributeDefs: {
-    key: string;
-    labelEn: string;
-    type: 'TEXT' | 'NUMBER' | 'SELECT';
-    unit?: string;
-    allowedValues?: string[];
-    displayOrder: number;
-  }[] = [
-    {
-      key: 'fuel_type',
-      labelEn: 'Fuel type',
-      type: 'SELECT',
-      allowedValues: ['Petrol', 'Diesel', 'Hybrid', 'Electric'],
-      displayOrder: 1,
-    },
-    {
-      key: 'transmission',
-      labelEn: 'Transmission',
-      type: 'SELECT',
-      allowedValues: ['Automatic', 'Manual'],
-      displayOrder: 2,
-    },
-    { key: 'engine', labelEn: 'Engine', type: 'TEXT', displayOrder: 3 },
-    { key: 'mileage', labelEn: 'Mileage', type: 'NUMBER', unit: 'km', displayOrder: 4 },
-    { key: 'seating', labelEn: 'Seating', type: 'NUMBER', displayOrder: 5 },
-    { key: 'color', labelEn: 'Color', type: 'TEXT', displayOrder: 6 },
-    { key: 'year', labelEn: 'Year', type: 'NUMBER', displayOrder: 7 },
-    { key: 'model', labelEn: 'Model', type: 'TEXT', displayOrder: 8 },
-  ];
-  for (const def of attributeDefs) {
-    await createAttributeDefinition({
-      categoryId: category.id,
-      key: def.key,
-      labelAr: def.labelEn, // same documented gap as product/brand names
-      labelEn: def.labelEn,
-      type: def.type,
-      unit: def.unit,
-      allowedValues: def.allowedValues,
-      required: true,
+  // Categories, each carrying the clothing attributes.
+  const categoryIds = new Map<string, string>();
+  for (const [position, input] of catalog.categories.entries()) {
+    const category = await createCategory({
+      slug: input.slug,
+      nameAr: input.nameAr,
+      nameEn: input.nameEn,
+      descriptionAr: input.descriptionAr,
+      descriptionEn: input.descriptionEn,
+      seoTitleAr: input.seoTitleAr,
+      seoTitleEn: input.seoTitleEn,
+      seoDescriptionAr: input.seoDescriptionAr,
+      seoDescriptionEn: input.seoDescriptionEn,
+      position,
     });
-  }
-  console.log(`Created ${attributeDefs.length} attribute definitions on Cars`);
-
-  const brandCache = new Map<string, string>(); // brand name -> Brand.id
-  const mediaCache = new Map<string, string>(); // image URL -> MediaAsset.id
-  let brandsCreated = 0;
-  let productsCreated = 0;
-  let mediaAssetsCreated = 0;
-  let imagesCreated = 0;
-
-  for (const car of cars) {
-    let brandId = brandCache.get(car.brand);
-    if (!brandId) {
-      const slug = await ensureUniqueSlug(car.brand, async (candidate: string) =>
-        Boolean(await getBrandBySlug(candidate)),
-      );
-      const brand = await createBrand({ slug, nameAr: car.brand, nameEn: car.brand });
-      brandId = brand.id;
-      brandCache.set(car.brand, brandId);
-      brandsCreated += 1;
+    categoryIds.set(input.slug, category.id);
+    for (const [displayOrder, attribute] of catalog.attributes.entries()) {
+      await createAttributeDefinition({ categoryId: category.id, ...attribute, displayOrder });
     }
+  }
+  console.log(`Created ${catalog.categories.length} categories with their attributes`);
 
-    // `name` already includes the brand for every car but one ("Range Rover
-    // Autobiography" under brand "Land Rover" — the marketing name and the
-    // corporate brand differ, which does happen in this industry); prefixing
-    // the brand unconditionally would give 11 of 12 products a redundant
-    // slug like "audi-audi-a8".
-    const slug = await ensureUniqueSlug(car.name, async (candidate: string) =>
-      Boolean(await getProductBySlug(candidate)),
+  const brandIds = new Map<string, string>();
+  for (const input of catalog.brands) {
+    const brand = await createBrand(input);
+    brandIds.set(input.slug, brand.id);
+  }
+  console.log(`Created ${catalog.brands.length} brands`);
+
+  const mediaIds = new Map<string, string>(); // image key -> MediaAsset.id
+  let variantsCreated = 0;
+
+  for (const product of catalog.products) {
+    const sizes = catalog.sizeSets[product.sizes]!;
+    const variants = product.colors.flatMap((color) =>
+      sizes.map((size) => ({
+        sku: generateSku(product.skuPrefix, color.en, size.en),
+        priceMinor: Math.round(product.price * 100),
+        stockQuantity: product.stockBySize?.[size.en] ?? DEFAULT_STOCK,
+        lowStockThreshold: LOW_STOCK_THRESHOLD,
+        optionValues: [
+          { optionNameEn: 'Color', valueEn: color.en },
+          { optionNameEn: 'Size', valueEn: size.en },
+        ],
+      })),
     );
 
-    const product = await createProduct({
+    const created = await createProduct({
       product: {
-        slug,
-        nameAr: car.name,
-        nameEn: car.name,
-        descriptionAr: car.description,
-        descriptionEn: car.description,
-        categoryId: category.id,
-        brandId,
-        featured: car.featured,
-        attributes: {
-          fuel_type: car.fuelType,
-          transmission: car.transmission,
-          engine: car.engine,
-          mileage: car.mileage,
-          seating: car.seating,
-          color: car.color,
-          year: car.year,
-          model: car.model,
-        },
+        slug: product.slug,
+        nameAr: product.nameAr,
+        nameEn: product.nameEn,
+        descriptionAr: product.descriptionAr,
+        descriptionEn: product.descriptionEn,
+        categoryId: categoryIds.get(product.category)!,
+        brandId: brandIds.get(product.brand)!,
+        featured: product.featured,
+        attributes: product.attributes,
       },
-      variants: [
+      options: [
         {
-          sku: generateSku(car.brand, car.name, car.year),
-          priceMinor: Math.round(car.price * 100),
-          stockQuantity: 1,
+          nameAr: 'اللون',
+          nameEn: 'Color',
+          values: product.colors.map((c) => ({ valueAr: c.ar, valueEn: c.en })),
+        },
+        {
+          nameAr: 'المقاس',
+          nameEn: 'Size',
+          values: sizes.map((s) => ({ valueAr: s.ar, valueEn: s.en })),
         },
       ],
+      // `position` in list order, so the first colour in its first size is
+      // the variant the product page opens on.
+      variants: variants.map((variant, position) => ({ ...variant, position })),
     });
-    productsCreated += 1;
+    variantsCreated += created.variants.length;
 
-    // The legacy dataset reuses the same handful of stock photos across many
-    // cars (and, in a couple of cases, twice within one car's own `images`
-    // array) — 36 image references resolve to only 15 distinct URLs. A
-    // `storageKey` is a real, unique identifier for the underlying asset, so
-    // the same URL is the same MediaAsset everywhere it appears, not a fresh
-    // row per reference; `@@unique([productId, mediaId])` also means each
-    // product can only reference a given asset once, so a repeat within one
-    // car's own list is de-duplicated too (first occurrence wins the
-    // position/primary flag).
-    const uniqueUrls = [...new Set(car.images)];
-
-    for (const [index, url] of uniqueUrls.entries()) {
-      let mediaId = mediaCache.get(url);
-      if (!mediaId) {
-        const media = await db.mediaAsset.create({
-          data: {
-            storageKey: url,
-            mime: 'image/jpeg',
-            // Real dimensions/size require fetching or processing the
-            // asset, which is P04's job (full media implementation), not
-            // this reference-only migration's.
-            sizeBytes: 0,
-            altAr: car.name,
-            altEn: car.name,
-          },
-        });
-        mediaId = media.id;
-        mediaCache.set(url, mediaId);
-        mediaAssetsCreated += 1;
-      }
+    for (const [position, color] of product.colors.entries()) {
+      const key = imageKey(product.slug, color);
+      const mediaId = await uploadImage(
+        `${key}.webp`,
+        `${product.nameAr} — ${color.ar}`,
+        `${product.nameEn} — ${color.en}`,
+      );
+      mediaIds.set(key, mediaId);
       await db.productImage.create({
-        data: { productId: product.id, mediaId, position: index, isPrimary: index === 0 },
+        data: { productId: created.id, mediaId, position, isPrimary: position === 0 },
       });
-      imagesCreated += 1;
     }
   }
+  console.log(`Created ${catalog.products.length} products, ${variantsCreated} variants`);
 
-  console.log('\n--- Migration summary ---');
-  console.log(`Categories created: 1 (Cars)`);
-  console.log(`Attribute definitions created: ${attributeDefs.length}`);
-  console.log(`Brands created: ${brandsCreated}`);
-  console.log(`Products created: ${productsCreated}`);
-  console.log(`Default variants created: ${productsCreated} (one per product)`);
-  console.log(`Media assets created (deduplicated by URL): ${mediaAssetsCreated}`);
-  console.log(`Product image links created: ${imagesCreated}`);
-  console.log(
-    "\nKnown gap: nameAr/descriptionAr (products), nameAr (brands) and every attribute's " +
-      'labelAr are the English source text, not a translation — see the docstring at the ' +
-      'top of this file. Everything else maps 1:1 with no data loss.',
+  for (const category of catalog.categories) {
+    const imageMediaId = mediaIds.get(category.image);
+    if (imageMediaId) await updateCategory(categoryIds.get(category.slug)!, { imageMediaId });
+  }
+
+  await uploadImage(
+    'hero.webp',
+    'ثوب وعباية وفستان أطفال معلّقة على علّاقة ملابس',
+    'A thobe, an abaya and a girls’ dress hanging on a clothes rail',
   );
+  console.log(
+    `Uploaded ${mediaIds.size + 1} images via the "${getStorageProvider().name}" provider`,
+  );
+  console.log('\nDone. Next: pnpm db:seed-storefront-demo (publishes and builds the homepage).');
 }
 
 await main();

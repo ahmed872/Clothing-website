@@ -1,173 +1,113 @@
 /**
- * P05 demo content — every write here goes through a sanctioned domain
- * service (`publishProduct`, `updateProduct`, `updateCategory`,
- * `updateAttributeDefinition`) or, where P03/P05 built no write service yet
- * (`StoreSettings`, `HomepageSection`, and one `Variant.salePriceMinor`
- * demo), a direct Prisma write — the same precedent `scripts/migrate-cars.mts`
- * set for `MediaAsset`/`ProductImage`. Nothing here fabricates business data:
- * every product, price, and attribute value is P03's real migrated data;
- * this script only (a) puts it in the state a real store owner would set it
- * to (published, properly filterable) and (b) completes the Arabic
- * translation P03's own migration explicitly deferred — see
- * `migrate-cars.mts`'s documented "GAP — no Arabic source content" note.
+ * Demo storefront content, on top of the catalog `db:seed-demo-catalog`
+ * created: publishes every demo product, puts one on sale, writes the store's
+ * settings row (only if there is none yet) and builds the homepage.
+ *
+ * Product writes go through the catalog's services (`publishProduct`);
+ * `StoreSettings`, `HomepageSection` and the sale price are direct Prisma
+ * writes, as they were before this became a clothing store — the admin has
+ * its own screens for all three, and a seed that fills them in once does not
+ * need a second write path.
  *
  * Run with: pnpm db:seed-storefront-demo
  *
- * Idempotent for products/category/attributes (re-running just re-applies
- * the same values). HomepageSections are reset and recreated each run —
- * this is demo/seed content, not production data a real admin authored.
+ * Re-runnable: publishing and the sale are re-applied, the settings row is
+ * left alone once it exists, and the homepage sections are reset and
+ * recreated each run — this is demo content, not something an admin wrote.
  */
+
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 
 import { config as loadDotenv } from 'dotenv';
 
 loadDotenv({ path: process.env.NODE_ENV === 'test' ? '.env.test' : '.env', quiet: true });
 
-const {
-  getCategoryBySlug,
-  updateCategory,
-  updateAttributeDefinition,
-  listAttributeDefinitions,
-  getProductBySlug,
-  updateProduct,
-  publishProduct,
-} = await import('../src/modules/catalog/index.js');
+const { getCategoryBySlug, getProductBySlug, publishProduct } =
+  await import('../src/modules/catalog/index.js');
 const { db } = await import('../src/modules/core/index.js');
 
+const here = path.dirname(fileURLToPath(import.meta.url));
+const catalog: { categories: { slug: string }[]; products: { slug: string }[] } = JSON.parse(
+  readFileSync(path.join(here, 'data/demo-catalog.json'), 'utf-8'),
+);
+
+/** The one demo product on sale, and by how much. */
+const SALE_PRODUCT_SLUG = 'slim-fit-jeans';
+const SALE_PERCENT = 20;
+const HERO_LINK = '/c/women';
+
 // ---------------------------------------------------------------------------
-// 1. Category: a real Arabic name (P03 left this as English-copied-verbatim)
+// 1. Publish every demo product
 // ---------------------------------------------------------------------------
 
-const category = await getCategoryBySlug('cars');
-if (!category) {
-  console.error('No "cars" category found — run `pnpm db:migrate-cars` first.');
-  process.exit(1);
+const categoryIds: string[] = [];
+for (const { slug } of catalog.categories) {
+  const category = await getCategoryBySlug(slug);
+  if (!category) {
+    console.error(`No "${slug}" category found — run \`pnpm db:seed-demo-catalog\` first.`);
+    process.exit(1);
+  }
+  categoryIds.push(category.id);
 }
 
-await updateCategory(category.id, {
-  nameAr: 'سيارات',
-  descriptionAr: 'مجموعة مختارة من السيارات الفاخرة من أرقى العلامات التجارية العالمية.',
-  descriptionEn:
-    category.descriptionEn ?? 'A curated selection of luxury cars from the world’s finest brands.',
-  seoTitleAr: 'سيارات فاخرة للبيع | لوكس درايف',
-  seoTitleEn: 'Luxury Cars for Sale | LuxeDrive',
-  seoDescriptionAr:
-    'تصفّح مجموعتنا من السيارات الفاخرة الجديدة — مرسيدس، بي إم دبليو، بورشه، رولز-رويس، والمزيد.',
-  seoDescriptionEn:
-    'Browse our collection of new luxury cars — Mercedes-Benz, BMW, Porsche, Rolls-Royce, and more.',
-});
-console.log('✓ Category "cars": Arabic name/description/SEO set');
-
-// ---------------------------------------------------------------------------
-// 2. Filterable attributes — fuel type and transmission are the two that
-//    make sense as faceted filters for this category; year/mileage/etc.
-//    stay non-filterable (a NUMBER facet needs range-bucket UI this phase
-//    doesn't build, not a two-value checkbox list).
-// ---------------------------------------------------------------------------
-
-const definitions = await listAttributeDefinitions(category.id);
-for (const key of ['fuel_type', 'transmission']) {
-  const definition = definitions.find((d) => d.key === key);
-  if (!definition) continue;
-  await updateAttributeDefinition(definition.id, { filterable: true });
-}
-console.log('✓ Attribute definitions: fuel_type, transmission marked filterable');
-
-// ---------------------------------------------------------------------------
-// 3. Real Arabic product descriptions — completing P03's documented gap.
-//    Faithful translations of each product's real English description,
-//    not new marketing copy.
-// ---------------------------------------------------------------------------
-
-const productDescriptionsAr: Record<string, string> = {
-  'audi-a8':
-    'يجمع أودي A8 بين التصميم الأنيق والتقنية المبتكرة. استمتع بالمقصورة الداخلية الواسعة، ونظام الدفع الرباعي كواترو، ونظام المعلومات والترفيه المتطور.',
-  'bentley-flying-spur':
-    'تمثل بنتلي فلاينج سبير قمة الفخامة المصنوعة يدويًا. كل تفصيلة مصممة بعناية فائقة لتوفير تجربة قيادة لا مثيل لها.',
-  'bmw-7-series':
-    'استمتع بالمزيج المثالي بين الأداء والفخامة مع بي إم دبليو الفئة السابعة. أنظمة مساعدة السائق المتقدمة والمقصورة الداخلية الراقية تجعل كل رحلة استثنائية.',
-  'cadillac-ct6':
-    'تقدم كاديلاك CT6 بلاتينيوم الفخامة الأمريكية مع تقنيات متقدمة. مقصورتها الواسعة وقيادتها السلسة تجعلها مثالية للرحلات الطويلة.',
-  'jaguar-xj':
-    'جاكوار XJ بيان صريح للفخامة والأناقة البريطانية. بتصميمها المميز ومحركها القوي، تتميز في أي مكان.',
-  'lexus-ls-500':
-    'تقدم لكزس LS 500 راحة استثنائية وموثوقية عالية. نظام الدفع الهجين يضمن الكفاءة دون التضحية بالأداء.',
-  'maserati-quattroporte':
-    'تجمع مازيراتي كواتروبورتي تروفيو بين الشغف الإيطالي والأداء العالي. صوت العادم المميز والتصميم الأنيق يجعلانها استثنائية حقًا.',
-  'mercedes-benz-s-class':
-    'قمة الفخامة والتقنية، تقدم مرسيدس-بنز الفئة S راحة لا مثيل لها، وأنظمة أمان متطورة، ونظام دفع هجين قوي وفعّال.',
-  'porsche-panamera':
-    'تقدم بورشه باناميرا أداء السيارات الرياضية في هيكل سيدان فاخر. بمحركها القوي وتحكمها الدقيق، إنها حلم كل سائق.',
-  'range-rover-autobiography':
-    'تقدم رينج روفر أوتوبيوجرافي الفخامة والقدرة معًا. سواء على الطريق أو خارجه، تمنحك حضورًا مهيبًا.',
-  'rolls-royce-ghost':
-    'رولز-رويس غوست هي تجسيد للتميز في صناعة السيارات. بحرفيتها المصنوعة حسب الطلب وأدائها الهادئ، إنها ملاذ متنقل على عجلات.',
-  'tesla-model-s':
-    'تسلا موديل S بلايد هي أسرع سيدان إنتاجية في العالم. بتسارعها الفوري وميزات القيادة الذاتية المتطورة، تعيد تعريف الفخامة الكهربائية.',
-};
-
-let translated = 0;
 let published = 0;
-const featuredSlugs: string[] = [];
-for (const [slug, descriptionAr] of Object.entries(productDescriptionsAr)) {
+for (const { slug } of catalog.products) {
   const product = await getProductBySlug(slug);
   if (!product) {
     console.warn(`  ! product "${slug}" not found — skipping`);
     continue;
   }
-  await updateProduct(product.id, { descriptionAr });
-  translated += 1;
   if (product.status !== 'PUBLISHED') {
     await publishProduct(product.id);
     published += 1;
   }
-  if (product.featured) featuredSlugs.push(slug);
 }
-console.log(`✓ ${translated} product Arabic descriptions set, ${published} newly published`);
+console.log(`✓ ${published} products newly published`);
 
 // ---------------------------------------------------------------------------
-// 4. One real demo discount — no write service exists yet for Variant
-//    fields (P03/P05 scope), so this is a direct Prisma write, exactly the
-//    precedent migrate-cars.mts set for MediaAsset/ProductImage. A real
-//    percentage off the product's own real price, not an invented one.
+// 2. One real discount, on every size and colour of one product
 // ---------------------------------------------------------------------------
 
-const saleProduct = await getProductBySlug('bmw-7-series');
+const saleProduct = await getProductBySlug(SALE_PRODUCT_SLUG);
 if (saleProduct) {
-  const variant = await db.variant.findFirst({ where: { productId: saleProduct.id } });
-  if (variant) {
-    const salePriceMinor = Math.round(variant.priceMinor * 0.9); // a real 10% off its own listed price
+  const variants = await db.variant.findMany({ where: { productId: saleProduct.id } });
+  for (const variant of variants) {
     await db.variant.update({
       where: { id: variant.id },
       data: {
         compareAtMinor: variant.priceMinor,
-        salePriceMinor,
+        salePriceMinor: Math.round((variant.priceMinor * (100 - SALE_PERCENT)) / 100),
         saleStartsAt: new Date(Date.now() - 24 * 60 * 60 * 1000),
         saleEndsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       },
     });
-    console.log('✓ BMW 7 Series: 10% demo sale price set (active for 30 days)');
   }
+  console.log(`✓ ${saleProduct.nameEn}: ${SALE_PERCENT}% off for 30 days`);
 }
 
 // ---------------------------------------------------------------------------
-// 5. StoreSettings — single row, created only if none exists yet.
+// 3. StoreSettings — single row, created only if none exists yet. The name
+//    and contact details are placeholders the owner replaces in Settings.
 // ---------------------------------------------------------------------------
 
 const existingSettings = await db.storeSettings.findFirst();
 if (!existingSettings) {
   await db.storeSettings.create({
     data: {
-      storeNameAr: 'لوكس درايف',
-      storeNameEn: 'LuxeDrive',
+      storeNameAr: 'متجر الملابس',
+      storeNameEn: 'Clothing Store',
       currency: 'SAR',
       defaultLocale: 'AR',
-      contact: { phone: '+966500000000', email: 'hello@luxedrive.sa' },
+      contact: { phone: '+966500000000', email: 'hello@example.com' },
       socialLinks: {},
       seoDefaults: {
-        titleAr: 'لوكس درايف — سيارات فاخرة',
-        titleEn: 'LuxeDrive — Luxury Cars',
-        descriptionAr: 'وجهتك للسيارات الفاخرة الجديدة في المملكة العربية السعودية.',
-        descriptionEn: 'Your destination for new luxury cars in Saudi Arabia.',
+        titleAr: 'متجر الملابس — أزياء نسائية ورجالية وللأطفال',
+        titleEn: 'Clothing Store — Women’s, Men’s and Kids’ Fashion',
+        descriptionAr: 'عبايات وأثواب وفساتين وملابس يومية للعائلة كلها، مع توصيل لباب البيت.',
+        descriptionEn:
+          'Abayas, thobes, dresses and everyday clothes for the whole family, delivered to your door.',
       },
       whatsappNumber: '+966500000000',
     },
@@ -178,18 +118,16 @@ if (!existingSettings) {
 }
 
 // ---------------------------------------------------------------------------
-// 6. HomepageSections — reset and recreated each run (demo content).
+// 4. HomepageSections — reset and recreated each run (demo content).
 // ---------------------------------------------------------------------------
 
 await db.homepageSection.deleteMany();
 
-const heroProduct = await getProductBySlug('mercedes-benz-s-class');
-const heroImage = heroProduct
-  ? await db.productImage.findFirst({ where: { productId: heroProduct.id, isPrimary: true } })
-  : null;
+const heroImage = await db.mediaAsset.findUnique({ where: { storageKey: 'media/demo/hero.webp' } });
 
 const featuredProducts = await db.product.findMany({
   where: { featured: true, status: 'PUBLISHED' },
+  orderBy: { createdAt: 'asc' },
   select: { id: true },
   take: 8,
 });
@@ -201,14 +139,14 @@ await db.homepageSection.create({
     position: position++,
     enabled: true,
     config: {
-      titleAr: 'اكتشف مجموعتنا من السيارات الفاخرة',
-      titleEn: 'Discover Our Luxury Car Collection',
-      subtitleAr: 'سيارات جديدة من أرقى العلامات التجارية العالمية، متوفرة الآن.',
-      subtitleEn: 'New cars from the world’s finest brands, available now.',
+      titleAr: 'تشكيلة الموسم الجديد',
+      titleEn: 'The New Season Collection',
+      subtitleAr: 'عبايات وأثواب وفساتين وقطع يومية للعائلة كلها.',
+      subtitleEn: 'Abayas, thobes, dresses and everyday pieces for the whole family.',
       ctaLabelAr: 'تسوّق الآن',
       ctaLabelEn: 'Shop Now',
-      ctaHref: '/c/cars',
-      ...(heroImage ? { imageMediaId: heroImage.mediaId } : {}),
+      ctaHref: HERO_LINK,
+      ...(heroImage ? { imageMediaId: heroImage.id } : {}),
     },
   },
 });
@@ -218,11 +156,7 @@ await db.homepageSection.create({
     type: 'FEATURED_CATEGORIES',
     position: position++,
     enabled: true,
-    config: {
-      titleAr: 'تسوّق حسب الفئة',
-      titleEn: 'Shop by Category',
-      categoryIds: [category.id],
-    },
+    config: { titleAr: 'تسوّق حسب الفئة', titleEn: 'Shop by Category', categoryIds },
   },
 });
 
@@ -233,10 +167,21 @@ if (featuredProducts.length > 0) {
       position: position++,
       enabled: true,
       config: {
-        titleAr: 'مميزة',
-        titleEn: 'Featured',
+        titleAr: 'الأكثر طلبًا',
+        titleEn: 'Most Loved',
         productIds: featuredProducts.map((p) => p.id),
       },
+    },
+  });
+}
+
+if (saleProduct) {
+  await db.homepageSection.create({
+    data: {
+      type: 'ACTIVE_OFFERS',
+      position: position++,
+      enabled: true,
+      config: { titleAr: 'عروض حالية', titleEn: 'On Sale Now', productIds: [saleProduct.id] },
     },
   });
 }
@@ -246,20 +191,9 @@ await db.homepageSection.create({
     type: 'NEW_ARRIVALS',
     position: position++,
     enabled: true,
-    config: { titleAr: 'وصل حديثًا', titleEn: 'New Arrivals', categoryId: category.id, limit: 8 },
+    config: { titleAr: 'وصل حديثًا', titleEn: 'New Arrivals', limit: 8 },
   },
 });
-
-if (saleProduct) {
-  await db.homepageSection.create({
-    data: {
-      type: 'ACTIVE_OFFERS',
-      position: position++,
-      enabled: true,
-      config: { titleAr: 'عروض حالية', titleEn: 'Active Offers', productIds: [saleProduct.id] },
-    },
-  });
-}
 
 await db.homepageSection.create({
   data: {
@@ -269,32 +203,32 @@ await db.homepageSection.create({
     config: {
       items: [
         {
-          icon: 'ShieldCheck',
-          titleAr: 'ضمان الجودة',
-          titleEn: 'Quality Guaranteed',
-          descriptionAr: 'كل سيارة تخضع لفحص شامل قبل العرض.',
-          descriptionEn: 'Every car undergoes a full inspection before listing.',
-        },
-        {
           icon: 'Truck',
-          titleAr: 'توصيل لباب المنزل',
-          titleEn: 'Doorstep Delivery',
-          descriptionAr: 'نوصّل سيارتك إلى عنوانك في جميع أنحاء المملكة.',
-          descriptionEn: 'We deliver your car anywhere in the Kingdom.',
+          titleAr: 'توصيل سريع',
+          titleEn: 'Fast Delivery',
+          descriptionAr: 'نوصّل طلبك إلى باب بيتك في جميع أنحاء المملكة.',
+          descriptionEn: 'Delivered to your door anywhere in the Kingdom.',
         },
         {
-          icon: 'CreditCard',
-          titleAr: 'خيارات دفع مرنة',
-          titleEn: 'Flexible Payment',
-          descriptionAr: 'خطط تمويل وتقسيط تناسب احتياجاتك.',
-          descriptionEn: 'Financing and installment plans to fit your needs.',
+          icon: 'RotateCcw',
+          titleAr: 'استبدال سهل',
+          titleEn: 'Easy Exchanges',
+          descriptionAr: 'المقاس ما ضبط؟ استبدله خلال 14 يومًا.',
+          descriptionEn: 'Wrong size? Exchange it within 14 days.',
+        },
+        {
+          icon: 'Lock',
+          titleAr: 'دفع آمن',
+          titleEn: 'Secure Payment',
+          descriptionAr: 'بياناتك محمية في كل خطوة من الدفع.',
+          descriptionEn: 'Your details are protected at every step of checkout.',
         },
         {
           icon: 'Headphones',
-          titleAr: 'دعم على مدار الساعة',
-          titleEn: '24/7 Support',
-          descriptionAr: 'فريقنا جاهز لمساعدتك في أي وقت.',
-          descriptionEn: 'Our team is ready to help, any time.',
+          titleAr: 'نساعدك تختار',
+          titleEn: 'Help Choosing',
+          descriptionAr: 'فريقنا يساعدك في اختيار المقاس المناسب.',
+          descriptionEn: 'Our team will help you find the right size.',
         },
       ],
     },
@@ -311,29 +245,29 @@ await db.homepageSection.create({
       titleEn: 'What Our Customers Say',
       items: [
         {
-          authorName: 'Faisal A.',
+          authorName: 'Noura S.',
           authorTitleAr: 'الرياض',
           authorTitleEn: 'Riyadh',
-          quoteAr: 'تجربة شراء سلسة من البداية للنهاية، والسيارة وصلت بحالة ممتازة.',
+          quoteAr: 'العباية وصلت بسرعة وخامتها أجمل من الصور، والمقاس مضبوط تمامًا.',
           quoteEn:
-            'A seamless buying experience from start to finish, and the car arrived in excellent condition.',
+            'The abaya arrived quickly, the fabric is even nicer than the photos, and the size was spot on.',
           rating: 5,
         },
         {
-          authorName: 'Noura S.',
+          authorName: 'Faisal A.',
           authorTitleAr: 'جدة',
           authorTitleEn: 'Jeddah',
-          quoteAr: 'مجموعة رائعة من السيارات الفاخرة وخدمة عملاء ممتازة.',
-          quoteEn: 'A wonderful selection of luxury cars and excellent customer service.',
+          quoteAr: 'ثوب مريح وخياطته ممتازة، وطلبت مقاسًا ثانيًا لأخي.',
+          quoteEn:
+            'A comfortable thobe with excellent stitching — I ordered a second one for my brother.',
           rating: 5,
         },
         {
-          authorName: 'Khalid M.',
+          authorName: 'Reem K.',
           authorTitleAr: 'الدمام',
           authorTitleEn: 'Dammam',
-          quoteAr: 'أسعار شفافة ومعلومات دقيقة عن كل سيارة — بالضبط ما كنت أبحث عنه.',
-          quoteEn:
-            'Transparent pricing and accurate details on every car — exactly what I was looking for.',
+          quoteAr: 'ملابس الأطفال ناعمة وتتحمّل الغسيل، واستبدلت مقاسًا بسهولة.',
+          quoteEn: 'The kids’ clothes are soft and wash well, and exchanging a size was easy.',
           rating: 4,
         },
       ],

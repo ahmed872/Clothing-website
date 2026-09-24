@@ -6,4 +6,4 @@
  * static, has no external input, and runs strictly before React attaches.
  * Shared by every root layout (`app/[locale]/layout.tsx`, `app/dev/layout.tsx`).
  */
-export const THEME_BOOTSTRAP = `(function(){try{var t=localStorage.getItem('luxedrive-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();`;
+export const THEME_BOOTSTRAP = `(function(){try{var t=localStorage.getItem('clothing-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();`;

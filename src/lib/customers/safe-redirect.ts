@@ -34,8 +34,8 @@ export function safeAccountRedirect(locale: Locale, raw: string | null | undefin
   // still interpret as a host change fails this even if the string checks
   // above somehow missed it.
   try {
-    const resolved = new URL(raw, 'https://luxedrive.internal');
-    if (resolved.origin !== 'https://luxedrive.internal') return fallback;
+    const resolved = new URL(raw, 'https://clothing.internal');
+    if (resolved.origin !== 'https://clothing.internal') return fallback;
     return `${resolved.pathname}${resolved.search}`;
   } catch {
     return fallback;

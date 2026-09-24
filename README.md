@@ -1,8 +1,17 @@
-# LuxeDrive
+# Clothing Store
 
-A production-grade, general-purpose e-commerce platform: the store owner runs
-the catalog, offers, orders and storefront content without a developer, and
-cars are one kind of product rather than the shape of the system.
+An online clothing store — women's, men's and kids' wear — in Arabic and
+English. The store owner runs the catalog, sizes and colours, offers,
+orders and homepage from the admin panel, without a developer.
+
+It started as a copy of the
+[luxeDrive](https://github.com/ahmed872/luxeDrive) storefront (the code
+behind sabermarket.vercel.app) and was then dedicated to clothing: the demo
+catalog is clothes with Color × Size variants, the store's name comes from
+its own Settings everywhere (including emails), and nothing in it is about
+cars any more. The platform underneath is unchanged — every product still
+goes through the same generic catalog, so the admin can add any garment
+without code.
 
 > **Status: code-complete, pending production provisioning.** The storefront,
 > the customer account, checkout, the payment boundary, the admin panel and
@@ -135,15 +144,21 @@ only on an HMAC-verified webhook. Server-only environment access is enforced
 by the build, and CI greps the client bundle for the database password on
 every push.
 
-## The application this replaced
+## The demo catalog
 
-The original Vite single-page app was archived to its own repository once
-the rebuild was complete; it is no longer part of this one. Its full
-history is still reachable here in the commits before the rebuild began.
+`scripts/data/demo-catalog.json` is the demo store: 16 products across
+Women, Men and Kids (abayas, thobes, dresses, tees, jeans, hoodies…), each
+with its colours and a size run, in Arabic and English, with material and
+fit as filterable attributes. `pnpm db:seed-demo-catalog` loads it and
+`pnpm db:seed-storefront-demo` publishes it, puts one product on sale and
+builds the homepage.
 
-Its `cars.json` survives as `scripts/data/demo-catalog.json`, the demo
-fixture `pnpm db:seed-demo-catalog` loads — the data outlived the
-application that shipped it.
+Its images are illustrations drawn from the same file by
+`pnpm demo:images` (`scripts/generate-demo-images.mts`) and committed under
+`scripts/data/demo-images/`, then uploaded through the configured storage
+provider when the catalog is seeded — so the demo needs no network access
+and no third-party image host. A real store replaces all of it with its own
+products and photos from `/admin/products`.
 
 ## Admin access
 

@@ -5,22 +5,24 @@ import { buildPasswordResetEmail, buildVerificationEmail, type EmailCopy } from 
 const AR_COPY: EmailCopy = {
   htmlLang: 'ar',
   dir: 'rtl',
-  subject: 'تأكيد بريدك الإلكتروني — LuxeDrive',
+  brandName: 'متجر الملابس',
+  subject: 'تأكيد بريدك الإلكتروني — متجر الملابس',
   heading: 'تأكيد بريدك الإلكتروني',
   greeting: 'مرحبًا أحمد،',
-  body: 'شكرًا لإنشاء حساب في LuxeDrive.',
+  body: 'شكرًا لإنشاء حساب في متجر الملابس.',
   ctaLabel: 'تأكيد البريد الإلكتروني',
   expiryNotice: 'ينتهي هذا الرابط خلال 24 ساعة.',
   ignoreNotice: 'إذا لم تُنشئ هذا الحساب، يمكنك تجاهل هذه الرسالة بأمان.',
   fallbackNotice: 'إذا لم يعمل الزر، انسخ الرابط التالي والصقه في متصفحك:',
-  footer: '© 2026 LuxeDrive. جميع الحقوق محفوظة.',
+  footer: '© 2026 متجر الملابس. جميع الحقوق محفوظة.',
   automatedNotice: 'هذه رسالة آلية، يرجى عدم الرد عليها.',
 };
 
 const EN_COPY: EmailCopy = {
   htmlLang: 'en',
   dir: 'ltr',
-  subject: 'Reset your password — LuxeDrive',
+  brandName: 'Clothing Store',
+  subject: 'Reset your password — Clothing Store',
   heading: 'Reset your password',
   greeting: 'Hi Ahmed,',
   body: 'We received a request to reset your password.',
@@ -28,7 +30,7 @@ const EN_COPY: EmailCopy = {
   expiryNotice: 'This link expires in 1 hour.',
   ignoreNotice: "If you didn't request this, ignore this email.",
   fallbackNotice: "If the button doesn't work, copy and paste this link:",
-  footer: '© 2026 LuxeDrive. All rights reserved.',
+  footer: '© 2026 Clothing Store. All rights reserved.',
   automatedNotice: 'This is an automated message.',
 };
 
@@ -37,7 +39,7 @@ describe('buildVerificationEmail', () => {
     const message = buildVerificationEmail({
       to: 'shopper@example.com',
       toName: 'Ahmed',
-      ctaUrl: 'https://luxedrive.example/ar/account/verify-email?token=abc123',
+      ctaUrl: 'https://clothing.example/ar/account/verify-email?token=abc123',
       copy: AR_COPY,
     });
 
@@ -46,17 +48,13 @@ describe('buildVerificationEmail', () => {
     expect(message.subject).toBe(AR_COPY.subject);
     expect(message.html).toContain('dir="rtl"');
     expect(message.html).toContain('lang="ar"');
-    expect(message.html).toContain(
-      'https://luxedrive.example/ar/account/verify-email?token=abc123',
-    );
-    expect(message.text).toContain(
-      'https://luxedrive.example/ar/account/verify-email?token=abc123',
-    );
+    expect(message.html).toContain('https://clothing.example/ar/account/verify-email?token=abc123');
+    expect(message.text).toContain('https://clothing.example/ar/account/verify-email?token=abc123');
     expect(message.text).toContain(AR_COPY.greeting);
   });
 
   it('carries the exact url given, unaltered, and no other host', () => {
-    const url = 'https://luxedrive.example/en/account/verify-email?token=xyz';
+    const url = 'https://clothing.example/en/account/verify-email?token=xyz';
     const message = buildVerificationEmail({
       to: 'shopper2@example.com',
       toName: null,
@@ -77,11 +75,22 @@ describe('buildVerificationEmail', () => {
     const message = buildVerificationEmail({
       to: 'shopper@example.com',
       toName: '<script>alert(1)</script>',
-      ctaUrl: 'https://luxedrive.example/en/account/verify-email?token=abc',
+      ctaUrl: 'https://clothing.example/en/account/verify-email?token=abc',
       copy: { ...EN_COPY, greeting: 'Hi <script>alert(1)</script>,' },
     });
     expect(message.html).not.toContain('<script>alert(1)</script>');
     expect(message.html).toContain('&lt;script&gt;');
+  });
+
+  it("uses the store's own name as the wordmark and the sender name, escaped", () => {
+    const message = buildVerificationEmail({
+      to: 'shopper@example.com',
+      toName: null,
+      ctaUrl: 'https://clothing.example/en/account/verify-email?token=abc',
+      copy: { ...EN_COPY, brandName: 'Noor & Co' },
+    });
+    expect(message.fromName).toBe('Noor & Co');
+    expect(message.html).toContain('>Noor &amp; Co</span>');
   });
 });
 
@@ -90,14 +99,14 @@ describe('buildPasswordResetEmail', () => {
     const message = buildPasswordResetEmail({
       to: 'shopper@example.com',
       toName: 'Ahmed',
-      ctaUrl: 'https://luxedrive.example/en/account/reset-password?token=def456',
+      ctaUrl: 'https://clothing.example/en/account/reset-password?token=def456',
       copy: EN_COPY,
     });
 
     expect(message.subject).toBe(EN_COPY.subject);
     expect(message.html).toContain('dir="ltr"');
     expect(message.html).toContain(
-      'https://luxedrive.example/en/account/reset-password?token=def456',
+      'https://clothing.example/en/account/reset-password?token=def456',
     );
   });
 
@@ -105,12 +114,12 @@ describe('buildPasswordResetEmail', () => {
     const message = buildPasswordResetEmail({
       to: 'shopper@example.com',
       toName: null,
-      ctaUrl: 'https://luxedrive.example/ar/account/reset-password?token=ghi789',
+      ctaUrl: 'https://clothing.example/ar/account/reset-password?token=ghi789',
       copy: AR_COPY,
     });
     expect(message.text.length).toBeGreaterThan(0);
     expect(message.text).toContain(
-      'https://luxedrive.example/ar/account/reset-password?token=ghi789',
+      'https://clothing.example/ar/account/reset-password?token=ghi789',
     );
   });
 });

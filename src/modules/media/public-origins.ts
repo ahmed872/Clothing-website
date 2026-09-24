@@ -71,11 +71,6 @@ export function mediaPublicBaseUrl(env: MediaOriginEnv): string | null {
 /**
  * Every origin an `<Image>` `src` produced by this application can carry —
  * what `images.remotePatterns` has to allow.
- *
- * `images.unsplash.com` is not derived from configuration and is not
- * included here: it is P03/P04's fixed set of `EXTERNAL` `MediaAsset` rows
- * whose `storageKey` is still the original Unsplash URL, listed literally
- * in `next.config.ts` where it belongs.
  */
 export function mediaPublicOrigins(env: MediaOriginEnv): string[] {
   const origins = new Set<string>();

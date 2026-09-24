@@ -3,7 +3,7 @@
  * for both `scripts/seed-e2e-orders-fixture.mts` (which creates it) and the
  * specs that add it to a cart.
  *
- * Deliberately not one of the demo cars: these specs place real orders,
+ * Deliberately not one of the demo products: these specs place real orders,
  * which consume real stock, and draining the demo catalog would break every
  * other spec in the suite.
  */

@@ -5,7 +5,7 @@ import { Moon, Sun } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 
-const STORAGE_KEY = 'luxedrive-theme';
+const STORAGE_KEY = 'clothing-theme';
 
 type Listener = () => void;
 const listeners = new Set<Listener>();

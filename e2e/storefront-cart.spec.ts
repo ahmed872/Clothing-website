@@ -8,8 +8,11 @@ import { expect, test, type Page } from '@playwright/test';
  * rather than incidental.
  */
 
-const PRODUCT = '/ar/p/mercedes-benz-s-class';
-const PRODUCT_EN = '/en/p/mercedes-benz-s-class';
+const PRODUCT = '/ar/p/essential-crew-neck-tee';
+const PRODUCT_EN = '/en/p/essential-crew-neck-tee';
+const NAME = /تيشيرت أساسي برقبة دائرية/;
+/** The demo abaya's first variant (Black, 52) has exactly one unit. */
+const LAST_UNIT_PRODUCT = '/ar/p/classic-black-abaya';
 
 async function addOne(page: Page, url = PRODUCT): Promise<void> {
   await page.goto(url);
@@ -32,16 +35,16 @@ test.describe('cart — the basics', () => {
     await addOne(page);
     await page.goto('/ar/cart');
 
-    await expect(page.getByRole('link', { name: 'Mercedes-Benz S-Class' })).toBeVisible();
+    await expect(page.getByRole('link', { name: NAME })).toBeVisible();
     // The seeded price, rendered by the server — not recomputed in the page.
-    await expect(page.getByText('125,000.00').first()).toBeVisible();
+    await expect(page.getByText('59.00').first()).toBeVisible();
   });
 
   test('the quantity cannot be raised past the stock the store actually has', async ({ page }) => {
     // This seeded variant has one unit. The stepper's ceiling comes from
     // the server's own availability, so the control is simply disabled
     // rather than offering a quantity the store cannot ship.
-    await addOne(page);
+    await addOne(page, LAST_UNIT_PRODUCT);
     await page.goto('/ar/cart');
 
     await expect(page.getByRole('button', { name: 'زيادة الكمية' })).toBeDisabled();
@@ -110,7 +113,7 @@ test.describe('cart — guest isolation', () => {
   test('a second browser context does not see the first cart', async ({ page, browser }) => {
     await addOne(page);
     await page.goto('/ar/cart');
-    await expect(page.getByRole('link', { name: 'Mercedes-Benz S-Class' })).toBeVisible();
+    await expect(page.getByRole('link', { name: NAME })).toBeVisible();
 
     const other = await browser.newContext();
     const otherPage = await other.newPage();
@@ -122,14 +125,14 @@ test.describe('cart — guest isolation', () => {
   test('the guest cart cookie is httpOnly, so script cannot read it', async ({ page, context }) => {
     await addOne(page);
 
-    const cookie = (await context.cookies()).find((c) => c.name === 'luxedrive-cart');
+    const cookie = (await context.cookies()).find((c) => c.name === 'clothing-cart');
     expect(cookie).toBeDefined();
     expect(cookie!.httpOnly).toBe(true);
     expect(cookie!.sameSite).toBe('Lax');
 
     // And the page itself cannot see it.
     const visible = await page.evaluate(() => document.cookie);
-    expect(visible).not.toContain('luxedrive-cart');
+    expect(visible).not.toContain('clothing-cart');
   });
 });
 
@@ -140,7 +143,7 @@ test.describe('cart — both languages', () => {
 
     await expect(page.getByRole('heading', { name: 'Shopping cart' })).toBeVisible();
     await expect(page.locator('html')).toHaveAttribute('dir', 'ltr');
-    await expect(page.getByText('125,000.00').first()).toBeVisible();
+    await expect(page.getByText('59.00').first()).toBeVisible();
   });
 
   test('Arabic renders RTL, with Latin digits in the money', async ({ page }) => {
@@ -149,7 +152,7 @@ test.describe('cart — both languages', () => {
 
     await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
     // ADR-023: prices read identically in both languages.
-    await expect(page.getByText('125,000.00').first()).toBeVisible();
+    await expect(page.getByText('59.00').first()).toBeVisible();
   });
 });
 

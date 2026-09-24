@@ -20,7 +20,7 @@ import '../globals.css';
  * layouts" pattern (`app/[locale]/layout.tsx`, `app/dev/layout.tsx`)
  * extended to a third sibling top-level segment. Unlike the storefront,
  * `/admin` has no `/ar`/`/en` URL prefix: it reads the same
- * `luxedrive-locale` cookie `proxy.ts` sets for the storefront, so a
+ * `clothing-locale` cookie `proxy.ts` sets for the storefront, so a
  * visitor's language preference carries over, and `AdminLocaleToggle`
  * writes the same cookie back — one preference, not two.
  *
@@ -32,7 +32,7 @@ import '../globals.css';
  * to render at all.
  */
 export const metadata: Metadata = {
-  title: { default: 'LuxeDrive Admin', template: '%s — LuxeDrive Admin' },
+  title: { default: 'Store Admin', template: '%s — Store Admin' },
   robots: { index: false, follow: false },
 };
 

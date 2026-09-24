@@ -34,7 +34,7 @@ function uniqueEmail(tag: string): string {
 }
 
 async function setLocale(page: Page, locale: 'ar' | 'en'): Promise<void> {
-  await page.context().addCookies([{ name: 'luxedrive-locale', value: locale, url: BASE }]);
+  await page.context().addCookies([{ name: 'clothing-locale', value: locale, url: BASE }]);
 }
 
 async function axe(page: Page): Promise<void> {

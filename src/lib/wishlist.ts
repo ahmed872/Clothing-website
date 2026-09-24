@@ -13,7 +13,7 @@ import * as React from 'react';
  * accounts replaces this file's storage, not its component call sites.
  */
 
-const STORAGE_KEY = 'luxedrive-wishlist';
+const STORAGE_KEY = 'clothing-wishlist';
 
 // `useSyncExternalStore` requires `getSnapshot` to return a referentially
 // stable value when nothing has actually changed (React warns/loops

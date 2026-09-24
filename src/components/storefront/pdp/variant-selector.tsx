@@ -20,8 +20,8 @@ export interface VariantSelectorProps {
  * `OptionValue` data — Color+Size for shoes, Storage+Color for electronics,
  * Trim for cars all render through the exact same component, because
  * nothing here ever asks what the product *is*. A product with no options
- * (`options.length === 0`, the common case for this catalog's cars) renders
- * nothing — there's exactly one variant, already selected.
+ * (`options.length === 0`) renders nothing — there's exactly one variant,
+ * already selected.
  */
 export function VariantSelector({
   options,

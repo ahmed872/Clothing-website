@@ -17,7 +17,7 @@ import { mediaPublicBaseUrl, mediaPublicOrigins, type MediaOriginEnv } from './p
 
 const S3_WITH_CDN: MediaOriginEnv = {
   STORAGE_PROVIDER: 's3',
-  STORAGE_BUCKET: 'luxedrive-media',
+  STORAGE_BUCKET: 'clothing-media',
   STORAGE_REGION: 'eu-central-1',
   MEDIA_PUBLIC_BASE_URL: 'https://cdn.example.com/media/',
   NEXT_PUBLIC_SITE_URL: 'https://shop.example.com',
@@ -25,21 +25,21 @@ const S3_WITH_CDN: MediaOriginEnv = {
 
 const S3_COMPATIBLE_ENDPOINT: MediaOriginEnv = {
   STORAGE_PROVIDER: 's3',
-  STORAGE_BUCKET: 'luxedrive-media',
+  STORAGE_BUCKET: 'clothing-media',
   STORAGE_ENDPOINT: 'https://abc123.r2.cloudflarestorage.com',
   NEXT_PUBLIC_SITE_URL: 'https://shop.example.com',
 };
 
 const AWS_S3_BARE: MediaOriginEnv = {
   STORAGE_PROVIDER: 's3',
-  STORAGE_BUCKET: 'luxedrive-media',
+  STORAGE_BUCKET: 'clothing-media',
   STORAGE_REGION: 'eu-central-1',
   NEXT_PUBLIC_SITE_URL: 'https://shop.example.com',
 };
 
 const AWS_S3_NO_REGION: MediaOriginEnv = {
   STORAGE_PROVIDER: 's3',
-  STORAGE_BUCKET: 'luxedrive-media',
+  STORAGE_BUCKET: 'clothing-media',
   NEXT_PUBLIC_SITE_URL: 'https://shop.example.com',
 };
 
@@ -62,16 +62,16 @@ describe('mediaPublicBaseUrl', () => {
 
   it('puts the bucket under a custom S3-compatible endpoint (path style)', () => {
     expect(mediaPublicBaseUrl(S3_COMPATIBLE_ENDPOINT)).toBe(
-      'https://abc123.r2.cloudflarestorage.com/luxedrive-media',
+      'https://abc123.r2.cloudflarestorage.com/clothing-media',
     );
   });
 
   it('falls back to AWS virtual-hosted style, defaulting the region', () => {
     expect(mediaPublicBaseUrl(AWS_S3_BARE)).toBe(
-      'https://luxedrive-media.s3.eu-central-1.amazonaws.com',
+      'https://clothing-media.s3.eu-central-1.amazonaws.com',
     );
     expect(mediaPublicBaseUrl(AWS_S3_NO_REGION)).toBe(
-      'https://luxedrive-media.s3.us-east-1.amazonaws.com',
+      'https://clothing-media.s3.us-east-1.amazonaws.com',
     );
   });
 

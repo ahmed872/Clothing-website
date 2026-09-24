@@ -22,17 +22,12 @@ import { mediaPublicOrigins } from './src/modules/media/public-origins';
  * all of them. That module is deliberately dependency-free so importing it
  * here pulls in nothing else.
  *
- * `images.unsplash.com` is the one host that is not derived from
- * configuration, so it stays written out here: P03/P04's known, documented
- * case, the 15 migrated-catalog MediaAssets that P04's migration script
- * couldn't download in this sandbox (network egress blocked) and which are
- * still `EXTERNAL` rows whose `storageKey` is the original Unsplash URL —
- * see `media/cdn.ts`. Nothing else should add a host here by convention.
+ * Every host here is derived from configuration; nothing should add one by
+ * hand. Even the demo catalog uploads its images through the storage
+ * provider rather than pointing at a third-party image host.
  */
 function remotePatterns(): NonNullable<NonNullable<NextConfig['images']>['remotePatterns']> {
-  const patterns: NonNullable<NonNullable<NextConfig['images']>['remotePatterns']> = [
-    { protocol: 'https', hostname: 'images.unsplash.com' },
-  ];
+  const patterns: NonNullable<NonNullable<NextConfig['images']>['remotePatterns']> = [];
   // Named explicitly rather than handing over all of `process.env`: this is
   // the whole set of variables this config file reads, and saying so keeps
   // it checkable against `MediaOriginEnv` instead of assignable to it by
@@ -58,7 +53,18 @@ function remotePatterns(): NonNullable<NonNullable<NextConfig['images']>['remote
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  images: { remotePatterns: remotePatterns() },
+  images: {
+    remotePatterns: remotePatterns(),
+    // With `STORAGE_PROVIDER="local"` every image is served by this app's own
+    // `/api/media/local-upload/…` route at `NEXT_PUBLIC_SITE_URL` — in
+    // development, 127.0.0.1 — and Next 16's optimizer refuses any upstream
+    // that resolves to a private address, so every uploaded image rendered as
+    // "no image". Allowed only for local storage, which is a development
+    // setup: the hosts it can reach are still only the ones
+    // `remotePatterns` lists, i.e. the app's own origin. With S3 (production)
+    // images come from the bucket or CDN and this stays off.
+    dangerouslyAllowLocalIP: (process.env.STORAGE_PROVIDER ?? 'local') === 'local',
+  },
   // The Playwright suite (P02) drives the dev server via 127.0.0.1 rather
   // than localhost; without this, Next's dev-origin check silently drops the
   // HMR/RSC websocket for that host, and components stop responding to

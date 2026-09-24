@@ -3,6 +3,7 @@ import 'server-only';
 import { clientEnv, db } from '@/modules/core';
 import { getUserById } from '@/modules/identity';
 import { createEmailVerificationToken, createPasswordResetToken } from '@/modules/customers';
+import { getStoreSettings } from '@/modules/settings';
 import {
   buildPasswordResetEmail,
   buildVerificationEmail,
@@ -291,8 +292,12 @@ async function sendForEvent(type: string, payload: unknown): Promise<void> {
 
   const locale = localeFor(user.locale);
   const t = getDictionary(locale).email;
+  // The name the owner gave the store in Settings — read at send time, so a
+  // renamed store's emails say the new name, the same as its header does.
+  const settings = await getStoreSettings(locale);
+  const store = locale === 'ar' ? settings.storeNameAr : settings.storeNameEn;
   const greeting = user.name ? interpolate(t.greeting, { name: user.name }) : t.greetingNoName;
-  const footer = interpolate(t.footer, { year: String(new Date().getFullYear()) });
+  const footer = interpolate(t.footer, { year: String(new Date().getFullYear()), store });
   const origin = siteOrigin();
 
   const provider = getEmailProvider();
@@ -303,10 +308,11 @@ async function sendForEvent(type: string, payload: unknown): Promise<void> {
     const copy: EmailCopy = {
       htmlLang: locale,
       dir: locale === 'ar' ? 'rtl' : 'ltr',
-      subject: t.verificationSubject,
+      brandName: store,
+      subject: interpolate(t.verificationSubject, { store }),
       heading: t.verificationHeading,
       greeting,
-      body: t.verificationBody,
+      body: interpolate(t.verificationBody, { store }),
       ctaLabel: t.verificationCta,
       expiryNotice: t.verificationExpiry,
       ignoreNotice: t.verificationIgnore,
@@ -326,10 +332,11 @@ async function sendForEvent(type: string, payload: unknown): Promise<void> {
   const copy: EmailCopy = {
     htmlLang: locale,
     dir: locale === 'ar' ? 'rtl' : 'ltr',
-    subject: t.passwordResetSubject,
+    brandName: store,
+    subject: interpolate(t.passwordResetSubject, { store }),
     heading: t.passwordResetHeading,
     greeting,
-    body: t.passwordResetBody,
+    body: interpolate(t.passwordResetBody, { store }),
     ctaLabel: t.passwordResetCta,
     expiryNotice: t.passwordResetExpiry,
     ignoreNotice: t.passwordResetIgnore,

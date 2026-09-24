@@ -141,8 +141,8 @@ const baseServerEnvSchema = z.object({
    * they have not verified, so this is required the moment a real adapter
    * (`smtp`) is selected, not merely a cosmetic default. */
   EMAIL_FROM: z.string().email().optional(),
-  /** Display name paired with `EMAIL_FROM` ("LuxeDrive <no-reply@…>").
-   * Cosmetic only; falls back to "LuxeDrive" when unset. */
+  /** Display name paired with `EMAIL_FROM` ("My Store <no-reply@…>").
+   * Cosmetic only; when unset, the store's name from Settings is used. */
   EMAIL_FROM_NAME: z.string().min(1).optional(),
 
   /** `smtp` adapter only. Not a secret — sandbox and live differ, and this

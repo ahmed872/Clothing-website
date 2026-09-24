@@ -54,7 +54,10 @@ test.describe('Journey A — email verification', () => {
     // ticks the same way a real caller would wait across cron ticks.
     const inbox = await dispatchUntilDelivered(request, email);
     expect(inbox).toHaveLength(1);
-    expect(inbox[0]!.subject).toBe('Verify your email — LuxeDrive');
+    // The subject ends with the store's name from Settings, which
+    // `admin-settings-acceptance` renames while it runs — so the kind of
+    // email is asserted here, and the name itself in `email-dispatcher.test.ts`.
+    expect(inbox[0]!.subject).toMatch(/^Verify your email — ./);
     const link = extractLink(inbox[0]!, '/account/verify-email');
     expect(link).toContain('token=');
     // The token itself is opaque, but the link must never carry a raw
@@ -122,7 +125,7 @@ test.describe('Journey B — password reset', () => {
     // dispatch rather than assuming one call is sufficient.
     const inbox = await dispatchUntilDelivered(request, email);
     expect(inbox.length).toBeGreaterThanOrEqual(1);
-    const resetMessage = inbox.find((m) => m.subject === 'Reset your password — LuxeDrive');
+    const resetMessage = inbox.find((m) => m.subject.startsWith('Reset your password — '));
     expect(resetMessage).toBeDefined();
     const link = extractLink(resetMessage!, '/account/reset-password');
 
@@ -252,7 +255,7 @@ test.describe('Journey C — abuse and security', () => {
     await Promise.all([triggerEmailDispatch(request), triggerEmailDispatch(request)]);
 
     const inbox = await readTestInbox(email);
-    const verificationMessages = inbox.filter((m) => m.subject === 'Verify your email — LuxeDrive');
+    const verificationMessages = inbox.filter((m) => m.subject.startsWith('Verify your email — '));
     expect(verificationMessages).toHaveLength(1);
   });
 

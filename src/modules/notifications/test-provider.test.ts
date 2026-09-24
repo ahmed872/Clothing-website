@@ -13,8 +13,8 @@ describe('testEmailProvider', () => {
       to: 'shopper-inbox@example.com',
       toName: 'Shopper',
       subject: 'Verify your email',
-      html: '<a href="https://luxedrive.example/verify?token=abc">Verify</a>',
-      text: 'https://luxedrive.example/verify?token=abc',
+      html: '<a href="https://clothing.example/verify?token=abc">Verify</a>',
+      text: 'https://clothing.example/verify?token=abc',
     });
     expect(result.providerMessageId).toMatch(/^test_/);
 

@@ -115,8 +115,8 @@ const { buildVerificationEmail } = await import('./templates');
 
 function mockEnv() {
   serverEnvMock.mockReturnValue({
-    EMAIL_FROM: 'no-reply@luxedrive.example',
-    EMAIL_FROM_NAME: 'LuxeDrive',
+    EMAIL_FROM: 'no-reply@clothing.example',
+    EMAIL_FROM_NAME: 'Clothing Store',
     EMAIL_SMTP_HOST: '127.0.0.1',
     EMAIL_SMTP_PORT: port,
     EMAIL_SMTP_USER: undefined,
@@ -131,19 +131,20 @@ describe('smtpEmailProvider — real local SMTP server (P14 §4)', () => {
     const message = buildVerificationEmail({
       to: 'shopper@example.com',
       toName: 'Shopper One',
-      ctaUrl: 'https://luxedrive.example/en/account/verify-email?token=abc123XYZ-_token',
+      ctaUrl: 'https://clothing.example/en/account/verify-email?token=abc123XYZ-_token',
       copy: {
         htmlLang: 'en',
         dir: 'ltr',
-        subject: 'Verify your email — LuxeDrive',
+        brandName: 'Clothing Store',
+        subject: 'Verify your email — Clothing Store',
         heading: 'Verify your email address',
         greeting: 'Hi Shopper One,',
-        body: 'Thanks for creating a LuxeDrive account. To finish setting it up, please confirm this is your email address.',
+        body: 'Thanks for creating a Clothing Store account. To finish setting it up, please confirm this is your email address.',
         ctaLabel: 'Verify email',
         expiryNotice: 'This link expires in 24 hours.',
         ignoreNotice: "If you didn't request this, you can ignore this email.",
         fallbackNotice: "If the button doesn't work, copy and paste this link into your browser:",
-        footer: '© 2026 LuxeDrive. All rights reserved.',
+        footer: '© 2026 Clothing Store. All rights reserved.',
         automatedNotice: 'This is an automated message — replies are not monitored.',
       },
     });
@@ -153,18 +154,18 @@ describe('smtpEmailProvider — real local SMTP server (P14 §4)', () => {
 
     expect(received).toHaveLength(1);
     const mail = received[0]!;
-    expect(mail.envelopeFrom).toBe('no-reply@luxedrive.example');
+    expect(mail.envelopeFrom).toBe('no-reply@clothing.example');
     expect(mail.envelopeTo).toEqual(['shopper@example.com']);
 
     const parsed = await simpleParser(mail.raw);
-    expect(parsed.subject).toBe('Verify your email — LuxeDrive');
-    expect(parsed.from?.text).toContain('no-reply@luxedrive.example');
+    expect(parsed.subject).toBe('Verify your email — Clothing Store');
+    expect(parsed.from?.text).toContain('no-reply@clothing.example');
     expect(parsed.to && 'text' in parsed.to ? parsed.to.text : '').toContain('shopper@example.com');
     expect(parsed.text).toContain(
-      'https://luxedrive.example/en/account/verify-email?token=abc123XYZ-_token',
+      'https://clothing.example/en/account/verify-email?token=abc123XYZ-_token',
     );
     expect(parsed.html).toContain(
-      'https://luxedrive.example/en/account/verify-email?token=abc123XYZ-_token',
+      'https://clothing.example/en/account/verify-email?token=abc123XYZ-_token',
     );
     // The raw token must reach the real wire format intact — MIME transport
     // encoding (quoted-printable/base64) is exactly the kind of thing that
@@ -177,19 +178,20 @@ describe('smtpEmailProvider — real local SMTP server (P14 §4)', () => {
     const message = buildVerificationEmail({
       to: 'مستخدم@example.com'.normalize(),
       toName: 'أحمد',
-      ctaUrl: 'https://luxedrive.example/ar/account/verify-email?token=abc123',
+      ctaUrl: 'https://clothing.example/ar/account/verify-email?token=abc123',
       copy: {
         htmlLang: 'ar',
         dir: 'rtl',
-        subject: 'تأكيد بريدك الإلكتروني — LuxeDrive',
+        brandName: 'متجر الملابس',
+        subject: 'تأكيد بريدك الإلكتروني — متجر الملابس',
         heading: 'تأكيد بريدك الإلكتروني',
         greeting: 'مرحبًا أحمد،',
-        body: 'شكرًا لإنشاء حساب في LuxeDrive. لإتمام إعداد حسابك، يرجى تأكيد أن هذا هو بريدك الإلكتروني.',
+        body: 'شكرًا لإنشاء حساب في متجر الملابس. لإتمام إعداد حسابك، يرجى تأكيد أن هذا هو بريدك الإلكتروني.',
         ctaLabel: 'تأكيد البريد الإلكتروني',
         expiryNotice: 'تنتهي صلاحية هذا الرابط خلال 24 ساعة.',
         ignoreNotice: 'إذا لم تطلب هذا، يمكنك تجاهل هذه الرسالة.',
         fallbackNotice: 'إذا لم يعمل الزر، انسخ الرابط التالي والصقه في متصفحك:',
-        footer: '© 2026 LuxeDrive. جميع الحقوق محفوظة.',
+        footer: '© 2026 متجر الملابس. جميع الحقوق محفوظة.',
         automatedNotice: 'هذه رسالة آلية — لا تتم مراقبة الردود عليها.',
       },
     });
@@ -214,9 +216,9 @@ describe('smtpEmailProvider — real local SMTP server (P14 §4)', () => {
     expect(subjectLine).toMatch(/=\?UTF-8\?[BQ]\?/i);
 
     const parsed = await simpleParser(mail.raw);
-    expect(parsed.subject).toBe('تأكيد بريدك الإلكتروني — LuxeDrive');
-    expect(parsed.text).toContain('شكرًا لإنشاء حساب في LuxeDrive');
-    expect(parsed.text).toContain('https://luxedrive.example/ar/account/verify-email?token=abc123');
+    expect(parsed.subject).toBe('تأكيد بريدك الإلكتروني — متجر الملابس');
+    expect(parsed.text).toContain('شكرًا لإنشاء حساب في متجر الملابس');
+    expect(parsed.text).toContain('https://clothing.example/ar/account/verify-email?token=abc123');
   });
 
   it('classifies a real 550 SMTP rejection from a real server as permanent', async () => {
@@ -226,7 +228,7 @@ describe('smtpEmailProvider — real local SMTP server (P14 §4)', () => {
     const message = buildVerificationEmail({
       to: 'nobody@example.com',
       toName: null,
-      ctaUrl: 'https://luxedrive.example/en/account/verify-email?token=x',
+      ctaUrl: 'https://clothing.example/en/account/verify-email?token=x',
       copy: minimalCopy(),
     });
 
@@ -247,7 +249,7 @@ describe('smtpEmailProvider — real local SMTP server (P14 §4)', () => {
     const message = buildVerificationEmail({
       to: 'busy@example.com',
       toName: null,
-      ctaUrl: 'https://luxedrive.example/en/account/verify-email?token=x',
+      ctaUrl: 'https://clothing.example/en/account/verify-email?token=x',
       copy: minimalCopy(),
     });
 
@@ -262,7 +264,8 @@ function minimalCopy() {
   return {
     htmlLang: 'en' as const,
     dir: 'ltr' as const,
-    subject: 'Verify your email — LuxeDrive',
+    brandName: 'Clothing Store',
+    subject: 'Verify your email — Clothing Store',
     heading: 'Verify your email address',
     greeting: 'Hi,',
     body: 'body',

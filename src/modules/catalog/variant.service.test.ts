@@ -85,6 +85,85 @@ describe('createProductOption / addOptionValues', () => {
 
     const [refetched] = await listProductOptions(product.id);
     expect(refetched?.values.map((v) => v.valueEn)).toEqual(['Black', 'Red']);
+    expect(refetched?.values.map((v) => v.position)).toEqual([0, 1]);
+  });
+});
+
+/**
+ * Every reader orders options and values by `position`. These were all
+ * written as 0, so a size run came back in whatever order Postgres returned
+ * tied rows — asserted on the stored positions, not only the resulting
+ * order, because a tie can happen to come back right.
+ */
+describe('option and value order', () => {
+  it('createProduct stores options and values in the order they were given', async () => {
+    const category = await shoesFixture();
+    const sizes = ['S', 'M', 'L', 'XL'];
+    const product = await createProduct({
+      product: { slug: 'tee', nameAr: 'تيشيرت', nameEn: 'Tee', categoryId: category.id },
+      options: [
+        {
+          nameAr: 'اللون',
+          nameEn: 'Color',
+          values: [
+            { valueAr: 'أسود', valueEn: 'Black' },
+            { valueAr: 'أبيض', valueEn: 'White' },
+          ],
+        },
+        {
+          nameAr: 'المقاس',
+          nameEn: 'Size',
+          values: sizes.map((size) => ({ valueAr: size, valueEn: size })),
+        },
+      ],
+      variants: ['Black', 'White'].flatMap((color) =>
+        sizes.map((size) => ({
+          sku: `TEE-${color}-${size}`,
+          priceMinor: 5900,
+          optionValues: [
+            { optionNameEn: 'Color', valueEn: color },
+            { optionNameEn: 'Size', valueEn: size },
+          ],
+        })),
+      ),
+    });
+
+    const options = await listProductOptions(product.id);
+    expect(options.map((o) => [o.nameEn, o.position])).toEqual([
+      ['Color', 0],
+      ['Size', 1],
+    ]);
+    expect(options[1]?.values.map((v) => [v.valueEn, v.position])).toEqual([
+      ['S', 0],
+      ['M', 1],
+      ['L', 2],
+      ['XL', 3],
+    ]);
+  });
+
+  it('createProductOption places a new option after the existing ones', async () => {
+    const category = await shoesFixture();
+    const product = await simpleProduct(category.id);
+    await createProductOption(product.id, {
+      nameAr: 'اللون',
+      nameEn: 'Color',
+      values: [{ valueAr: 'أسود', valueEn: 'Black' }],
+    });
+    await createProductOption(product.id, {
+      nameAr: 'المقاس',
+      nameEn: 'Size',
+      values: [
+        { valueAr: 'S', valueEn: 'S' },
+        { valueAr: 'M', valueEn: 'M' },
+      ],
+    });
+
+    const options = await listProductOptions(product.id);
+    expect(options.map((o) => [o.nameEn, o.position])).toEqual([
+      ['Color', 0],
+      ['Size', 1],
+    ]);
+    expect(options[1]?.values.map((v) => v.position)).toEqual([0, 1]);
   });
 });
 

@@ -39,7 +39,7 @@ async function axe(page: Page): Promise<void> {
 }
 
 async function setAdminLocale(page: Page, locale: 'ar' | 'en'): Promise<void> {
-  await page.context().addCookies([{ name: 'luxedrive-locale', value: locale, url: BASE }]);
+  await page.context().addCookies([{ name: 'clothing-locale', value: locale, url: BASE }]);
 }
 
 const LABELS = {

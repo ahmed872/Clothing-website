@@ -16,7 +16,7 @@ import '../globals.css';
  * needs its own.
  */
 export const metadata: Metadata = {
-  title: 'LuxeDrive — Design System',
+  title: 'Design System',
   robots: { index: false, follow: false },
 };
 

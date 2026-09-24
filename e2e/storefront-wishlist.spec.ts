@@ -16,7 +16,10 @@ import { expect, test } from '@playwright/test';
  * itself persisting; these cover what the toggle was *for*.
  */
 
-const PRODUCT = { slug: 'mercedes-benz-s-class', name: 'Mercedes-Benz S-Class' };
+const PRODUCT = {
+  slug: 'essential-crew-neck-tee',
+  name: { ar: 'تيشيرت أساسي برقبة دائرية', en: 'Essential Crew-Neck T-Shirt' },
+};
 
 async function axe(page: Page): Promise<void> {
   const results = await new AxeBuilder({ page })
@@ -61,7 +64,9 @@ test.describe('the wishlist page', () => {
     await page.getByRole('link', { name: 'المفضلة' }).click();
     await page.waitForURL('**/ar/wishlist');
 
-    await expect(page.getByRole('link', { name: new RegExp(PRODUCT.name) }).first()).toBeVisible();
+    await expect(
+      page.getByRole('link', { name: new RegExp(PRODUCT.name.ar) }).first(),
+    ).toBeVisible();
     await expect(page.getByText('قائمة المفضلة فاضية')).toHaveCount(0);
 
     // Removing the last item empties the page without a reload — the grid
@@ -103,7 +108,7 @@ test.describe('accessibility', () => {
 
       await page.goto(`/${locale}/wishlist`);
       await expect(
-        page.getByRole('link', { name: new RegExp(PRODUCT.name) }).first(),
+        page.getByRole('link', { name: new RegExp(PRODUCT.name[locale]) }).first(),
       ).toBeVisible();
       await axe(page);
     });

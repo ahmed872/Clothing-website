@@ -16,7 +16,7 @@ import { mergeGuestCartIntoCustomer, newGuestToken, type CartOwner } from '@/mod
  * surface is absent rather than defended.
  */
 
-export const CART_COOKIE_NAME = 'luxedrive-cart';
+export const CART_COOKIE_NAME = 'clothing-cart';
 
 /** A guest cart should outlive a browser restart but not a season. */
 const CART_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 30;

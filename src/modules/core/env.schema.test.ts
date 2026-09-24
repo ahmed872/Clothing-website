@@ -81,7 +81,7 @@ describe('parseServerEnv — media storage (P04)', () => {
     const result = parseServerEnv({
       ...validServer,
       STORAGE_PROVIDER: 's3',
-      STORAGE_BUCKET: 'luxedrive-media',
+      STORAGE_BUCKET: 'clothing-media',
       STORAGE_ACCESS_KEY_ID: 'AKIAEXAMPLE',
       STORAGE_SECRET_ACCESS_KEY: 'secret-example',
     });

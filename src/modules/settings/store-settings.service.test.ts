@@ -13,8 +13,8 @@ describe('getStoreSettings', () => {
   it('returns honest, complete fallback values when no row has been seeded yet', async () => {
     const settings = await getStoreSettings();
     expect(settings).toMatchObject({
-      storeNameAr: 'لوكس درايف',
-      storeNameEn: 'LuxeDrive',
+      storeNameAr: 'متجر الملابس',
+      storeNameEn: 'Clothing Store',
       currency: 'SAR',
       defaultLocale: 'ar',
       logo: null,

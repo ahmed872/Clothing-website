@@ -19,6 +19,9 @@ export interface EmailMessage {
   /** Display name for the `To` header, when known. Never influences
    * delivery logic — purely cosmetic ("Ahmed <ahmed@example.com>"). */
   toName: string | null;
+  /** Display name for the `From` header — the store's name. Cosmetic, like
+   * `toName`; `EMAIL_FROM_NAME`, when set, takes precedence. */
+  fromName?: string;
   subject: string;
   html: string;
   /** Every message carries a plain-text alternative (P13 §11) — a client

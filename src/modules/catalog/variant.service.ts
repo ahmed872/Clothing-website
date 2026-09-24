@@ -46,6 +46,9 @@ export async function createProductOption(
 ): Promise<ProductOptionWithValues> {
   const parsed = productOptionInputSchema.parse(input);
   await getProductOrThrow(productId);
+  // After the product's existing options, and its values in the order given
+  // — see `createProduct` for why the position has to be written at all.
+  const existingOptions = await db.productOption.count({ where: { productId } });
 
   try {
     return await db.productOption.create({
@@ -53,7 +56,8 @@ export async function createProductOption(
         productId,
         nameAr: parsed.nameAr,
         nameEn: parsed.nameEn,
-        values: { create: parsed.values },
+        position: existingOptions,
+        values: { create: parsed.values.map((value, index) => ({ ...value, position: index })) },
       },
       include: { values: true },
     });
@@ -73,9 +77,15 @@ export async function addOptionValues(
     throw new AppError('NOT_FOUND', { details: { entity: 'ProductOption', id: optionId } });
 
   const parsed = z.array(optionValueInputSchema).min(1).parse(values);
+  // Appended after the option's current last value, so a size added later
+  // ("XXL") lands at the end of the list rather than tied at 0 with the rest.
+  const last = await db.optionValue.aggregate({ where: { optionId }, _max: { position: true } });
+  const start = (last._max.position ?? -1) + 1;
   try {
     return await db.$transaction(
-      parsed.map((value) => db.optionValue.create({ data: { optionId, ...value } })),
+      parsed.map((value, index) =>
+        db.optionValue.create({ data: { optionId, ...value, position: start + index } }),
+      ),
     );
   } catch (error) {
     throw mapUniqueConstraint(error, 'valueEn');

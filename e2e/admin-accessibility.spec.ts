@@ -20,7 +20,7 @@ test.describe('admin — accessibility (axe, light theme)', () => {
   test('login page (ar)', async ({ page }) => {
     await page
       .context()
-      .addCookies([{ name: 'luxedrive-locale', value: 'ar', url: 'http://127.0.0.1:3000' }]);
+      .addCookies([{ name: 'clothing-locale', value: 'ar', url: 'http://127.0.0.1:3000' }]);
     await page.goto('/admin/login');
     const results = await new AxeBuilder({ page }).include('body').analyze();
     expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
@@ -29,7 +29,7 @@ test.describe('admin — accessibility (axe, light theme)', () => {
   test('login page (en)', async ({ page }) => {
     await page
       .context()
-      .addCookies([{ name: 'luxedrive-locale', value: 'en', url: 'http://127.0.0.1:3000' }]);
+      .addCookies([{ name: 'clothing-locale', value: 'en', url: 'http://127.0.0.1:3000' }]);
     await page.goto('/admin/login');
     const results = await new AxeBuilder({ page }).include('body').analyze();
     expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
@@ -39,7 +39,7 @@ test.describe('admin — accessibility (axe, light theme)', () => {
     const page = await ownerContext.newPage();
     await page
       .context()
-      .addCookies([{ name: 'luxedrive-locale', value: 'en', url: 'http://127.0.0.1:3000' }]);
+      .addCookies([{ name: 'clothing-locale', value: 'en', url: 'http://127.0.0.1:3000' }]);
     await page.goto('/admin');
     const results = await new AxeBuilder({ page }).include('body').analyze();
     expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
@@ -48,10 +48,10 @@ test.describe('admin — accessibility (axe, light theme)', () => {
 
 test.describe('admin — accessibility (axe, dark theme)', () => {
   test('login page (ar, dark)', async ({ page }) => {
-    await page.addInitScript(() => localStorage.setItem('luxedrive-theme', 'dark'));
+    await page.addInitScript(() => localStorage.setItem('clothing-theme', 'dark'));
     await page
       .context()
-      .addCookies([{ name: 'luxedrive-locale', value: 'ar', url: 'http://127.0.0.1:3000' }]);
+      .addCookies([{ name: 'clothing-locale', value: 'ar', url: 'http://127.0.0.1:3000' }]);
     await page.goto('/admin/login');
     const results = await new AxeBuilder({ page }).include('body').analyze();
     expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
@@ -59,10 +59,10 @@ test.describe('admin — accessibility (axe, dark theme)', () => {
 
   test('dashboard, signed in (en, dark)', async ({ ownerContext }) => {
     const page = await ownerContext.newPage();
-    await page.addInitScript(() => localStorage.setItem('luxedrive-theme', 'dark'));
+    await page.addInitScript(() => localStorage.setItem('clothing-theme', 'dark'));
     await page
       .context()
-      .addCookies([{ name: 'luxedrive-locale', value: 'en', url: 'http://127.0.0.1:3000' }]);
+      .addCookies([{ name: 'clothing-locale', value: 'en', url: 'http://127.0.0.1:3000' }]);
     await page.goto('/admin');
     const results = await new AxeBuilder({ page }).include('body').analyze();
     expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
@@ -75,7 +75,7 @@ test.describe('admin — keyboard navigation', () => {
   }) => {
     await page
       .context()
-      .addCookies([{ name: 'luxedrive-locale', value: 'en', url: 'http://127.0.0.1:3000' }]);
+      .addCookies([{ name: 'clothing-locale', value: 'en', url: 'http://127.0.0.1:3000' }]);
     await page.goto('/admin/login');
     await page.getByLabel(/Email/i).click();
     await page.keyboard.type(E2E_OWNER.email);
@@ -88,7 +88,7 @@ test.describe('admin — keyboard navigation', () => {
   test('the password show/hide toggle is keyboard-focusable and labeled', async ({ page }) => {
     await page
       .context()
-      .addCookies([{ name: 'luxedrive-locale', value: 'en', url: 'http://127.0.0.1:3000' }]);
+      .addCookies([{ name: 'clothing-locale', value: 'en', url: 'http://127.0.0.1:3000' }]);
     await page.goto('/admin/login');
     const toggle = page.getByRole('button', { name: /Show password/i });
     await expect(toggle).toBeVisible();
@@ -102,7 +102,7 @@ test.describe('admin — keyboard navigation', () => {
     const page = await ownerContext.newPage();
     await page
       .context()
-      .addCookies([{ name: 'luxedrive-locale', value: 'en', url: 'http://127.0.0.1:3000' }]);
+      .addCookies([{ name: 'clothing-locale', value: 'en', url: 'http://127.0.0.1:3000' }]);
     await page.goto('/admin');
     const trigger = page.getByRole('button', { name: 'User menu' });
     await trigger.focus();
@@ -114,7 +114,7 @@ test.describe('admin — keyboard navigation', () => {
     const page = await ownerContext.newPage();
     await page
       .context()
-      .addCookies([{ name: 'luxedrive-locale', value: 'en', url: 'http://127.0.0.1:3000' }]);
+      .addCookies([{ name: 'clothing-locale', value: 'en', url: 'http://127.0.0.1:3000' }]);
     await page.goto('/admin');
     const dashboardLink = page.getByRole('link', { name: 'Dashboard' });
     await dashboardLink.focus();

@@ -29,13 +29,13 @@ async function axe(page: Page): Promise<void> {
 }
 
 async function setAdminLocale(page: Page, locale: 'ar' | 'en'): Promise<void> {
-  await page.context().addCookies([{ name: 'luxedrive-locale', value: locale, url: BASE }]);
+  await page.context().addCookies([{ name: 'clothing-locale', value: locale, url: BASE }]);
 }
 
 /** Adds one item and waits for the server to confirm, so a following
  * navigation cannot outrun the write. */
 async function addOne(page: Page, locale: 'ar' | 'en'): Promise<void> {
-  await page.goto(`/${locale}/p/mercedes-benz-s-class`);
+  await page.goto(`/${locale}/p/essential-crew-neck-tee`);
   await page
     .getByRole('button', { name: locale === 'ar' ? 'أضف إلى السلة' : 'Add to cart' })
     .click();

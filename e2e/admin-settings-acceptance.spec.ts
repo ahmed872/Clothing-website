@@ -31,7 +31,7 @@ test.describe.configure({ timeout: 180_000 });
 const BASE = 'http://127.0.0.1:3000';
 
 async function setLocale(page: Page, locale: 'ar' | 'en'): Promise<void> {
-  await page.context().addCookies([{ name: 'luxedrive-locale', value: locale, url: BASE }]);
+  await page.context().addCookies([{ name: 'clothing-locale', value: locale, url: BASE }]);
 }
 
 async function saveStoreNames(page: Page, nameEn: string, nameAr: string): Promise<void> {

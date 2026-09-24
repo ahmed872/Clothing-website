@@ -46,7 +46,7 @@ lost or compromised, so are they. `scripts/backup.sh` produces a compressed
 `pg_dump` archive that can be stored anywhere else:
 
 ```bash
-./scripts/backup.sh                    # writes ./backups/luxedrive-<timestamp>.dump
+./scripts/backup.sh                    # writes ./backups/clothing-<timestamp>.dump
 BACKUP_DIR=/mnt/backups ./scripts/backup.sh
 ```
 
@@ -59,13 +59,13 @@ table if that is all that was lost) rather than all-or-nothing.
 live one:**
 
 ```bash
-createdb luxedrive_restore
-pg_restore --dbname=luxedrive_restore --clean --if-exists backups/luxedrive-<timestamp>.dump
+createdb clothing_restore
+pg_restore --dbname=clothing_restore --clean --if-exists backups/clothing-<timestamp>.dump
 
 # Verify before switching anything:
-psql luxedrive_restore -c "SELECT count(*) FROM orders;"
-psql luxedrive_restore -c "SELECT max(placed_at) FROM orders;"
-psql luxedrive_restore -c "SELECT migration_name FROM _prisma_migrations ORDER BY finished_at DESC LIMIT 1;"
+psql clothing_restore -c "SELECT count(*) FROM orders;"
+psql clothing_restore -c "SELECT max(placed_at) FROM orders;"
+psql clothing_restore -c "SELECT migration_name FROM _prisma_migrations ORDER BY finished_at DESC LIMIT 1;"
 ```
 
 Only after those numbers look right does the application get pointed at the

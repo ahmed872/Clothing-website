@@ -54,9 +54,13 @@ export async function StorefrontHeader({ locale }: StorefrontHeaderProps) {
           }}
         />
 
+        {/* `min-w-0` + `truncate`: the name is whatever the owner typed in
+            Settings, and at 390px a longer one than the original
+            "LuxeDrive" pushed the cart and wishlist icons off the screen.
+            It gives way instead; the link's accessible name stays whole. */}
         <Link
           href={`/${locale}`}
-          className="flex shrink-0 items-center gap-2 rounded-(--radius-sm) outline-none focus-visible:ring-2 focus-visible:ring-(--color-ring)/25"
+          className="flex min-w-0 items-center gap-2 rounded-(--radius-sm) outline-none focus-visible:ring-2 focus-visible:ring-(--color-ring)/25"
         >
           {settings.logo ? (
             <Image
@@ -64,10 +68,10 @@ export async function StorefrontHeader({ locale }: StorefrontHeaderProps) {
               alt={settings.logo.alt || storeName}
               width={32}
               height={32}
-              className="size-8 rounded-(--radius-sm) object-contain"
+              className="size-8 shrink-0 rounded-(--radius-sm) object-contain"
             />
           ) : null}
-          <span className="text-h6 font-bold text-(--color-text)">{storeName}</span>
+          <span className="truncate text-h6 font-bold text-(--color-text)">{storeName}</span>
         </Link>
 
         <NavLinks locale={locale} categories={topCategories} className="hidden md:flex" />

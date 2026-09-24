@@ -28,7 +28,7 @@ test.describe.configure({ timeout: 120_000 });
 const BASE = 'http://127.0.0.1:3000';
 
 async function setLocale(page: Page, locale: 'ar' | 'en'): Promise<void> {
-  await page.context().addCookies([{ name: 'luxedrive-locale', value: locale, url: BASE }]);
+  await page.context().addCookies([{ name: 'clothing-locale', value: locale, url: BASE }]);
 }
 
 async function axe(page: Page): Promise<void> {
@@ -128,7 +128,7 @@ for (const locale of ['ar', 'en'] as const) {
 test.describe('admin catalog — accessibility (axe, dark theme)', () => {
   test('products list (en, dark)', async ({ ownerContext }) => {
     const page = await ownerContext.newPage();
-    await page.addInitScript(() => localStorage.setItem('luxedrive-theme', 'dark'));
+    await page.addInitScript(() => localStorage.setItem('clothing-theme', 'dark'));
     await setLocale(page, 'en');
     await page.goto('/admin/products');
     await axe(page);
@@ -136,7 +136,7 @@ test.describe('admin catalog — accessibility (axe, dark theme)', () => {
 
   test('product edit (ar, dark)', async ({ ownerContext }) => {
     const page = await ownerContext.newPage();
-    await page.addInitScript(() => localStorage.setItem('luxedrive-theme', 'dark'));
+    await page.addInitScript(() => localStorage.setItem('clothing-theme', 'dark'));
     await setLocale(page, 'ar');
     const id = await firstProductId(page);
     await page.goto(`/admin/products/${id}`);

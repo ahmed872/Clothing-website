@@ -54,7 +54,7 @@ const SHADOW_TOKENS = ['xs', 'sm', 'md', 'lg', 'overlay'];
 const DURATION_TOKENS = ['instant', 'fast', 'base', 'slow'];
 
 export function TokensSection({ locale }: { locale: Locale }) {
-  const sample = locale === 'ar' ? 'سيارة فاخرة موديل 2026' : 'Premium car — model 2026';
+  const sample = locale === 'ar' ? 'فستان كتان — تشكيلة 2026' : 'Linen dress — 2026 collection';
 
   return (
     <section className="flex flex-col gap-10">

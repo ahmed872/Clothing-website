@@ -18,8 +18,8 @@ describe('consoleEmailProvider', () => {
       to: 'shopper@example.com',
       toName: 'Shopper',
       subject: 'Verify your email',
-      html: '<a href="https://luxedrive.example/verify?token=super-secret-token">Verify</a>',
-      text: 'https://luxedrive.example/verify?token=super-secret-token',
+      html: '<a href="https://clothing.example/verify?token=super-secret-token">Verify</a>',
+      text: 'https://clothing.example/verify?token=super-secret-token',
     });
     expect(result.providerMessageId).toBeNull();
   });
@@ -29,8 +29,8 @@ describe('consoleEmailProvider', () => {
       to: 'shopper@example.com',
       toName: 'Shopper',
       subject: 'Reset your password',
-      html: '<a href="https://luxedrive.example/reset?token=super-secret-token">Reset</a>',
-      text: 'https://luxedrive.example/reset?token=super-secret-token',
+      html: '<a href="https://clothing.example/reset?token=super-secret-token">Reset</a>',
+      text: 'https://clothing.example/reset?token=super-secret-token',
     });
 
     expect(logSpy).toHaveBeenCalledTimes(1);

@@ -66,13 +66,20 @@ export async function createProduct(input: CreateProductInput): Promise<ProductW
 
       // option name -> { id, values: valueEn -> id }
       const optionIndex = new Map<string, { id: string; values: Map<string, string> }>();
-      for (const option of options) {
+      for (const [position, option] of options.entries()) {
         const created = await tx.productOption.create({
           data: {
             productId: product.id,
             nameAr: option.nameAr,
             nameEn: option.nameEn,
-            values: { create: option.values },
+            // The order the caller listed them in is the order the storefront
+            // shows them: every reader sorts by `position`, and left at the
+            // column default of 0 every value ties, so "S, M, L, XL" came
+            // back in whatever order Postgres happened to return the rows.
+            position,
+            values: {
+              create: option.values.map((value, index) => ({ ...value, position: index })),
+            },
           },
           include: { values: true },
         });

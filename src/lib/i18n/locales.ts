@@ -15,7 +15,7 @@ export const DEFAULT_LOCALE: Locale = 'ar';
  * `proxy.ts` sets/reads it for the URL-prefixed storefront; `/admin` (which
  * has no `/ar`/`/en` URL prefix of its own) reads the same cookie so a
  * person's language choice is one preference, not two. */
-export const LOCALE_COOKIE_NAME = 'luxedrive-locale';
+export const LOCALE_COOKIE_NAME = 'clothing-locale';
 
 export function isLocale(value: string): value is Locale {
   return (SUPPORTED_LOCALES as readonly string[]).includes(value);
@@ -49,7 +49,7 @@ export function localizePath(pathname: string, locale: Locale): string {
 
 /** For a CTA `href` stored in `content`'s section config (which has no
  * locale of its own — the same section renders on both `/ar` and `/en`):
- * an internal path (`/c/cars`, or already-locale-prefixed `/ar/c/cars`)
+ * an internal path (`/c/women`, or already-locale-prefixed `/ar/c/women`)
  * gets `locale` applied via `localizePath`; an absolute external URL
  * (`https://...`) or a same-page anchor (`#section`) passes through
  * untouched — those aren't storefront routes to localize. */

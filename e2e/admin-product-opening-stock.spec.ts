@@ -28,7 +28,7 @@ const RUN = `${Date.now()}-${Math.floor(Math.random() * 100000)}`;
 const BASE = 'http://127.0.0.1:3000';
 
 async function setLocale(page: Page, locale: 'ar' | 'en'): Promise<void> {
-  await page.context().addCookies([{ name: 'luxedrive-locale', value: locale, url: BASE }]);
+  await page.context().addCookies([{ name: 'clothing-locale', value: locale, url: BASE }]);
 }
 
 let categoryCounter = 0;
@@ -37,8 +37,8 @@ let categoryCounter = 0;
  * A category of this spec's own, created through the admin like everything
  * else here.
  *
- * Not one that already exists: the demo "Cars" category carries required
- * attribute definitions (fuel type, transmission, engine…), and a product
+ * Not one that already exists: the demo clothing categories carry required
+ * attribute definitions (material, fit), and a product
  * form for it cannot be submitted without them — which has nothing to do
  * with what this spec is about. `orders-checkout-acceptance` makes its own
  * category for the same reason.

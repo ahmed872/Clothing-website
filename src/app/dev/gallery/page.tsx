@@ -9,7 +9,7 @@ import { GalleryShell } from './gallery-shell';
  * storefront or admin — noindex, and not linked from either.
  */
 export const metadata: Metadata = {
-  title: 'Design Gallery — LuxeDrive',
+  title: 'Design Gallery',
   robots: { index: false, follow: false },
 };
 

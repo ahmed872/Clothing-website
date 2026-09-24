@@ -1,5 +1,5 @@
 {
-  "name": "luxedrive",
+  "name": "clothing",
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@10.4.1",
@@ -29,6 +29,7 @@
     "postinstall": "prisma generate",
     "db:smoke": "node scripts/db-smoke.mjs",
     "db:seed-demo-catalog": "NODE_OPTIONS=--conditions=react-server tsx scripts/seed-demo-catalog.mts",
+    "demo:images": "tsx scripts/generate-demo-images.mts",
     "db:migrate-media": "NODE_OPTIONS=--conditions=react-server tsx scripts/migrate-media.mts",
     "db:seed-storefront-demo": "NODE_OPTIONS=--conditions=react-server tsx scripts/seed-storefront-demo.mts",
     "db:create-admin": "NODE_OPTIONS=--conditions=react-server tsx scripts/create-admin.mts",

@@ -91,7 +91,7 @@ export const smtpEmailProvider: EmailProviderAdapter = {
 
   async send(message: EmailMessage): Promise<EmailSendResult> {
     const env = serverEnv();
-    const fromName = env.EMAIL_FROM_NAME ?? 'LuxeDrive';
+    const fromName = env.EMAIL_FROM_NAME ?? message.fromName ?? 'Clothing Store';
 
     try {
       const info = await transport().sendMail({

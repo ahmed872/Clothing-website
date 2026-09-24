@@ -19,19 +19,19 @@ jobs:
       postgres:
         image: postgres:16
         env:
-          POSTGRES_USER: luxedrive
+          POSTGRES_USER: clothing
           POSTGRES_PASSWORD: ci_password
-          POSTGRES_DB: luxedrive_ci
+          POSTGRES_DB: clothing_ci
         ports:
           - 5432:5432
         options: >-
-          --health-cmd="pg_isready -U luxedrive"
+          --health-cmd="pg_isready -U clothing"
           --health-interval=5s
           --health-timeout=5s
           --health-retries=10
 
     env:
-      DATABASE_URL: postgresql://luxedrive:ci_password@127.0.0.1:5432/luxedrive_ci?schema=public
+      DATABASE_URL: postgresql://clothing:ci_password@127.0.0.1:5432/clothing_ci?schema=public
       NEXT_PUBLIC_SITE_URL: http://localhost:3000
       NEXT_PUBLIC_DEFAULT_LOCALE: ar
 

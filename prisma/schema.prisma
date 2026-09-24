@@ -1,4 +1,4 @@
-// LuxeDrive — data model.
+// Clothing store — data model.
 //
 // This schema is the one approved in the Final ADR (section 03). It is
 // declarative only: no business logic lives here, and later phases add

@@ -28,7 +28,7 @@ import { getOrderByAccessToken, getOrderForCustomer, type OrderView } from '@/mo
  * weaker token, and neither is worth it.
  */
 
-export const ORDER_ACCESS_COOKIE_NAME = 'luxedrive-orders';
+export const ORDER_ACCESS_COOKIE_NAME = 'clothing-orders';
 
 /** Long enough to follow an order through delivery, short enough that a
  * shared machine does not keep it forever. */
