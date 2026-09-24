@@ -1,0 +1,405 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+/*
+ * Design tokens — P02.
+ *
+ * Every colour, radius, shadow, spacing and duration a component uses comes
+ * from a token defined here. Nothing outside this file may declare a raw hex,
+ * rgb()/rgba() or hsl()/hsla() value — `eslint.config.mjs` enforces that for
+ * every `.ts`/`.tsx` file in `src/`. This file is the one place raw colour
+ * values are allowed to exist, because it is the definition, not a use.
+ *
+ * Colours are oklch() throughout: perceptually uniform lightness makes a
+ * light/dark pair or a hover/active ladder predictable instead of guessed.
+ *
+ * Status colours (success/warning/error/info) are deliberately independent of
+ * brand colours: the store owner configures the brand palette, never the
+ * meaning of success or error (ADR-015).
+ */
+
+@theme {
+  /* ---- Typography ---------------------------------------------------- */
+  --font-sans: var(--font-latin), var(--font-arabic), ui-sans-serif, system-ui, sans-serif;
+  --font-arabic-first: var(--font-arabic), var(--font-latin), ui-sans-serif, system-ui, sans-serif;
+
+  /* Display and heading scale. Tailwind v4 pairs `--text-<name>` with
+     `--text-<name>--line-height` to generate a matched `text-<name>` utility. */
+  --text-display: 3rem;
+  --text-display--line-height: 1.1;
+  --text-display--font-weight: 700;
+
+  --text-h1: 2.25rem;
+  --text-h1--line-height: 1.2;
+  --text-h1--font-weight: 700;
+
+  --text-h2: 1.875rem;
+  --text-h2--line-height: 1.25;
+  --text-h2--font-weight: 600;
+
+  --text-h3: 1.5rem;
+  --text-h3--line-height: 1.3;
+  --text-h3--font-weight: 600;
+
+  --text-h4: 1.25rem;
+  --text-h4--line-height: 1.35;
+  --text-h4--font-weight: 600;
+
+  --text-h5: 1.125rem;
+  --text-h5--line-height: 1.4;
+  --text-h5--font-weight: 600;
+
+  --text-h6: 1rem;
+  --text-h6--line-height: 1.4;
+  --text-h6--font-weight: 600;
+
+  --text-body: 1rem;
+  --text-body--line-height: 1.6;
+
+  --text-small: 0.875rem;
+  --text-small--line-height: 1.55;
+
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1.5;
+
+  --text-label: 0.8125rem;
+  --text-label--line-height: 1.3;
+  --text-label--font-weight: 500;
+
+  /* Prices and other numeric data always render Latin digits with tabular
+     figures (ADR-023) so amounts don't jitter as characters change. */
+  --text-price: 1.25rem;
+  --text-price--line-height: 1.2;
+  --text-price--font-weight: 700;
+
+  --text-numeric: 1rem;
+  --text-numeric--line-height: 1.4;
+
+  /* ---- Radius ---------------------------------------------------------- */
+  --radius-xs: 0.25rem;
+  --radius-sm: 0.375rem;
+  --radius-control: 0.5rem;
+  --radius-surface: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-full: 9999px;
+
+  /* ---- Motion ------------------------------------------------------------
+   * Enter transitions decelerate (ease-out-ish), exits accelerate — a
+   * surface should feel like it's arriving under its own weight and leaving
+   * under a push. Hover/press stay near-instant so interaction feels tight. */
+  --duration-instant: 100ms;
+  --duration-fast: 150ms;
+  --duration-base: 200ms;
+  --duration-slow: 320ms;
+
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-enter: cubic-bezier(0, 0, 0.2, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+
+  /* ---- Breakpoints (mobile → large desktop) ---------------------------- */
+  --breakpoint-sm: 40rem;
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 64rem;
+  --breakpoint-xl: 80rem;
+  --breakpoint-2xl: 96rem;
+}
+
+/*
+ * Colour tokens live outside `@theme` and behind `data-theme` / media queries,
+ * so light and dark can each be a complete, independently-tuned palette
+ * rather than one inverted at runtime (Dark ≠ invert(Light)).
+ */
+:root,
+[data-theme='light'] {
+  --color-background: oklch(0.99 0.002 250);
+  --color-surface: oklch(1 0 0);
+  --color-surface-raised: oklch(0.97 0.003 250);
+  --color-elevated: oklch(1 0 0);
+  --color-border: oklch(0.9 0.004 250);
+  --color-border-strong: oklch(0.82 0.006 250);
+
+  --color-text: oklch(0.22 0.01 250);
+  --color-foreground: var(--color-text);
+  --color-text-muted: oklch(0.52 0.012 250);
+  --color-muted-foreground: var(--color-text-muted);
+  /* 0.54, not the 0.65 P02 shipped: at 0.65 this token renders #8b9095, which
+     is 3.2:1 on the surface it sits on — below the 4.5:1 WCAG AA floor for
+     normal text. It is used for real information (a field's "optional" note,
+     a format hint, "Guest" on an order), not decoration, so 3:1 is not the
+     applicable threshold. 0.54 clears 4.5:1 against every light surface —
+     background, surface and surface-raised alike. Caught by axe on the P10
+     checkout, which is the first screen to put body-sized text in it. */
+  --color-text-subtle: oklch(0.54 0.01 250);
+
+  --color-brand: oklch(0.28 0.045 250);
+  --color-brand-hover: oklch(0.34 0.05 250);
+  --color-brand-active: oklch(0.24 0.045 250);
+  --color-brand-foreground: oklch(0.99 0.002 250);
+
+  --color-primary: var(--color-brand);
+  --color-primary-hover: var(--color-brand-hover);
+  --color-primary-active: var(--color-brand-active);
+  --color-primary-foreground: var(--color-brand-foreground);
+
+  --color-secondary: oklch(0.95 0.004 250);
+  --color-secondary-hover: oklch(0.91 0.006 250);
+  --color-secondary-active: oklch(0.87 0.008 250);
+  --color-secondary-foreground: var(--color-text);
+
+  --color-accent: oklch(0.76 0.12 85);
+  --color-accent-hover: oklch(0.71 0.13 85);
+  --color-accent-active: oklch(0.66 0.13 85);
+  --color-accent-foreground: oklch(0.2 0.03 85);
+
+  --color-muted: oklch(0.96 0.003 250);
+
+  /* Darker than a first pass would pick: green and amber hues render far
+     lighter than their oklch L suggests once converted to sRGB, so getting
+     text-on-tinted-surface (a status badge) to AA's 4.5:1 needs `success`
+     several steps darker than, say, `info` at the same L (verified with
+     axe against `--color-success-surface` / `--color-warning-surface`). */
+  --color-success: oklch(0.42 0.1 150);
+  --color-success-hover: oklch(0.37 0.1 150);
+  --color-success-surface: oklch(0.95 0.03 150);
+  --color-success-foreground: oklch(0.99 0.005 150);
+
+  --color-warning: oklch(0.4 0.1 75);
+  --color-warning-hover: oklch(0.35 0.1 75);
+  --color-warning-surface: oklch(0.96 0.04 85);
+  --color-warning-foreground: oklch(0.99 0.005 75);
+
+  --color-error: oklch(0.55 0.19 25);
+  --color-error-hover: oklch(0.5 0.195 25);
+  --color-error-surface: oklch(0.96 0.03 25);
+  --color-error-foreground: oklch(0.99 0.005 25);
+
+  --color-info: oklch(0.48 0.12 250);
+  --color-info-hover: oklch(0.43 0.125 250);
+  --color-info-surface: oklch(0.95 0.02 250);
+  --color-info-foreground: oklch(0.99 0.005 250);
+
+  --color-disabled: oklch(0.93 0.003 250);
+  --color-disabled-foreground: oklch(0.68 0.008 250);
+
+  --color-ring: var(--color-brand);
+  --color-overlay: oklch(0.15 0.01 250 / 45%);
+
+  --shadow-xs: 0 1px 2px oklch(0.2 0.01 250 / 6%);
+  --shadow-sm: 0 1px 3px oklch(0.2 0.01 250 / 8%), 0 1px 2px oklch(0.2 0.01 250 / 5%);
+  --shadow-md: 0 4px 10px oklch(0.2 0.01 250 / 8%), 0 2px 4px oklch(0.2 0.01 250 / 6%);
+  --shadow-lg: 0 12px 24px oklch(0.2 0.01 250 / 10%), 0 4px 8px oklch(0.2 0.01 250 / 6%);
+  --shadow-overlay: 0 24px 48px oklch(0.15 0.01 250 / 18%), 0 8px 16px oklch(0.15 0.01 250 / 10%);
+
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  --color-background: oklch(0.16 0.006 250);
+  --color-surface: oklch(0.2 0.006 250);
+  --color-surface-raised: oklch(0.24 0.007 250);
+  --color-elevated: oklch(0.27 0.008 250);
+  --color-border: oklch(0.32 0.008 250);
+  --color-border-strong: oklch(0.4 0.01 250);
+
+  --color-text: oklch(0.95 0.003 250);
+  --color-foreground: var(--color-text);
+  --color-text-muted: oklch(0.72 0.008 250);
+  --color-muted-foreground: var(--color-text-muted);
+  /* 0.65 for the same reason as light's 0.54: at 0.6 this token falls to
+     3.8:1 on `--color-elevated`, the lightest dark surface it can sit on. */
+  --color-text-subtle: oklch(0.65 0.008 250);
+
+  --color-brand: oklch(0.78 0.09 250);
+  --color-brand-hover: oklch(0.83 0.08 250);
+  --color-brand-active: oklch(0.73 0.095 250);
+  --color-brand-foreground: oklch(0.16 0.006 250);
+
+  --color-primary: var(--color-brand);
+  --color-primary-hover: var(--color-brand-hover);
+  --color-primary-active: var(--color-brand-active);
+  --color-primary-foreground: var(--color-brand-foreground);
+
+  --color-secondary: oklch(0.28 0.008 250);
+  --color-secondary-hover: oklch(0.33 0.009 250);
+  --color-secondary-active: oklch(0.38 0.01 250);
+  --color-secondary-foreground: var(--color-text);
+
+  --color-accent: oklch(0.74 0.12 85);
+  --color-accent-hover: oklch(0.79 0.11 85);
+  --color-accent-active: oklch(0.69 0.13 85);
+  --color-accent-foreground: oklch(0.18 0.03 85);
+
+  --color-muted: oklch(0.24 0.007 250);
+
+  --color-success: oklch(0.68 0.13 150);
+  --color-success-hover: oklch(0.73 0.125 150);
+  --color-success-surface: oklch(0.26 0.04 150);
+  --color-success-foreground: oklch(0.14 0.02 150);
+
+  --color-warning: oklch(0.75 0.13 80);
+  --color-warning-hover: oklch(0.8 0.12 80);
+  --color-warning-surface: oklch(0.3 0.05 80);
+  --color-warning-foreground: oklch(0.16 0.02 80);
+
+  /* 0.68 measured 4.46:1 on --color-error-surface at small badge text
+     (axe, P05) — just under AA's 4.5:1. Bumped to 0.71 for real margin,
+     not a bare pass. */
+  --color-error: oklch(0.71 0.17 25);
+  --color-error-hover: oklch(0.73 0.17 25);
+  --color-error-surface: oklch(0.3 0.06 25);
+  --color-error-foreground: oklch(0.15 0.02 25);
+
+  --color-info: oklch(0.72 0.1 250);
+  --color-info-hover: oklch(0.77 0.09 250);
+  --color-info-surface: oklch(0.28 0.03 250);
+  --color-info-foreground: oklch(0.15 0.01 250);
+
+  --color-disabled: oklch(0.3 0.007 250);
+  --color-disabled-foreground: oklch(0.5 0.01 250);
+
+  --color-ring: var(--color-brand);
+  --color-overlay: oklch(0.05 0.006 250 / 60%);
+
+  --shadow-xs: 0 1px 2px oklch(0 0 0 / 25%);
+  --shadow-sm: 0 1px 3px oklch(0 0 0 / 30%), 0 1px 2px oklch(0 0 0 / 20%);
+  --shadow-md: 0 4px 10px oklch(0 0 0 / 32%), 0 2px 4px oklch(0 0 0 / 22%);
+  --shadow-lg: 0 12px 24px oklch(0 0 0 / 38%), 0 4px 8px oklch(0 0 0 / 24%);
+  --shadow-overlay: 0 24px 48px oklch(0 0 0 / 50%), 0 8px 16px oklch(0 0 0 / 30%);
+
+  color-scheme: dark;
+}
+
+/* No explicit choice yet: follow the system, same as the two blocks above. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']):not([data-theme='dark']) {
+    --color-background: oklch(0.16 0.006 250);
+    --color-surface: oklch(0.2 0.006 250);
+    --color-surface-raised: oklch(0.24 0.007 250);
+    --color-elevated: oklch(0.27 0.008 250);
+    --color-border: oklch(0.32 0.008 250);
+    --color-border-strong: oklch(0.4 0.01 250);
+
+    --color-text: oklch(0.95 0.003 250);
+    --color-foreground: var(--color-text);
+    --color-text-muted: oklch(0.72 0.008 250);
+    --color-muted-foreground: var(--color-text-muted);
+    --color-text-subtle: oklch(0.65 0.008 250);
+
+    --color-brand: oklch(0.78 0.09 250);
+    --color-brand-hover: oklch(0.83 0.08 250);
+    --color-brand-active: oklch(0.73 0.095 250);
+    --color-brand-foreground: oklch(0.16 0.006 250);
+
+    --color-primary: var(--color-brand);
+    --color-primary-hover: var(--color-brand-hover);
+    --color-primary-active: var(--color-brand-active);
+    --color-primary-foreground: var(--color-brand-foreground);
+
+    --color-secondary: oklch(0.28 0.008 250);
+    --color-secondary-hover: oklch(0.33 0.009 250);
+    --color-secondary-active: oklch(0.38 0.01 250);
+    --color-secondary-foreground: var(--color-text);
+
+    --color-accent: oklch(0.74 0.12 85);
+    --color-accent-hover: oklch(0.79 0.11 85);
+    --color-accent-active: oklch(0.69 0.13 85);
+    --color-accent-foreground: oklch(0.18 0.03 85);
+
+    --color-muted: oklch(0.24 0.007 250);
+
+    --color-success: oklch(0.68 0.13 150);
+    --color-success-hover: oklch(0.73 0.125 150);
+    --color-success-surface: oklch(0.26 0.04 150);
+    --color-success-foreground: oklch(0.14 0.02 150);
+
+    --color-warning: oklch(0.75 0.13 80);
+    --color-warning-hover: oklch(0.8 0.12 80);
+    --color-warning-surface: oklch(0.3 0.05 80);
+    --color-warning-foreground: oklch(0.16 0.02 80);
+
+    /* Kept identical to the [data-theme='dark'] block above — see its
+       comment (P05 axe fix). */
+    --color-error: oklch(0.71 0.17 25);
+    --color-error-hover: oklch(0.73 0.17 25);
+    --color-error-surface: oklch(0.3 0.06 25);
+    --color-error-foreground: oklch(0.15 0.02 25);
+
+    --color-info: oklch(0.72 0.1 250);
+    --color-info-hover: oklch(0.77 0.09 250);
+    --color-info-surface: oklch(0.28 0.03 250);
+    --color-info-foreground: oklch(0.15 0.01 250);
+
+    --color-disabled: oklch(0.3 0.007 250);
+    --color-disabled-foreground: oklch(0.5 0.01 250);
+
+    --color-ring: var(--color-brand);
+    --color-overlay: oklch(0.05 0.006 250 / 60%);
+
+    --shadow-xs: 0 1px 2px oklch(0 0 0 / 25%);
+    --shadow-sm: 0 1px 3px oklch(0 0 0 / 30%), 0 1px 2px oklch(0 0 0 / 20%);
+    --shadow-md: 0 4px 10px oklch(0 0 0 / 32%), 0 2px 4px oklch(0 0 0 / 22%);
+    --shadow-lg: 0 12px 24px oklch(0 0 0 / 38%), 0 4px 8px oklch(0 0 0 / 24%);
+    --shadow-overlay: 0 24px 48px oklch(0 0 0 / 50%), 0 8px 16px oklch(0 0 0 / 30%);
+
+    color-scheme: dark;
+  }
+}
+
+@layer base {
+  :root {
+    color-scheme: light dark;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Arabic needs more line height than Latin at the same size (ADR-023), and
+     reads better in a script tuned for it while still falling back to the
+     Latin family for any embedded Latin/numeric run. Matched on `[lang]`
+     rather than `body` so a locale-scoped subtree (the /dev/gallery locale
+     toggle) picks up the right face too, not only the document root. */
+  [lang='ar'] {
+    font-family: var(--font-arabic-first);
+    line-height: 1.8;
+  }
+
+  /* Prices, SKUs and other data values stay Latin-numeral and tabular in both
+     directions so figures don't reflow as digits change (ADR-023). */
+  .tabular-nums,
+  [data-numeric] {
+    font-variant-numeric: tabular-nums;
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+
+  /* A CSS variable name or other code token opens with punctuation
+     (`--color-brand`) that the bidi algorithm is free to reorder inside an
+     RTL paragraph — without this it renders as "color-brand--". Isolating
+     direction is correct for `<code>` regardless of surrounding text, so
+     this is a base-element rule, not a utility callers opt into per use. */
+  code {
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+
+  ::selection {
+    background-color: var(--color-accent);
+    color: var(--color-accent-foreground);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}

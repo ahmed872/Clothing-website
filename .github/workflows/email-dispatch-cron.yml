@@ -1,0 +1,60 @@
+name: Email dispatch (free-tier cron)
+
+# Vercel's Hobby (free) plan caps cron jobs at once-per-day minimum
+# frequency — a `*/5 * * * *` entry in vercel.json fails at deploy time on
+# that plan, and even on a paid plan, once-daily dispatch would leave most
+# password-reset links (a 1-hour token TTL) expiring before they are ever
+# sent. This workflow is the zero-cost substitute for a project staying on
+# Vercel's free tier: this repository is public, so GitHub Actions minutes
+# for it are unlimited and free regardless of schedule frequency.
+#
+# `vercel.json` still carries its own once-daily cron entry as a slow safety
+# net — if this workflow or its secrets are ever misconfigured, the outbox
+# still drains once a day rather than never. Calling the dispatch endpoint
+# twice in the same few minutes is harmless: it is idempotent-to-call (see
+# that route's own comment).
+#
+# Requires two values configured once in this repository's own GitHub
+# settings (Settings → Secrets and variables → Actions) — never committed:
+#   - Variable `PRODUCTION_APP_URL`   e.g. https://your-deployment.vercel.app
+#   - Secret   `EMAIL_DISPATCH_SECRET` — the exact same value configured as
+#                                        the Vercel project's own
+#                                        EMAIL_DISPATCH_SECRET/CRON_SECRET.
+# Until both are set, this workflow logs that fact and exits successfully
+# rather than failing every 5 minutes.
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch: {}
+
+jobs:
+  dispatch:
+    name: Call /api/internal/email-dispatch
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+
+    steps:
+      - name: Call the dispatch endpoint
+        env:
+          APP_URL: ${{ vars.PRODUCTION_APP_URL }}
+          DISPATCH_SECRET: ${{ secrets.EMAIL_DISPATCH_SECRET }}
+        run: |
+          if [ -z "$APP_URL" ] || [ -z "$DISPATCH_SECRET" ]; then
+            echo "PRODUCTION_APP_URL and/or EMAIL_DISPATCH_SECRET are not configured yet — skipping. See this workflow's own header comment for setup."
+            exit 0
+          fi
+
+          status=$(curl -sS -o /tmp/response.json -w "%{http_code}" \
+            --max-time 30 \
+            -H "Authorization: Bearer ${DISPATCH_SECRET}" \
+            "${APP_URL%/}/api/internal/email-dispatch")
+
+          echo "HTTP status: $status"
+          cat /tmp/response.json
+          echo ""
+
+          if [ "$status" != "200" ]; then
+            echo "::error::Dispatch endpoint returned HTTP $status"
+            exit 1
+          fi

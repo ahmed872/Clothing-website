@@ -1,0 +1,8 @@
+legacy/
+generated/
+.next/
+node_modules/
+pnpm-lock.yaml
+prisma/migrations/
+coverage/
+next-env.d.ts

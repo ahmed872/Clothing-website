@@ -1,0 +1,50 @@
+import type { getAdminDictionary } from '@/lib/i18n/admin-dictionary';
+import type { PromotionFormLabels } from '@/components/admin/promotion-form';
+
+/** The form's label bundle, assembled once so the create and edit pages
+ * cannot drift apart. */
+export function promotionFormLabels(t: ReturnType<typeof getAdminDictionary>): PromotionFormLabels {
+  return {
+    sectionBasics: t.promotions.sectionBasics,
+    sectionRules: t.promotions.sectionRules,
+    sectionScope: t.promotions.sectionScope,
+    sectionLimits: t.promotions.sectionLimits,
+    code: t.promotions.code,
+    codeHelp: t.promotions.codeHelp,
+    type: t.promotions.type,
+    typePercentage: t.promotions.typePercentage,
+    typeFixed: t.promotions.typeFixed,
+    valuePercent: t.promotions.valuePercent,
+    valueFixed: t.promotions.valueFixed,
+    descriptionAr: t.promotions.descriptionAr,
+    descriptionEn: t.promotions.descriptionEn,
+    minOrder: t.promotions.minOrder,
+    minOrderHelp: t.promotions.minOrderHelp,
+    maxDiscount: t.promotions.maxDiscount,
+    maxDiscountHelp: t.promotions.maxDiscountHelp,
+    usageLimit: t.promotions.usageLimit,
+    usageLimitHelp: t.promotions.usageLimitHelp,
+    perCustomerLimit: t.promotions.perCustomerLimit,
+    perCustomerLimitHelp: t.promotions.perCustomerLimitHelp,
+    startsAt: t.promotions.startsAt,
+    endsAt: t.promotions.endsAt,
+    active: t.promotions.active,
+    activeHelp: t.promotions.activeHelp,
+    scopeHelp: t.promotions.scopeHelp,
+    scopeProducts: t.promotions.scopeProducts,
+    scopeCategories: t.promotions.scopeCategories,
+    scopeBrands: t.promotions.scopeBrands,
+    scopeSearchPlaceholder: t.promotions.scopeSearchPlaceholder,
+    scopeSearching: t.promotions.scopeSearching,
+    scopeNoResults: t.promotions.scopeNoResults,
+    scopeAdd: t.promotions.scopeAdd,
+    scopeRemove: t.promotions.scopeRemove,
+    scopeSelected: t.promotions.scopeSelected,
+    scopeEmpty: t.promotions.scopeEmpty,
+    save: t.common.save,
+    saving: t.common.saving,
+    cancel: t.common.cancel,
+    createdSuccess: t.promotions.createdSuccess,
+    updatedSuccess: t.promotions.updatedSuccess,
+  };
+}

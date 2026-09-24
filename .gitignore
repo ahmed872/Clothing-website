@@ -1,0 +1,57 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+.next/
+out/
+dist/
+build/
+
+# Environment — never commit real values. See .env.example for the contract.
+.env
+.env.local
+.env.*.local
+.env.development
+.env.test
+.env.production
+
+# Prisma
+prisma/*.db
+prisma/*.db-journal
+
+# Test / coverage output
+coverage/
+test-results/
+playwright-report/
+blob-report/
+.playwright/
+
+# Caches
+.turbo/
+.vercel/
+.eslintcache
+*.tsbuildinfo
+
+# Editors
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Prisma generated client
+generated/
+
+# Local backups
+backups/
+
+# Local media storage provider (P04) — dev/test only, never the production backend
+.local-storage/

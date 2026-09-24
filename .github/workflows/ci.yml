@@ -1,0 +1,121 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+# Every job below must pass. There is no `continue-on-error` anywhere: a red
+# check means the branch is not mergeable, which is the entire point.
+jobs:
+  verify:
+    name: Verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    # A real PostgreSQL, so migrations and the database smoke check are proven
+    # against the actual engine rather than assumed to work.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: luxedrive
+          POSTGRES_PASSWORD: ci_password
+          POSTGRES_DB: luxedrive_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U luxedrive"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      DATABASE_URL: postgresql://luxedrive:ci_password@127.0.0.1:5432/luxedrive_ci?schema=public
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      NEXT_PUBLIC_DEFAULT_LOCALE: ar
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.4.1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm db:generate
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Format check
+        run: pnpm format:check
+
+      # Ahead of the tests now (P03): catalog service tests run against a real
+      # schema, not just pure functions, so it has to exist before `pnpm test`
+      # runs. `vitest.global-setup.ts` also applies migrations itself before
+      # the test run — deploy is idempotent, so doing it here too is a no-op,
+      # not a race; it stays as its own explicit step for the same reason the
+      # smoke check is its own step: a failure here names itself precisely
+      # instead of surfacing as a confusing test failure.
+      - name: Apply migrations
+        run: pnpm db:deploy
+
+      - name: Database smoke check
+        run: pnpm db:smoke
+
+      - name: Unit tests
+        run: pnpm test
+
+      - name: Production build
+        run: pnpm build
+
+      # Fails the build if a server secret ever reaches browser JavaScript.
+      # Greps the client chunks for the CI database password and for any
+      # connection string, both of which must be absent by construction.
+      - name: Assert no secrets in the client bundle
+        run: |
+          if grep -rl "ci_password" .next/static 2>/dev/null; then
+            echo "::error::A server secret was found in the client bundle."
+            exit 1
+          fi
+          if grep -rlE "postgresql://" .next/static 2>/dev/null; then
+            echo "::error::A database connection string was found in the client bundle."
+            exit 1
+          fi
+          echo "No server secrets in the client bundle."
+
+      # Accessibility (axe) and visual-regression checks against the design
+      # system (P02) — see playwright.config.ts. Chromium only, matching the
+      # config; installed fresh here since the sandbox's pre-pinned browser
+      # (used in local/agent runs) doesn't exist on this runner.
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Design system — accessibility & visual regression
+        run: pnpm test:e2e
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14
+
+# Not yet running, and deliberately not stubbed out with a passing placeholder:
+#
+#   - End-to-end tests against real commerce flows (checkout, cart, …): there
+#     is no such flow to exercise until the storefront lands in P05.
+#   - Integration tests against services: the service layer starts in P03.

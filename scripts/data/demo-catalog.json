@@ -1,0 +1,254 @@
+[
+  {
+    "id": 1,
+    "name": "Mercedes-Benz S-Class",
+    "brand": "Mercedes-Benz",
+    "model": "S 500",
+    "year": 2024,
+    "price": 125000,
+    "fuelType": "Hybrid",
+    "transmission": "Automatic",
+    "engine": "3.0L V6 Turbo",
+    "mileage": 1200,
+    "color": "Obsidian Black",
+    "seating": 5,
+    "description": "The pinnacle of luxury and technology, the Mercedes-Benz S-Class offers unparalleled comfort, cutting-edge safety features, and a powerful yet efficient hybrid powertrain.",
+    "images": [
+      "https://images.unsplash.com/photo-1617531653332-bd46c24f2068?w=800&q=80",
+      "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=800&q=80",
+      "https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=800&q=80"
+    ],
+    "featured": true
+  },
+  {
+    "id": 2,
+    "name": "BMW 7 Series",
+    "brand": "BMW",
+    "model": "740i",
+    "year": 2024,
+    "price": 98000,
+    "fuelType": "Petrol",
+    "transmission": "Automatic",
+    "engine": "3.0L Inline-6 Turbo",
+    "mileage": 800,
+    "color": "Alpine White",
+    "seating": 5,
+    "description": "Experience the perfect blend of performance and luxury with the BMW 7 Series. Advanced driver assistance systems and a refined interior make every journey exceptional.",
+    "images": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&q=80",
+      "https://images.unsplash.com/photo-1617531653520-bd788c6823e9?w=800&q=80",
+      "https://images.unsplash.com/photo-1617531653520-bd788c6823e9?w=800&q=80"
+    ],
+    "featured": true
+  },
+  {
+    "id": 3,
+    "name": "Audi A8",
+    "brand": "Audi",
+    "model": "A8 L 55 TFSI",
+    "year": 2023,
+    "price": 89000,
+    "fuelType": "Petrol",
+    "transmission": "Automatic",
+    "engine": "3.0L V6 TFSI",
+    "mileage": 5000,
+    "color": "Mythos Black",
+    "seating": 5,
+    "description": "The Audi A8 combines sophisticated design with innovative technology. Enjoy the spacious interior, quattro all-wheel drive, and advanced infotainment system.",
+    "images": [
+      "https://images.unsplash.com/photo-1610768764270-790fbec18178?w=800&q=80",
+      "https://images.unsplash.com/photo-1614200187524-dc4b892acf16?w=800&q=80",
+      "https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=800&q=80"
+    ],
+    "featured": true
+  },
+  {
+    "id": 4,
+    "name": "Porsche Panamera",
+    "brand": "Porsche",
+    "model": "Panamera 4S",
+    "year": 2024,
+    "price": 115000,
+    "fuelType": "Petrol",
+    "transmission": "Automatic",
+    "engine": "2.9L V6 Twin-Turbo",
+    "mileage": 600,
+    "color": "Carrara White",
+    "seating": 4,
+    "description": "The Porsche Panamera delivers sports car performance in a luxury sedan package. With its powerful engine and precise handling, it's a driver's dream.",
+    "images": [
+      "https://images.unsplash.com/photo-1614200187524-dc4b892acf16?w=800&q=80",
+      "https://images.unsplash.com/photo-1610768764270-790fbec18178?w=800&q=80",
+      "https://images.unsplash.com/photo-1617531653332-bd46c24f2068?w=800&q=80"
+    ],
+    "featured": false
+  },
+  {
+    "id": 5,
+    "name": "Lexus LS 500",
+    "brand": "Lexus",
+    "model": "LS 500",
+    "year": 2023,
+    "price": 78000,
+    "fuelType": "Hybrid",
+    "transmission": "Automatic",
+    "engine": "3.5L V6 Hybrid",
+    "mileage": 8000,
+    "color": "Sonic Silver",
+    "seating": 5,
+    "description": "The Lexus LS 500 offers exceptional comfort and reliability. Its hybrid powertrain ensures efficiency without compromising on performance.",
+    "images": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&q=80",
+      "https://images.unsplash.com/photo-1617531653520-bd788c6823e9?w=800&q=80",
+      "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=800&q=80"
+    ],
+    "featured": false
+  },
+  {
+    "id": 6,
+    "name": "Jaguar XJ",
+    "brand": "Jaguar",
+    "model": "XJ Portfolio",
+    "year": 2022,
+    "price": 72000,
+    "fuelType": "Petrol",
+    "transmission": "Automatic",
+    "engine": "3.0L V6 Supercharged",
+    "mileage": 12000,
+    "color": "British Racing Green",
+    "seating": 5,
+    "description": "The Jaguar XJ is a statement of British luxury and elegance. With its distinctive design and powerful engine, it stands out in any crowd.",
+    "images": [
+      "https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=800&q=80",
+      "https://images.unsplash.com/photo-1617531653332-bd46c24f2068?w=800&q=80",
+      "https://images.unsplash.com/photo-1614200187524-dc4b892acf16?w=800&q=80"
+    ],
+    "featured": false
+  },
+  {
+    "id": 7,
+    "name": "Tesla Model S",
+    "brand": "Tesla",
+    "model": "Model S Plaid",
+    "year": 2024,
+    "price": 135000,
+    "fuelType": "Electric",
+    "transmission": "Automatic",
+    "engine": "Tri-Motor Electric",
+    "mileage": 500,
+    "color": "Pearl White",
+    "seating": 5,
+    "description": "The Tesla Model S Plaid is the fastest production sedan in the world. With instant acceleration and cutting-edge autopilot features, it redefines electric luxury.",
+    "images": [
+      "https://images.unsplash.com/photo-1617788138017-80ad40651399?w=800&q=80",
+      "https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=800&q=80",
+      "https://images.unsplash.com/photo-1536700503339-1e4b06520771?w=800&q=80"
+    ],
+    "featured": true
+  },
+  {
+    "id": 8,
+    "name": "Bentley Flying Spur",
+    "brand": "Bentley",
+    "model": "Flying Spur V8",
+    "year": 2023,
+    "price": 215000,
+    "fuelType": "Petrol",
+    "transmission": "Automatic",
+    "engine": "4.0L V8 Twin-Turbo",
+    "mileage": 3000,
+    "color": "Moonbeam",
+    "seating": 5,
+    "description": "The Bentley Flying Spur represents the ultimate in handcrafted luxury. Every detail is meticulously designed to provide an unparalleled driving experience.",
+    "images": [
+      "https://images.unsplash.com/photo-1563720360172-67b8f3dce741?w=800&q=80",
+      "https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=800&q=80",
+      "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=800&q=80"
+    ],
+    "featured": false
+  },
+  {
+    "id": 9,
+    "name": "Rolls-Royce Ghost",
+    "brand": "Rolls-Royce",
+    "model": "Ghost Extended",
+    "year": 2024,
+    "price": 385000,
+    "fuelType": "Petrol",
+    "transmission": "Automatic",
+    "engine": "6.75L V12 Twin-Turbo",
+    "mileage": 200,
+    "color": "Arctic White",
+    "seating": 5,
+    "description": "The Rolls-Royce Ghost is the epitome of automotive excellence. With bespoke craftsmanship and whisper-quiet performance, it's a sanctuary on wheels.",
+    "images": [
+      "https://images.unsplash.com/photo-1563720360172-67b8f3dce741?w=800&q=80",
+      "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=800&q=80",
+      "https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=800&q=80"
+    ],
+    "featured": true
+  },
+  {
+    "id": 10,
+    "name": "Maserati Quattroporte",
+    "brand": "Maserati",
+    "model": "Quattroporte Trofeo",
+    "year": 2023,
+    "price": 145000,
+    "fuelType": "Petrol",
+    "transmission": "Automatic",
+    "engine": "3.8L V8 Twin-Turbo",
+    "mileage": 4500,
+    "color": "Blu Emozione",
+    "seating": 5,
+    "description": "The Maserati Quattroporte Trofeo combines Italian passion with performance. Its distinctive exhaust note and elegant design make it truly special.",
+    "images": [
+      "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=800&q=80",
+      "https://images.unsplash.com/photo-1563720360172-67b8f3dce741?w=800&q=80",
+      "https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=800&q=80"
+    ],
+    "featured": false
+  },
+  {
+    "id": 11,
+    "name": "Range Rover Autobiography",
+    "brand": "Land Rover",
+    "model": "Range Rover Autobiography",
+    "year": 2024,
+    "price": 165000,
+    "fuelType": "Hybrid",
+    "transmission": "Automatic",
+    "engine": "3.0L Inline-6 Hybrid",
+    "mileage": 1000,
+    "color": "Santorini Black",
+    "seating": 5,
+    "description": "The Range Rover Autobiography offers luxury and capability in equal measure. Whether on-road or off-road, it delivers a commanding presence.",
+    "images": [
+      "https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=800&q=80",
+      "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&q=80",
+      "https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=800&q=80"
+    ],
+    "featured": false
+  },
+  {
+    "id": 12,
+    "name": "Cadillac CT6",
+    "brand": "Cadillac",
+    "model": "CT6 Platinum",
+    "year": 2022,
+    "price": 68000,
+    "fuelType": "Petrol",
+    "transmission": "Automatic",
+    "engine": "3.0L V6 Twin-Turbo",
+    "mileage": 15000,
+    "color": "Radiant Silver",
+    "seating": 5,
+    "description": "The Cadillac CT6 Platinum offers American luxury with advanced technology. Its spacious cabin and smooth ride make it perfect for long journeys.",
+    "images": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&q=80",
+      "https://images.unsplash.com/photo-1617531653520-bd788c6823e9?w=800&q=80",
+      "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=800&q=80"
+    ],
+    "featured": false
+  }
+]
