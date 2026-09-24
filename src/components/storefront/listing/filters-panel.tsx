@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { formatMoney } from '@/modules/core/money';
 import type { FilterableAttribute } from '@/modules/catalog';
 import type { Locale } from '@/lib/i18n/locales';
+import { attributeValueLabel } from '@/lib/attribute-value-label';
 import { getDictionary } from '@/lib/i18n/dictionary';
 import { withQueryPatch } from '@/lib/query-string';
 import { cn } from '@/lib/utils';
@@ -217,7 +218,7 @@ export function FiltersPanel({
                 htmlFor={`${instanceId}-${attribute.key}-${value}`}
                 className="cursor-pointer text-sm font-normal"
               >
-                {value}
+                {attributeValueLabel(attribute.valueLabels, value, locale)}
               </Label>
             </div>
           ))}

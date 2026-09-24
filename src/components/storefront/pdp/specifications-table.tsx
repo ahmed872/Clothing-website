@@ -1,10 +1,13 @@
 import type { ProductDetailAttribute } from '@/modules/catalog';
 import type { Locale } from '@/lib/i18n/locales';
+import { attributeValueLabel } from '@/lib/attribute-value-label';
 
-function formatValue(value: unknown, unit: string | null): string {
-  if (Array.isArray(value)) return value.map(String).join('، ');
+function formatValue(spec: ProductDetailAttribute, locale: Locale): string {
+  const { value, unit } = spec;
+  const label = (v: unknown) => attributeValueLabel(spec.valueLabels, String(v), locale);
+  if (Array.isArray(value)) return value.map(label).join(locale === 'ar' ? '، ' : ', ');
   if (typeof value === 'boolean') return value ? '✓' : '—';
-  return unit ? `${value} ${unit}` : String(value);
+  return unit ? `${value} ${unit}` : label(value);
 }
 
 /** Category-defined attributes only — nothing here is specific to any one
@@ -30,7 +33,7 @@ export function SpecificationsTable({
             {locale === 'ar' ? spec.labelAr : spec.labelEn}
           </dt>
           <dd className="text-small font-medium text-(--color-text)">
-            {formatValue(spec.value, spec.unit)}
+            {formatValue(spec, locale)}
           </dd>
         </div>
       ))}

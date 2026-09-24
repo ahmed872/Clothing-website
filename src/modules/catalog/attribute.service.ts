@@ -10,6 +10,7 @@ import {
   attributeDefinitionUpdateSchema,
   type AttributeDefinitionInput,
   type AttributeDefinitionUpdateInput,
+  type AttributeValueLabels,
 } from './schemas';
 import { mapUniqueConstraint } from './prisma-errors';
 
@@ -44,7 +45,11 @@ export async function createAttributeDefinition(
 
   try {
     return await db.attributeDefinition.create({
-      data: { ...parsed, allowedValues: jsonInput(parsed.allowedValues) },
+      data: {
+        ...parsed,
+        allowedValues: jsonInput(parsed.allowedValues),
+        valueLabels: jsonInput(withoutEmpty(parsed.valueLabels)),
+      },
     });
   } catch (error) {
     throw mapUniqueConstraint(error, 'key');
@@ -70,10 +75,59 @@ export async function updateAttributeDefinition(
     });
   }
 
+  const valueLabels = nextValueLabels({
+    needsAllowedValues,
+    allowedValues: (nextAllowedValues as string[] | null) ?? [],
+    given: parsed.valueLabels,
+    existing: existing.valueLabels as AttributeValueLabels | null,
+  });
+
   return db.attributeDefinition.update({
     where: { id },
-    data: { ...parsed, allowedValues: jsonInput(parsed.allowedValues) },
+    data: {
+      ...parsed,
+      allowedValues: jsonInput(parsed.allowedValues),
+      valueLabels: jsonInput(valueLabels),
+    },
   });
+}
+
+/** `null` rather than `{}`, so "no labels" has one representation. */
+function withoutEmpty(labels: AttributeValueLabels | null | undefined) {
+  if (!labels) return labels;
+  return Object.keys(labels).length > 0 ? labels : null;
+}
+
+/**
+ * The labels an update leaves behind. Labels the caller sends must each name
+ * an allowed value — a label for a value nobody can choose is a mistake worth
+ * refusing. Labels already stored are kept only for values still allowed, so
+ * removing "Linen" from the list takes its Arabic label with it instead of
+ * leaving an orphan. A type that has no allowed values has no labels.
+ */
+function nextValueLabels(input: {
+  needsAllowedValues: boolean;
+  allowedValues: string[];
+  given: AttributeValueLabels | null | undefined;
+  existing: AttributeValueLabels | null;
+}): AttributeValueLabels | null {
+  const { needsAllowedValues, allowedValues, given, existing } = input;
+  if (given) {
+    const stray = Object.keys(given).filter((value) => !allowedValues.includes(value));
+    if (!needsAllowedValues || stray.length > 0) {
+      throw new AppError('VALIDATION_FAILED', {
+        details: {
+          reason: needsAllowedValues
+            ? `valueLabels has labels for values that are not allowed: ${stray.join(', ')}`
+            : 'valueLabels is only meaningful for SELECT/MULTI_SELECT',
+        },
+      });
+    }
+  }
+  const labels = given !== undefined ? given : existing;
+  if (!needsAllowedValues || !labels) return null;
+  const kept = Object.entries(labels).filter(([value]) => allowedValues.includes(value));
+  return kept.length > 0 ? Object.fromEntries(kept) : null;
 }
 
 /** Removes an attribute definition. Safe by construction: `Product.attributes`

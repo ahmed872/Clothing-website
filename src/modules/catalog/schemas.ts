@@ -73,6 +73,25 @@ const attributeKeySchema = z
   .max(64)
   .regex(/^[a-z][a-z0-9_]*$/, 'Attribute key must be lowercase snake_case, starting with a letter');
 
+/**
+ * What a visitor reads for each of a SELECT/MULTI_SELECT attribute's values,
+ * per language, keyed by the value itself: `{ Cotton: { ar: 'قطن' } }`.
+ *
+ * The value stays the one identifier — it is what `Product.attributes`
+ * stores and what a filter URL carries (`?material=Cotton`) — so adding or
+ * changing a label never touches a product. A language without a label shows
+ * the value as typed, which is how every attribute behaved before labels
+ * existed.
+ */
+export const attributeValueLabelsSchema = z.record(
+  z.string().min(1),
+  z.object({
+    ar: z.string().trim().min(1).max(255).optional(),
+    en: z.string().trim().min(1).max(255).optional(),
+  }),
+);
+export type AttributeValueLabels = z.infer<typeof attributeValueLabelsSchema>;
+
 export const attributeDefinitionInputSchema = z
   .object({
     categoryId: uuid,
@@ -82,6 +101,7 @@ export const attributeDefinitionInputSchema = z
     type: attributeTypeSchema,
     unit: z.string().min(1).max(32).nullable().optional(),
     allowedValues: z.array(z.string().min(1)).min(1).nullable().optional(),
+    valueLabels: attributeValueLabelsSchema.nullable().optional(),
     required: z.boolean().optional(),
     filterable: z.boolean().optional(),
     displayOrder: z.number().int().optional(),
@@ -102,6 +122,18 @@ export const attributeDefinitionInputSchema = z
         message: `allowedValues is only meaningful for SELECT/MULTI_SELECT, not ${value.type}`,
       });
     }
+    if (value.valueLabels) {
+      const allowed = value.allowedValues ?? [];
+      for (const labelled of Object.keys(value.valueLabels)) {
+        if (!allowed.includes(labelled)) {
+          ctx.addIssue({
+            code: 'custom',
+            path: ['valueLabels', labelled],
+            message: `valueLabels has a label for "${labelled}", which is not one of allowedValues`,
+          });
+        }
+      }
+    }
   });
 export type AttributeDefinitionInput = z.infer<typeof attributeDefinitionInputSchema>;
 
@@ -112,6 +144,7 @@ export const attributeDefinitionUpdateSchema = z
     type: attributeTypeSchema.optional(),
     unit: z.string().min(1).max(32).nullable().optional(),
     allowedValues: z.array(z.string().min(1)).min(1).nullable().optional(),
+    valueLabels: attributeValueLabelsSchema.nullable().optional(),
     required: z.boolean().optional(),
     filterable: z.boolean().optional(),
     displayOrder: z.number().int().optional(),

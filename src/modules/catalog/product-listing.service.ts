@@ -7,6 +7,7 @@ import { getDescendantCategoryIds } from './category.service';
 import { getEffectiveAttributeDefinitions } from './attribute.service';
 import { resolveListingPrice, type EffectivePrice } from './variant-pricing';
 import { resolveVariantStockStatus, type StockStatus } from './stock-status';
+import type { AttributeValueLabels } from './schemas';
 
 /**
  * The one query every browse surface goes through — a category page, a
@@ -300,6 +301,8 @@ export interface FilterableAttribute {
   labelEn: string;
   type: 'TEXT' | 'NUMBER' | 'SELECT' | 'MULTI_SELECT' | 'BOOLEAN';
   allowedValues: string[];
+  /** What each allowed value reads as, per language — `{}` when none. */
+  valueLabels: AttributeValueLabels;
 }
 
 /** The attribute-driven filter controls for a category page — every
@@ -317,6 +320,7 @@ export async function getFilterableAttributes(categoryId: string): Promise<Filte
       labelEn: d.labelEn,
       type: d.type,
       allowedValues: (d.allowedValues as string[] | null) ?? [],
+      valueLabels: (d.valueLabels as AttributeValueLabels | null) ?? {},
     }));
 }
 

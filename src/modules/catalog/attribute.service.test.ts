@@ -110,6 +110,89 @@ describe('updateAttributeDefinition', () => {
   });
 });
 
+/**
+ * The value is what products store and filter URLs carry; a label is only
+ * what a shopper reads. These pin that a label can never name a value the
+ * attribute does not offer, and that labels follow the value list as it
+ * changes.
+ */
+describe('value labels', () => {
+  async function materialAttribute() {
+    const category = await createCategory({ slug: 'women', nameAr: 'نسائي', nameEn: 'Women' });
+    return createAttributeDefinition({
+      categoryId: category.id,
+      key: 'material',
+      labelAr: 'الخامة',
+      labelEn: 'Material',
+      type: 'SELECT',
+      allowedValues: ['Cotton', 'Linen'],
+      valueLabels: { Cotton: { ar: 'قطن' }, Linen: { ar: 'كتان', en: 'Pure linen' } },
+    });
+  }
+
+  it('stores per-language labels alongside the unchanged values', async () => {
+    const def = await materialAttribute();
+    expect(def.allowedValues).toEqual(['Cotton', 'Linen']);
+    expect(def.valueLabels).toEqual({
+      Cotton: { ar: 'قطن' },
+      Linen: { ar: 'كتان', en: 'Pure linen' },
+    });
+  });
+
+  it('refuses a label for a value that is not allowed', async () => {
+    const category = await createCategory({ slug: 'men', nameAr: 'رجالي', nameEn: 'Men' });
+    await expect(
+      createAttributeDefinition({
+        categoryId: category.id,
+        key: 'fit',
+        labelAr: 'القصة',
+        labelEn: 'Fit',
+        type: 'SELECT',
+        allowedValues: ['Slim'],
+        valueLabels: { Slim: { ar: 'ضيقة' }, Loose: { ar: 'واسعة' } },
+      }),
+    ).rejects.toThrow(/Loose/);
+  });
+
+  it('refuses labels on an attribute that has no allowed values', async () => {
+    const category = await createCategory({ slug: 'kids', nameAr: 'أطفال', nameEn: 'Kids' });
+    await expect(
+      createAttributeDefinition({
+        categoryId: category.id,
+        key: 'care',
+        labelAr: 'العناية',
+        labelEn: 'Care',
+        type: 'TEXT',
+        valueLabels: { Anything: { ar: 'أي شيء' } },
+      }),
+    ).rejects.toThrow();
+  });
+
+  it('drops the label of a value removed from the list', async () => {
+    const def = await materialAttribute();
+    const updated = await updateAttributeDefinition(def.id, { allowedValues: ['Cotton', 'Wool'] });
+    expect(updated.valueLabels).toEqual({ Cotton: { ar: 'قطن' } });
+  });
+
+  it('refuses an update whose labels name a value that is not allowed', async () => {
+    const def = await materialAttribute();
+    await expect(
+      updateAttributeDefinition(def.id, { valueLabels: { Silk: { ar: 'حرير' } } }),
+    ).rejects.toMatchObject({ code: 'VALIDATION_FAILED' });
+  });
+
+  it('replaces the labels when new ones are given, and clears them with null', async () => {
+    const def = await materialAttribute();
+    const replaced = await updateAttributeDefinition(def.id, {
+      valueLabels: { Linen: { ar: 'كتان طبيعي' } },
+    });
+    expect(replaced.valueLabels).toEqual({ Linen: { ar: 'كتان طبيعي' } });
+
+    const cleared = await updateAttributeDefinition(def.id, { valueLabels: null });
+    expect(cleared.valueLabels).toBeNull();
+  });
+});
+
 describe('attribute inheritance', () => {
   it("parent only: a leaf with no attributes of its own inherits the parent's", async () => {
     const parent = await createCategory({ slug: 'vehicles', nameAr: 'مركبات', nameEn: 'Vehicles' });

@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 
 import { getCategoryTree, listBrands, getEffectiveAttributeDefinitions } from '@/modules/catalog';
 import { DEFAULT_LOCALE, LOCALE_COOKIE_NAME, isLocale, type Locale } from '@/lib/i18n/locales';
+import type { ValueLabels } from '@/lib/attribute-value-label';
 import { getAdminDictionary } from '@/lib/i18n/admin-dictionary';
 import { requireAdminPermission } from '@/lib/admin/require-admin';
 import { AdminBreadcrumbs } from '@/components/admin/admin-breadcrumbs';
@@ -49,6 +50,7 @@ export default async function NewProductPage() {
     type: definition.type,
     unit: definition.unit,
     allowedValues: (definition.allowedValues as string[] | null) ?? null,
+    valueLabels: (definition.valueLabels as ValueLabels) ?? null,
     required: definition.required,
   }));
 

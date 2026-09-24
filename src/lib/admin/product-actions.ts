@@ -16,6 +16,7 @@ import {
   type ProductUpdateInput,
 } from '@/modules/catalog';
 import type { Locale } from '@/lib/i18n/locales';
+import type { ValueLabels } from '@/lib/attribute-value-label';
 import { revalidateStorefrontForProduct } from '@/lib/admin/revalidate-storefront';
 import type { ActionResult } from '@/lib/admin/action-result';
 
@@ -241,6 +242,7 @@ export interface AttributeFieldDefinition {
   type: 'TEXT' | 'NUMBER' | 'BOOLEAN' | 'SELECT' | 'MULTI_SELECT';
   unit: string | null;
   allowedValues: string[] | null;
+  valueLabels: ValueLabels;
   required: boolean;
 }
 
@@ -267,6 +269,7 @@ export async function attributeFieldsForCategoryAction(
         type: definition.type,
         unit: definition.unit,
         allowedValues: (definition.allowedValues as string[] | null) ?? null,
+        valueLabels: (definition.valueLabels as ValueLabels) ?? null,
         required: definition.required,
       })),
     };

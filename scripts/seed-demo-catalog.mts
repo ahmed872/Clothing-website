@@ -4,7 +4,8 @@
  *
  * What it creates, all through the catalog's own services:
  *   - the categories (Women, Men, Kids), each with the clothing attribute
- *     definitions (material, fit) marked filterable;
+ *     definitions (material, fit) marked filterable, their values stored in
+ *     English ("Cotton") and labelled in Arabic ("قطن") for shoppers;
  *   - the brands;
  *   - every product as a DRAFT, with a Color × Size option matrix and one
  *     variant per combination — price, stock and SKU on the variant, the
@@ -102,6 +103,8 @@ interface DemoCatalog {
     labelEn: string;
     type: 'SELECT';
     allowedValues: string[];
+    /** Arabic (and optionally English) names shoppers read for each value. */
+    valueLabels: Record<string, { ar?: string; en?: string }>;
     required: boolean;
     filterable: boolean;
   }[];

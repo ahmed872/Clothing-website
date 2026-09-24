@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { useForm, useWatch, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -37,6 +37,7 @@ import {
   deleteAttributeDefinitionAction,
 } from '@/lib/admin/attribute-actions';
 import type { Locale } from '@/lib/i18n/locales';
+import type { ValueLabels } from '@/lib/attribute-value-label';
 
 const ATTRIBUTE_TYPES = ['TEXT', 'NUMBER', 'BOOLEAN', 'SELECT', 'MULTI_SELECT'] as const;
 type AttributeType = (typeof ATTRIBUTE_TYPES)[number];
@@ -53,6 +54,9 @@ const attributeFormSchema = z
     type: z.enum(ATTRIBUTE_TYPES),
     unit: z.string().nullable(),
     allowedValues: z.array(z.string().min(1)),
+    // Free text per value and language while editing; blanks are dropped
+    // on save (`cleanValueLabels`), so "empty" means "show the value".
+    valueLabels: z.record(z.string(), z.object({ ar: z.string(), en: z.string() })),
     required: z.boolean(),
     filterable: z.boolean(),
   })
@@ -67,6 +71,32 @@ const attributeFormSchema = z
     }
   });
 type AttributeFormValues = z.infer<typeof attributeFormSchema>;
+type EditableValueLabels = AttributeFormValues['valueLabels'];
+
+/** Stored labels → one text box per value and language, blanks included. */
+function editableValueLabels(labels: ValueLabels): EditableValueLabels {
+  const editable: EditableValueLabels = {};
+  for (const [value, label] of Object.entries(labels ?? {})) {
+    editable[value] = { ar: label.ar ?? '', en: label.en ?? '' };
+  }
+  return editable;
+}
+
+/** The text boxes → what the service stores: blanks dropped (a blank means
+ * "show the value as typed"), and nothing kept for a value that was removed
+ * from the list while the dialog was open. */
+function cleanValueLabels(
+  labels: EditableValueLabels,
+  allowedValues: string[],
+): Record<string, { ar?: string; en?: string }> | null {
+  const cleaned: Record<string, { ar?: string; en?: string }> = {};
+  for (const value of allowedValues) {
+    const ar = labels[value]?.ar.trim();
+    const en = labels[value]?.en.trim();
+    if (ar || en) cleaned[value] = { ...(ar ? { ar } : {}), ...(en ? { en } : {}) };
+  }
+  return Object.keys(cleaned).length > 0 ? cleaned : null;
+}
 
 export interface AttributeDefinitionRow {
   id: string;
@@ -76,6 +106,7 @@ export interface AttributeDefinitionRow {
   type: AttributeType;
   unit: string | null;
   allowedValues: string[] | null;
+  valueLabels: ValueLabels;
   required: boolean;
   filterable: boolean;
   /** From an ancestor category, not this one — shown read-only: editing it
@@ -103,6 +134,10 @@ export interface AttributeDefinitionsManagerLabels {
   allowedValues: string;
   allowedValuesHelp: string;
   addValue: string;
+  valueLabels: string;
+  valueLabelsHelp: string;
+  valueLabelAr: string;
+  valueLabelEn: string;
   required: string;
   filterable: string;
   inherited: string;
@@ -300,6 +335,7 @@ function AttributeFormDialog({
       type: definition?.type ?? 'TEXT',
       unit: definition?.unit ?? null,
       allowedValues: definition?.allowedValues ?? [],
+      valueLabels: editableValueLabels(definition?.valueLabels),
       required: definition?.required ?? false,
       filterable: definition?.filterable ?? false,
     },
@@ -307,6 +343,7 @@ function AttributeFormDialog({
 
   const type = useWatch({ control, name: 'type' });
   const needsAllowedValues = type === 'SELECT' || type === 'MULTI_SELECT';
+  const allowedValues = useWatch({ control, name: 'allowedValues' });
 
   async function onSubmit(values: AttributeFormValues) {
     setFormError(null);
@@ -314,6 +351,9 @@ function AttributeFormDialog({
       ...values,
       unit: values.unit || null,
       allowedValues: needsAllowedValues ? values.allowedValues : null,
+      valueLabels: needsAllowedValues
+        ? cleanValueLabels(values.valueLabels, values.allowedValues)
+        : null,
     };
 
     const result = definition
@@ -326,6 +366,7 @@ function AttributeFormDialog({
             type: payload.type,
             unit: payload.unit,
             allowedValues: payload.allowedValues,
+            valueLabels: payload.valueLabels,
             required: payload.required,
             filterable: payload.filterable,
           },
@@ -477,6 +518,59 @@ function AttributeFormDialog({
                     <p className="text-small text-(--color-error)">{labels.requiredField}</p>
                   ) : null}
                 </div>
+              )}
+            />
+          ) : null}
+
+          {needsAllowedValues && allowedValues.length > 0 ? (
+            <Controller
+              control={control}
+              name="valueLabels"
+              render={({ field }) => (
+                <fieldset className="flex flex-col gap-2">
+                  <legend className="text-sm font-medium text-(--color-text)">
+                    {labels.valueLabels}
+                  </legend>
+                  <p className="text-caption text-(--color-text-muted)">{labels.valueLabelsHelp}</p>
+                  <div className="grid grid-cols-[minmax(0,0.8fr)_minmax(0,1fr)_minmax(0,1fr)] items-center gap-2">
+                    <span aria-hidden="true" />
+                    <span className="text-caption text-(--color-text-muted)" aria-hidden="true">
+                      {labels.valueLabelAr}
+                    </span>
+                    <span className="text-caption text-(--color-text-muted)" aria-hidden="true">
+                      {labels.valueLabelEn}
+                    </span>
+                    {allowedValues.map((value) => {
+                      const current = field.value[value] ?? { ar: '', en: '' };
+                      const setLabel = (language: 'ar' | 'en', text: string) =>
+                        field.onChange({
+                          ...field.value,
+                          [value]: { ...current, [language]: text },
+                        });
+                      return (
+                        <Fragment key={value}>
+                          <span dir="auto" className="truncate text-small text-(--color-text)">
+                            {value}
+                          </span>
+                          <Input
+                            dir="rtl"
+                            placeholder={value}
+                            aria-label={`${labels.valueLabelAr}: ${value}`}
+                            value={current.ar}
+                            onChange={(e) => setLabel('ar', e.target.value)}
+                          />
+                          <Input
+                            dir="ltr"
+                            placeholder={value}
+                            aria-label={`${labels.valueLabelEn}: ${value}`}
+                            value={current.en}
+                            onChange={(e) => setLabel('en', e.target.value)}
+                          />
+                        </Fragment>
+                      );
+                    })}
+                  </div>
+                </fieldset>
               )}
             />
           ) : null}

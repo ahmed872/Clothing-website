@@ -7,6 +7,7 @@ import { getAncestorChain } from './category.service';
 import { getEffectiveAttributeDefinitions } from './attribute.service';
 import { resolveEffectivePrice, type EffectivePrice } from './variant-pricing';
 import { resolveVariantStockStatus, type StockStatus } from './stock-status';
+import type { AttributeValueLabels } from './schemas';
 
 /**
  * Everything a product detail page needs, assembled in one place so the
@@ -39,6 +40,8 @@ export interface ProductDetailAttribute {
   labelEn: string;
   unit: string | null;
   value: unknown;
+  /** How a SELECT/MULTI_SELECT value reads, per language — `{}` when none. */
+  valueLabels: AttributeValueLabels;
 }
 
 export interface ProductDetail {
@@ -117,6 +120,7 @@ async function buildSpecifications(row: DetailRow): Promise<ProductDetailAttribu
       labelEn: d.labelEn,
       unit: d.unit,
       value: attributes[d.key],
+      valueLabels: (d.valueLabels as AttributeValueLabels | null) ?? {},
     }));
 }
 

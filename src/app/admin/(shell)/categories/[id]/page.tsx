@@ -12,6 +12,7 @@ import {
 } from '@/modules/catalog';
 import { getMediaAsset, getMediaPublicUrl } from '@/modules/media';
 import { DEFAULT_LOCALE, LOCALE_COOKIE_NAME, isLocale } from '@/lib/i18n/locales';
+import type { ValueLabels } from '@/lib/attribute-value-label';
 import { getAdminDictionary } from '@/lib/i18n/admin-dictionary';
 import { requireAdminPermission } from '@/lib/admin/require-admin';
 import { AdminBreadcrumbs } from '@/components/admin/admin-breadcrumbs';
@@ -76,6 +77,7 @@ export default async function EditCategoryPage({ params }: { params: Promise<{ i
     type: definition.type,
     unit: definition.unit,
     allowedValues: (definition.allowedValues as string[] | null) ?? null,
+    valueLabels: (definition.valueLabels as ValueLabels) ?? null,
     required: definition.required,
     filterable: definition.filterable,
     inherited: !ownIds.has(definition.id),
@@ -163,6 +165,10 @@ export default async function EditCategoryPage({ params }: { params: Promise<{ i
           allowedValues: t.attributes.allowedValues,
           allowedValuesHelp: t.attributes.allowedValuesHelp,
           addValue: t.attributes.addValue,
+          valueLabels: t.attributes.valueLabels,
+          valueLabelsHelp: t.attributes.valueLabelsHelp,
+          valueLabelAr: t.attributes.valueLabelAr,
+          valueLabelEn: t.attributes.valueLabelEn,
           required: t.attributes.required,
           filterable: t.attributes.filterable,
           inherited: t.attributes.inherited,

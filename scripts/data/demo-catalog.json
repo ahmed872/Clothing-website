@@ -54,6 +54,16 @@
         "Viscose",
         "Polyester"
       ],
+      "valueLabels": {
+        "Cotton": { "ar": "قطن" },
+        "Linen": { "ar": "كتان" },
+        "Denim": { "ar": "دنيم" },
+        "Wool": { "ar": "صوف" },
+        "Fleece": { "ar": "فليس" },
+        "Crepe": { "ar": "كريب" },
+        "Viscose": { "ar": "فسكوز" },
+        "Polyester": { "ar": "بوليستر" }
+      },
       "required": true,
       "filterable": true
     },
@@ -63,6 +73,12 @@
       "labelEn": "Fit",
       "type": "SELECT",
       "allowedValues": ["Regular", "Slim", "Relaxed", "Oversized"],
+      "valueLabels": {
+        "Regular": { "ar": "عادية" },
+        "Slim": { "ar": "ضيقة" },
+        "Relaxed": { "ar": "مريحة" },
+        "Oversized": { "ar": "واسعة" }
+      },
       "required": true,
       "filterable": true
     }

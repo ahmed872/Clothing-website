@@ -94,7 +94,14 @@ describe('getProductDetailBySlug', () => {
     expect(detail!.variants.find((v) => v.sku === 'SHOE-WHITE')?.stockStatus).toBe('out-of-stock');
     expect(detail!.defaultVariantId).toBe(detail!.variants[0]?.id);
     expect(detail!.specifications).toEqual([
-      { key: 'material', labelAr: 'الخامة', labelEn: 'Material', unit: null, value: 'Mesh' },
+      {
+        key: 'material',
+        labelAr: 'الخامة',
+        labelEn: 'Material',
+        unit: null,
+        value: 'Mesh',
+        valueLabels: {},
+      },
     ]);
     expect(detail!.rating).toBeNull();
   });

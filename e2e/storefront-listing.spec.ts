@@ -27,6 +27,20 @@ test.describe('product listing — filters, sort, pagination', () => {
     await expect(page.getByRole('link', { name: /عباية سوداء كلاسيكية/ }).first()).toBeVisible();
   });
 
+  test('an attribute filter reads in Arabic but filters by the stored value', async ({ page }) => {
+    await page.goto('/ar/c/women');
+    await page.getByRole('checkbox', { name: 'قطن' }).click();
+    await expect(page).toHaveURL(/attr_material=Cotton/);
+    await expect(page.getByRole('checkbox', { name: 'قطن' })).toHaveAttribute(
+      'aria-checked',
+      'true',
+    );
+    await expect(page.getByText('1 نتيجة')).toBeVisible();
+    await expect(page.getByRole('link', { name: /تيشيرت قطني واسع/ }).first()).toBeVisible();
+    // No English value leaks into the Arabic filter list.
+    await expect(page.getByRole('checkbox', { name: 'Cotton' })).toHaveCount(0);
+  });
+
   test('in-stock-only filter and clear-filters round-trip', async ({ page }) => {
     await page.goto('/ar/c/women');
     await page.getByRole('checkbox', { name: 'المتوفر فقط' }).click();

@@ -22,6 +22,13 @@ test.describe('product detail page', () => {
     await expect(page.getByText('ESS-CREW-TEE-BLACK-S')).toBeVisible();
   });
 
+  test('specifications read in English on the English page', async ({ page }) => {
+    await page.goto('/en/p/essential-crew-neck-tee');
+    await page.getByRole('tab', { name: 'Specifications' }).click();
+    await expect(page.getByText('Cotton', { exact: true })).toBeVisible();
+    await expect(page.getByText('Regular', { exact: true })).toBeVisible();
+  });
+
   test('choosing a colour and a size selects that exact variant', async ({ page }) => {
     await page.goto(PRODUCT);
     const colour = page.getByRole('radiogroup', { name: 'اللون' });
@@ -57,7 +64,9 @@ test.describe('product detail page', () => {
     await page.goto(PRODUCT);
     await expect(page.getByText('قطن ممشّط متوسط الوزن')).toBeVisible();
     await page.getByRole('tab', { name: 'المواصفات' }).click();
-    await expect(page.getByText('Cotton', { exact: true })).toBeVisible();
+    // Material and fit are stored in English and read in Arabic here.
+    await expect(page.getByText('قطن', { exact: true })).toBeVisible();
+    await expect(page.getByText('عادية', { exact: true })).toBeVisible();
     await page.getByRole('tab', { name: /التقييمات/ }).click();
     await expect(page.getByText('لا توجد تقييمات بعد')).toBeVisible();
   });

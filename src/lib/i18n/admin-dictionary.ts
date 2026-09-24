@@ -573,6 +573,11 @@ export const adminDictionary = {
       allowedValues: 'القيم المسموح بها',
       allowedValuesHelp: 'اكتب قيمة واضغط Enter لإضافتها.',
       addValue: 'إضافة',
+      valueLabels: 'كيف تظهر القيم للعميل',
+      valueLabelsHelp:
+        'اختياري. اكتب اسم كل قيمة كما تريد أن يقرأه العميل في كل لغة؛ إذا تركته فارغًا تظهر القيمة كما كُتبت.',
+      valueLabelAr: 'بالعربية',
+      valueLabelEn: 'بالإنجليزية',
       required: 'مطلوب',
       filterable: 'قابل للفلترة في المتجر',
       inherited: 'موروثة من فئة أعلى',
@@ -1553,6 +1558,11 @@ export const adminDictionary = {
       allowedValues: 'Allowed values',
       allowedValuesHelp: 'Type a value and press Enter to add it.',
       addValue: 'Add',
+      valueLabels: 'How the values read to shoppers',
+      valueLabelsHelp:
+        'Optional. Give each value the name shoppers should read in each language; left empty, the value shows as typed.',
+      valueLabelAr: 'Arabic',
+      valueLabelEn: 'English',
       required: 'Required',
       filterable: 'Filterable in the storefront',
       inherited: 'Inherited from a parent category',

@@ -299,6 +299,25 @@ describe('getFilterableAttributes', () => {
     const filters = await getFilterableAttributes(category.id);
     expect(filters.map((f) => f.key)).toEqual(['color']);
     expect(filters[0]?.allowedValues).toEqual(['Black', 'White']);
+    expect(filters[0]?.valueLabels).toEqual({});
+  });
+
+  it("carries each value's labels, so a filter can read in the shopper's language", async () => {
+    const category = await createCategory({ slug: 'women', nameAr: 'نسائي', nameEn: 'Women' });
+    await createAttributeDefinition({
+      categoryId: category.id,
+      key: 'material',
+      labelAr: 'الخامة',
+      labelEn: 'Material',
+      type: 'SELECT',
+      allowedValues: ['Cotton', 'Linen'],
+      valueLabels: { Cotton: { ar: 'قطن' } },
+      filterable: true,
+    });
+
+    const [material] = await getFilterableAttributes(category.id);
+    expect(material?.allowedValues).toEqual(['Cotton', 'Linen']);
+    expect(material?.valueLabels).toEqual({ Cotton: { ar: 'قطن' } });
   });
 });
 

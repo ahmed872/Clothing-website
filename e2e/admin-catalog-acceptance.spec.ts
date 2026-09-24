@@ -50,7 +50,15 @@ async function signInAsOwner(page: Page): Promise<void> {
 
 async function addAttribute(
   page: Page,
-  attribute: { key: string; labelEn: string; labelAr: string; type: string; values?: string[] },
+  attribute: {
+    key: string;
+    labelEn: string;
+    labelAr: string;
+    type: string;
+    values?: string[];
+    /** Arabic names shoppers read for some of the values. */
+    valueLabelsAr?: Record<string, string>;
+  },
 ): Promise<void> {
   await page.getByRole('button', { name: 'New attribute' }).click();
   const dialog = page.getByRole('dialog');
@@ -64,6 +72,9 @@ async function addAttribute(
   for (const value of attribute.values ?? []) {
     await dialog.getByLabel('Allowed values').fill(value);
     await dialog.getByLabel('Allowed values').press('Enter');
+  }
+  for (const [value, label] of Object.entries(attribute.valueLabelsAr ?? {})) {
+    await dialog.getByLabel(`Arabic: ${value}`).fill(label);
   }
 
   await dialog.getByRole('button', { name: 'Save', exact: true }).click();
@@ -96,6 +107,7 @@ test('a store owner builds and publishes a product from scratch, with no code ch
     labelAr: 'اللون',
     type: 'Single select',
     values: ['Black', 'White'],
+    valueLabelsAr: { Black: 'أسود', White: 'أبيض' },
   });
   await addAttribute(page, {
     key: 'shoe_size',
@@ -230,6 +242,12 @@ test('a store owner builds and publishes a product from scratch, with no code ch
   // Two matches: the visible tab panel and the inactive one Radix keeps
   // mounted — either is proof the value reached the storefront.
   await expect(anonPage.getByText('Mesh').first()).toBeVisible();
+  // The colour is stored as "Black"; the Arabic page reads the label the
+  // owner gave it in step 2, the English one the value itself.
+  await expect(anonPage.getByText('Black', { exact: true }).first()).toBeVisible();
+  await anonPage.goto(`/ar/p/${PRODUCT_SLUG}`);
+  await anonPage.getByRole('tab', { name: 'المواصفات' }).click();
+  await expect(anonPage.getByText('أسود', { exact: true }).first()).toBeVisible();
 
   // ---- 12. Edit an attribute and see the storefront follow ----------------
   await page.goto(productUrl);

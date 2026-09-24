@@ -14,6 +14,7 @@ import {
 } from '@/modules/catalog';
 import { getMediaAsset, getMediaPublicUrl } from '@/modules/media';
 import { DEFAULT_LOCALE, LOCALE_COOKIE_NAME, isLocale, type Locale } from '@/lib/i18n/locales';
+import type { ValueLabels } from '@/lib/attribute-value-label';
 import { getAdminDictionary } from '@/lib/i18n/admin-dictionary';
 import { requireAdminPermission } from '@/lib/admin/require-admin';
 import { roleHasPermission } from '@/modules/identity';
@@ -115,6 +116,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
     type: definition.type,
     unit: definition.unit,
     allowedValues: (definition.allowedValues as string[] | null) ?? null,
+    valueLabels: (definition.valueLabels as ValueLabels) ?? null,
     required: definition.required,
   }));
 

@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/select';
 import type { AttributeFieldDefinition } from '@/lib/admin/product-actions';
 import type { Locale } from '@/lib/i18n/locales';
+import { attributeValueLabel } from '@/lib/attribute-value-label';
 
 export type AttributeValues = Record<string, unknown>;
 
@@ -118,13 +119,15 @@ export function AttributeFields({
                   >
                     <SelectTrigger id={id}>
                       <SelectValue>
-                        {typeof value === 'string' && value ? value : labels.noneOption}
+                        {typeof value === 'string' && value
+                          ? attributeValueLabel(definition.valueLabels, value, locale)
+                          : labels.noneOption}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {(definition.allowedValues ?? []).map((allowed) => (
                         <SelectItem key={allowed} value={allowed}>
-                          {allowed}
+                          {attributeValueLabel(definition.valueLabels, allowed, locale)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -154,7 +157,7 @@ export function AttributeFields({
                               )
                             }
                           />
-                          {allowed}
+                          {attributeValueLabel(definition.valueLabels, allowed, locale)}
                         </label>
                       );
                     })}
