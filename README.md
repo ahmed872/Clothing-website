@@ -28,6 +28,15 @@ checkout, order confirmation and a payment step, plus customer accounts
 A guest can shop and check out without an account; their cart merges into
 their account when they create one.
 
+**Fit profile** (`/account/body-profile`) — a signed-in customer records
+their measurements (height, weight and waist required; chest, hip,
+shoulder, inseam, sleeve and neck optional) and how their avatar looks
+(skin tone, hair or head covering, facial hair, glasses), and sees a local,
+illustrated avatar redraw as they type, plus how complete the profile is.
+Private to its owner: no photos, nothing sent to an outside service, and the
+data can be deleted from the same page. It is the foundation the size
+recommendation will build on; it does not recommend sizes yet.
+
 **Admin** (`/admin`) — sign-in with real server-side sessions and
 role-based access control, then products and variants, categories, brands,
 inventory, pricing, promotions and coupons, orders, customers, store

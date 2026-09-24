@@ -82,6 +82,11 @@ export type AuditAction =
   | 'customer.email_verified'
   | 'customer.password_reset_requested'
   | 'customer.password_reset_completed'
+  // Clothing P01 — the customer's body profile. The event records that it
+  // was saved or deleted and by whom; never a measurement or appearance
+  // choice (`before`/`after` are left empty on purpose).
+  | 'customer.body_profile_saved'
+  | 'customer.body_profile_deleted'
   // P15 — the store's own configuration and its homepage. Both are
   // store-wide: one row and one ordered list that every visitor sees, so
   // "who changed the currency" and "who took the hero down" have to be

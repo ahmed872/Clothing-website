@@ -379,6 +379,7 @@ export const dictionary = {
       navOverview: 'نظرة عامة',
       navProfile: 'الملف الشخصي',
       navOrders: 'طلباتي',
+      navBodyProfile: 'ملف المقاسات',
       navSignOut: 'تسجيل الخروج',
       signingOut: 'جارٍ تسجيل الخروج…',
       welcomeBack: 'مرحبًا، {name}',
@@ -399,6 +400,202 @@ export const dictionary = {
       profileError: 'تعذّر حفظ التغييرات. حاول مرة أخرى.',
       sessionExpired: 'انتهت جلستك. سجّل الدخول مرة أخرى.',
       unauthorized: 'يلزم تسجيل الدخول لعرض هذه الصفحة.',
+    },
+
+    // Clothing P01 — the customer's body profile and avatar. A clothing
+    // personalisation tool, worded as one: plain language, no clinical
+    // terms, and every appearance option phrased as the customer's choice.
+    bodyProfile: {
+      title: 'ملف المقاسات',
+      intro:
+        'أضف مقاساتك مرة واحدة لنساعدك في اختيار المقاس الأنسب. هذه البيانات لك وحدك، ويمكنك تعديلها أو حذفها في أي وقت.',
+      privacyNote: 'لا نطلب صورتك ولا نخمّن شيئًا عن مظهرك — كل ما يظهر هنا هو ما تختاره أنت.',
+      requiredMark: 'مطلوب',
+      optionalMark: 'اختياري',
+      units: { cm: 'سم', kg: 'كجم' },
+      sections: {
+        basic: { title: 'المعلومات الأساسية', description: 'لنعرض لك القَصّات المناسبة أولًا.' },
+        measurements: {
+          title: 'المقاسات',
+          description:
+            'استخدم شريط قياس مرن وقِف بشكل طبيعي. الحقول المطلوبة تكفي للبدء، والباقي يجعل الاقتراحات أدق.',
+          required: 'الأساسية',
+          optional: 'لدقة أعلى',
+        },
+        appearance: {
+          title: 'المظهر',
+          description: 'اختياري بالكامل — يغيّر شكل الصورة التوضيحية فقط، ولا يؤثر على المقاسات.',
+        },
+      },
+      gender: {
+        label: 'الجنس',
+        help: 'يساعدنا في عرض القَصّات المناسبة لك أولًا. اختيارك أنت — لا نستنتجه من أي شيء.',
+        options: {
+          FEMALE: 'أنثى',
+          MALE: 'ذكر',
+          OTHER: 'آخر',
+          PREFER_NOT_TO_SAY: 'أفضّل عدم الإجابة',
+        },
+      },
+      measurements: {
+        heightCm: { label: 'الطول', help: 'قِف مستقيمًا بجانب الحائط وبدون حذاء.' },
+        weightKg: {
+          label: 'الوزن',
+          help: 'وزنك المعتاد. نستخدمه كمعلومة مساعدة فقط، ولا نختار المقاس على أساسه وحده.',
+        },
+        waistCm: {
+          label: 'محيط الخصر',
+          help: 'قِس حول خصرك الطبيعي (أضيق جزء) دون شدّ الشريط.',
+        },
+        chestCm: {
+          label: 'محيط الصدر',
+          help: 'حول أعرض جزء من الصدر تحت الإبطين، والشريط مستوٍ.',
+        },
+        hipCm: { label: 'محيط الورك', help: 'حول أعرض جزء من الوركين، والقدمان متلاصقتان.' },
+        shoulderCm: { label: 'عرض الكتفين', help: 'من طرف الكتف إلى الطرف الآخر عبر الظهر.' },
+        inseamCm: { label: 'طول الساق الداخلي', help: 'من أعلى الفخذ من الداخل حتى الكاحل.' },
+        sleeveLengthCm: {
+          label: 'طول الكم',
+          help: 'من طرف الكتف حتى الرسغ، والذراع مسترخية.',
+        },
+        neckCm: { label: 'محيط الرقبة', help: 'حول قاعدة الرقبة مع ترك مسافة إصبع تحت الشريط.' },
+      },
+      guide: {
+        open: 'كيف أقيس؟',
+        title: 'كيف تأخذ مقاساتك',
+        intro: 'دقيقتان وشريط قياس مرن هما كل ما تحتاجه. هذه نصائح عامة تنطبق على كل المقاسات:',
+        tips: [
+          'قِس فوق ملابس خفيفة، أو بدونها إن أمكن.',
+          'أبقِ الشريط مستويًا وملاصقًا للجسم دون أن يضغط عليه.',
+          'قِف بشكل طبيعي وتنفّس بهدوء — لا تشدّ بطنك.',
+          'إذا كنت بين رقمين فاختر الأكبر، ويمكنك تعديله لاحقًا.',
+        ],
+        close: 'فهمت',
+      },
+      appearance: {
+        notSpecified: 'بدون تحديد',
+        skinTone: {
+          label: 'لون البشرة',
+          options: {
+            LIGHT: 'فاتحة',
+            MEDIUM_LIGHT: 'حنطية فاتحة',
+            MEDIUM: 'حنطية',
+            MEDIUM_DARK: 'سمراء',
+            DARK: 'داكنة',
+          },
+        },
+        hairStyle: {
+          label: 'تسريحة الشعر',
+          options: {
+            SHORT: 'قصير',
+            MEDIUM: 'متوسط',
+            LONG: 'طويل',
+            STRAIGHT: 'ناعم',
+            WAVY: 'مموّج',
+            CURLY: 'مجعّد',
+            BUZZ: 'قصير جدًا',
+            COVERED: 'حجاب / غطاء رأس',
+          },
+        },
+        hairColor: {
+          label: 'لون الشعر',
+          coveredNote: 'لا حاجة لاختيار لون الشعر مع غطاء الرأس.',
+          options: {
+            BLACK: 'أسود',
+            DARK_BROWN: 'بني داكن',
+            BROWN: 'بني',
+            LIGHT_BROWN: 'بني فاتح',
+            BLONDE: 'أشقر',
+            RED: 'أحمر',
+            GRAY: 'رمادي',
+            WHITE: 'أبيض',
+          },
+        },
+        facialHair: {
+          label: 'شعر الوجه',
+          options: {
+            NONE: 'بدون',
+            SHORT_BEARD: 'لحية قصيرة',
+            LONG_BEARD: 'لحية طويلة',
+            MUSTACHE: 'شارب',
+          },
+        },
+        glasses: {
+          label: 'أرتدي نظارة',
+          style: {
+            label: 'شكل النظارة',
+            options: {
+              ROUND: 'دائرية',
+              RECTANGULAR: 'مستطيلة',
+              AVIATOR: 'أفياتور',
+              CAT_EYE: 'عين القطة',
+            },
+          },
+          frameColor: {
+            label: 'لون الإطار',
+            options: {
+              BLACK: 'أسود',
+              BROWN: 'بني',
+              GOLD: 'ذهبي',
+              SILVER: 'فضي',
+              CLEAR: 'شفاف',
+            },
+          },
+        },
+      },
+      preview: {
+        title: 'صورتك التوضيحية',
+        caption: 'رسم توضيحي من مقاساتك واختياراتك — وليس صورة حقيقية.',
+        heightUnset: 'أدخل طولك لرسم الصورة بالحجم الصحيح.',
+        glasses: 'نظارة',
+      },
+      completion: {
+        title: 'اكتمال الملف',
+        percent: 'ملفك مكتمل بنسبة {percent}%',
+        complete: 'ملفك مكتمل. أحسنت!',
+        sectionDone: 'مكتمل',
+        sectionProgress: '{done} من {total}',
+        requiredMissing: 'أكمل الحقول المطلوبة لتتمكن من الحفظ.',
+        next: {
+          gender: 'اختر الجنس لنعرض لك القَصّات المناسبة.',
+          heightCm: 'أضف طولك — مطلوب للحفظ.',
+          weightKg: 'أضف وزنك — مطلوب للحفظ.',
+          waistCm: 'أضف محيط الخصر — مطلوب للحفظ.',
+          hipCm: 'أضف محيط الورك لتحسين اقتراحات المقاس.',
+          chestCm: 'أضف محيط الصدر لقمصان وبلوزات بمقاس أدق.',
+          inseamCm: 'أضف طول الساق الداخلي لبناطيل بطول مناسب.',
+          shoulderCm: 'أضف عرض الكتفين للجاكيتات والقمصان.',
+          sleeveLengthCm: 'أضف طول الكم للأكمام الطويلة.',
+          neckCm: 'أضف محيط الرقبة لياقات القمصان.',
+          skinTone: 'اختر لون البشرة لصورتك التوضيحية.',
+          hairStyle: 'اختر تسريحة الشعر لصورتك التوضيحية.',
+          hairColor: 'اختر لون الشعر لصورتك التوضيحية.',
+        },
+      },
+      errors: {
+        required: 'هذا الحقل مطلوب.',
+        invalid_number: 'أدخل رقمًا فقط، مثل 88 أو 88.5.',
+        too_small: 'القيمة أقل من المتوقع — أدخل {min} {unit} على الأقل.',
+        too_large: 'القيمة أكبر من المتوقع — أدخل {max} {unit} على الأكثر.',
+        invalid_option: 'اختر أحد الخيارات المتاحة.',
+        summary: 'راجع الحقول المعلَّمة ثم احفظ مرة أخرى.',
+        stale: 'تم تعديل ملفك من نافذة أخرى. حدّث الصفحة ثم أعد المحاولة.',
+        sessionExpired: 'انتهت جلستك. سجّل الدخول مرة أخرى.',
+        generic: 'تعذّر الحفظ الآن. حاول مرة أخرى.',
+      },
+      save: 'حفظ الملف',
+      saving: 'جارٍ الحفظ…',
+      saved: 'تم حفظ ملف المقاسات',
+      unsaved: 'تغييرات غير محفوظة',
+      delete: {
+        button: 'حذف ملف المقاسات',
+        title: 'حذف ملف المقاسات؟',
+        description: 'سيتم حذف مقاساتك وإعدادات المظهر نهائيًا. يمكنك إنشاء ملف جديد في أي وقت.',
+        confirm: 'حذف نهائيًا',
+        cancel: 'إلغاء',
+        deleting: 'جارٍ الحذف…',
+        deleted: 'تم حذف ملف المقاسات',
+      },
     },
 
     // P13 — transactional email copy. Deliberately its own section, not
@@ -791,6 +988,7 @@ export const dictionary = {
       navOverview: 'Overview',
       navProfile: 'Profile',
       navOrders: 'My orders',
+      navBodyProfile: 'Fit profile',
       navSignOut: 'Sign out',
       signingOut: 'Signing out…',
       welcomeBack: 'Welcome back, {name}',
@@ -810,6 +1008,208 @@ export const dictionary = {
       profileError: 'We could not save your changes. Please try again.',
       sessionExpired: 'Your session has expired. Please sign in again.',
       unauthorized: 'Sign in to view this page.',
+    },
+
+    bodyProfile: {
+      title: 'Fit profile',
+      intro:
+        'Add your measurements once and we will help you pick the right size. They are yours alone — edit or delete them any time.',
+      privacyNote:
+        'We never ask for your photo or guess anything about how you look — everything here is what you choose.',
+      requiredMark: 'Required',
+      optionalMark: 'Optional',
+      units: { cm: 'cm', kg: 'kg' },
+      sections: {
+        basic: {
+          title: 'Basic information',
+          description: 'So we can show you the right cuts first.',
+        },
+        measurements: {
+          title: 'Measurements',
+          description:
+            'Use a soft tape measure and stand naturally. The required fields are enough to start; the rest make suggestions more precise.',
+          required: 'The essentials',
+          optional: 'For a closer fit',
+        },
+        appearance: {
+          title: 'Appearance',
+          description: 'Entirely optional — it only changes your illustration, never your sizes.',
+        },
+      },
+      gender: {
+        label: 'Gender',
+        help: 'Helps us show you the right cuts first. It is your choice — we never infer it.',
+        options: {
+          FEMALE: 'Female',
+          MALE: 'Male',
+          OTHER: 'Other',
+          PREFER_NOT_TO_SAY: 'Prefer not to say',
+        },
+      },
+      measurements: {
+        heightCm: { label: 'Height', help: 'Stand straight against a wall, without shoes.' },
+        weightKg: {
+          label: 'Weight',
+          help: 'Your usual weight. Used as context only — never to pick a size on its own.',
+        },
+        waistCm: {
+          label: 'Waist',
+          help: 'Measure around your natural waist, the narrowest part, without pulling the tape tight.',
+        },
+        chestCm: {
+          label: 'Chest',
+          help: 'Around the fullest part of your chest, under your arms, tape level.',
+        },
+        hipCm: { label: 'Hips', help: 'Around the fullest part of your hips, feet together.' },
+        shoulderCm: {
+          label: 'Shoulder width',
+          help: 'Across your back, from one shoulder point to the other.',
+        },
+        inseamCm: { label: 'Inseam', help: 'From the top of your inner thigh down to your ankle.' },
+        sleeveLengthCm: {
+          label: 'Sleeve length',
+          help: 'From your shoulder point down to your wrist, arm relaxed.',
+        },
+        neckCm: { label: 'Neck', help: 'Around the base of your neck, one finger under the tape.' },
+      },
+      guide: {
+        open: 'How to measure',
+        title: 'How to take your measurements',
+        intro:
+          'Two minutes and a soft tape measure are all you need. A few tips that apply to every measurement:',
+        tips: [
+          'Measure over light clothing, or none if you can.',
+          'Keep the tape level and snug against your body, without squeezing.',
+          'Stand naturally and breathe normally — don’t pull your stomach in.',
+          'Between two numbers? Take the larger one; you can change it later.',
+        ],
+        close: 'Got it',
+      },
+      appearance: {
+        notSpecified: 'Not specified',
+        skinTone: {
+          label: 'Skin tone',
+          options: {
+            LIGHT: 'Light',
+            MEDIUM_LIGHT: 'Medium light',
+            MEDIUM: 'Medium',
+            MEDIUM_DARK: 'Medium dark',
+            DARK: 'Dark',
+          },
+        },
+        hairStyle: {
+          label: 'Hair style',
+          options: {
+            SHORT: 'Short',
+            MEDIUM: 'Medium',
+            LONG: 'Long',
+            STRAIGHT: 'Straight',
+            WAVY: 'Wavy',
+            CURLY: 'Curly',
+            BUZZ: 'Buzz cut',
+            COVERED: 'Hijab / covered',
+          },
+        },
+        hairColor: {
+          label: 'Hair colour',
+          coveredNote: 'No hair colour needed with a head covering.',
+          options: {
+            BLACK: 'Black',
+            DARK_BROWN: 'Dark brown',
+            BROWN: 'Brown',
+            LIGHT_BROWN: 'Light brown',
+            BLONDE: 'Blonde',
+            RED: 'Red',
+            GRAY: 'Grey',
+            WHITE: 'White',
+          },
+        },
+        facialHair: {
+          label: 'Facial hair',
+          options: {
+            NONE: 'None',
+            SHORT_BEARD: 'Short beard',
+            LONG_BEARD: 'Long beard',
+            MUSTACHE: 'Moustache',
+          },
+        },
+        glasses: {
+          label: 'I wear glasses',
+          style: {
+            label: 'Glasses shape',
+            options: {
+              ROUND: 'Round',
+              RECTANGULAR: 'Rectangular',
+              AVIATOR: 'Aviator',
+              CAT_EYE: 'Cat-eye',
+            },
+          },
+          frameColor: {
+            label: 'Frame colour',
+            options: {
+              BLACK: 'Black',
+              BROWN: 'Brown',
+              GOLD: 'Gold',
+              SILVER: 'Silver',
+              CLEAR: 'Clear',
+            },
+          },
+        },
+      },
+      preview: {
+        title: 'Your illustration',
+        caption: 'Drawn from your measurements and choices — an illustration, not a photo.',
+        heightUnset: 'Add your height to draw the figure to scale.',
+        glasses: 'glasses',
+      },
+      completion: {
+        title: 'Profile completeness',
+        percent: 'Your profile is {percent}% complete',
+        complete: 'Your profile is complete. Nice work!',
+        sectionDone: 'Complete',
+        sectionProgress: '{done} of {total}',
+        requiredMissing: 'Fill in the required fields to save.',
+        next: {
+          gender: 'Choose a gender option so we can show you the right cuts.',
+          heightCm: 'Add your height — required to save.',
+          weightKg: 'Add your weight — required to save.',
+          waistCm: 'Add your waist — required to save.',
+          hipCm: 'Add your hip measurement to improve size recommendations.',
+          chestCm: 'Add your chest measurement for better-fitting tops.',
+          inseamCm: 'Add your inseam for trousers of the right length.',
+          shoulderCm: 'Add your shoulder width for jackets and shirts.',
+          sleeveLengthCm: 'Add your sleeve length for long sleeves that fit.',
+          neckCm: 'Add your neck size for shirt collars.',
+          skinTone: 'Pick a skin tone for your illustration.',
+          hairStyle: 'Pick a hair style for your illustration.',
+          hairColor: 'Pick a hair colour for your illustration.',
+        },
+      },
+      errors: {
+        required: 'This field is required.',
+        invalid_number: 'Enter a number only, like 88 or 88.5.',
+        too_small: 'That looks too small — enter at least {min} {unit}.',
+        too_large: 'That looks too large — enter at most {max} {unit}.',
+        invalid_option: 'Choose one of the options.',
+        summary: 'Check the highlighted fields, then save again.',
+        stale: 'Your profile was changed in another window. Refresh the page and try again.',
+        sessionExpired: 'Your session has expired. Please sign in again.',
+        generic: 'We could not save right now. Please try again.',
+      },
+      save: 'Save profile',
+      saving: 'Saving…',
+      saved: 'Fit profile saved',
+      unsaved: 'Unsaved changes',
+      delete: {
+        button: 'Delete fit profile',
+        title: 'Delete your fit profile?',
+        description:
+          'Your measurements and appearance settings will be deleted permanently. You can create a new profile any time.',
+        confirm: 'Delete permanently',
+        cancel: 'Cancel',
+        deleting: 'Deleting…',
+        deleted: 'Fit profile deleted',
+      },
     },
 
     email: {

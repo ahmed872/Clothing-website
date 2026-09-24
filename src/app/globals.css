@@ -345,6 +345,50 @@
   }
 }
 
+/*
+ * Avatar palette (clothing P01) — what `LocalAvatarRenderer` and the body
+ * profile's swatches paint with. Skin, hair and frame colours describe the
+ * customer's choice, not the interface, so they are the same in both
+ * themes; only the guide lines borrow the theme's own tokens. `-unset` is
+ * the neutral grey drawn when nothing has been chosen — deliberately not a
+ * skin tone, so the preview never picks one for the customer.
+ */
+:root {
+  --avatar-skin-light: oklch(0.9 0.035 75);
+  --avatar-skin-medium-light: oklch(0.82 0.055 65);
+  --avatar-skin-medium: oklch(0.71 0.075 58);
+  --avatar-skin-medium-dark: oklch(0.56 0.075 52);
+  --avatar-skin-dark: oklch(0.42 0.055 48);
+  --avatar-skin-unset: oklch(0.8 0.004 250);
+
+  --avatar-hair-black: oklch(0.23 0.01 60);
+  --avatar-hair-dark-brown: oklch(0.33 0.045 50);
+  --avatar-hair-brown: oklch(0.46 0.07 55);
+  --avatar-hair-light-brown: oklch(0.62 0.08 65);
+  --avatar-hair-blonde: oklch(0.84 0.1 88);
+  --avatar-hair-red: oklch(0.56 0.15 40);
+  --avatar-hair-gray: oklch(0.66 0.005 250);
+  --avatar-hair-white: oklch(0.94 0.004 250);
+  --avatar-hair-unset: oklch(0.45 0.005 250);
+
+  --avatar-frame-black: oklch(0.2 0 0);
+  --avatar-frame-brown: oklch(0.42 0.06 55);
+  --avatar-frame-gold: oklch(0.76 0.12 85);
+  --avatar-frame-silver: oklch(0.76 0.005 250);
+  --avatar-frame-clear: oklch(0.85 0.01 250 / 70%);
+  --avatar-lens: oklch(0.95 0.02 230 / 25%);
+
+  --avatar-covering: oklch(0.44 0.035 300);
+  --avatar-garment-top: oklch(0.93 0.008 250);
+  --avatar-garment-bottom: oklch(0.36 0.03 250);
+  --avatar-garment-shoe: oklch(0.3 0.01 250);
+  --avatar-feature: oklch(0.25 0.01 250);
+  --avatar-outline: oklch(0.3 0.01 250 / 35%);
+  --avatar-shadow: oklch(0 0 0 / 12%);
+  --avatar-guide: var(--color-border-strong);
+  --avatar-guide-text: var(--color-text-subtle);
+}
+
 @layer base {
   :root {
     color-scheme: light dark;

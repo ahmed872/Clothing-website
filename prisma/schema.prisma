@@ -235,6 +235,85 @@ enum StorageProvider {
   EXTERNAL
 }
 
+// Body profile (clothing P01). Every value below is something the customer
+// picks for themselves — nothing is inferred from a photo or from another
+// field — and each list is closed, so a value can be validated, translated
+// and drawn rather than stored as free text.
+
+/// The customer's own choice of which cut to show them first. Not identity
+/// data, and never derived from anything else.
+enum BodyProfileGender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+/// A description of proportions, derived from chest/waist/hip by
+/// `body-shape.service.ts` — never asked for, never authoritative (the
+/// measurements are), and deliberately named for the proportion itself
+/// rather than any fruit or shape metaphor.
+enum BodyShape {
+  STRAIGHT
+  DEFINED_WAIST
+  HIPS_WIDER
+  CHEST_WIDER
+  WAIST_WIDEST
+}
+
+enum SkinTone {
+  LIGHT
+  MEDIUM_LIGHT
+  MEDIUM
+  MEDIUM_DARK
+  DARK
+}
+
+/// COVERED is a hijab or other head covering.
+enum HairStyle {
+  SHORT
+  MEDIUM
+  LONG
+  CURLY
+  STRAIGHT
+  WAVY
+  BUZZ
+  COVERED
+}
+
+enum HairColor {
+  BLACK
+  DARK_BROWN
+  BROWN
+  LIGHT_BROWN
+  BLONDE
+  RED
+  GRAY
+  WHITE
+}
+
+enum FacialHair {
+  NONE
+  SHORT_BEARD
+  LONG_BEARD
+  MUSTACHE
+}
+
+enum GlassesStyle {
+  ROUND
+  RECTANGULAR
+  AVIATOR
+  CAT_EYE
+}
+
+enum GlassesFrameColor {
+  BLACK
+  BROWN
+  GOLD
+  SILVER
+  CLEAR
+}
+
 // ---------------------------------------------------------------------------
 // identity
 // ---------------------------------------------------------------------------
@@ -637,6 +716,7 @@ model Customer {
   reviews       Review[]
   wishlistItems WishlistItem[]
   redemptions   CouponRedemption[]
+  bodyProfile   BodyProfile?
 
   @@map("customers")
 }
@@ -693,6 +773,65 @@ model WishlistItem {
 
   @@unique([customerId, productId])
   @@map("wishlist_items")
+}
+
+/// A customer's measurements, for sizing (clothing P01). One per customer,
+/// owned by the `Customer` row and deleted with it. Every read and write
+/// goes through `@/modules/body-profile` keyed by the *session's* customer
+/// id — there is no route or action that accepts a profile id or customer id
+/// from a request.
+///
+/// Measurements are centimetres and kilograms, one decimal place, and they
+/// are the authority for sizing. `weightKg` is kept for completeness but is
+/// not a sizing input on its own; `bodyShape` is derived from chest, waist
+/// and hip on every save and is advisory only. The column ranges are
+/// enforced by `bodyProfileInputSchema` (realistic human bounds) and, as a
+/// last line, by the `CHECK (… > 0)` constraints in this table's migration.
+model BodyProfile {
+  id             String            @id @default(uuid()) @db.Uuid
+  customerId     String            @unique @map("customer_id") @db.Uuid
+  gender         BodyProfileGender
+  heightCm       Decimal           @map("height_cm") @db.Decimal(4, 1)
+  weightKg       Decimal           @map("weight_kg") @db.Decimal(4, 1)
+  waistCm        Decimal           @map("waist_cm") @db.Decimal(4, 1)
+  chestCm        Decimal?          @map("chest_cm") @db.Decimal(4, 1)
+  hipCm          Decimal?          @map("hip_cm") @db.Decimal(4, 1)
+  shoulderCm     Decimal?          @map("shoulder_cm") @db.Decimal(4, 1)
+  inseamCm       Decimal?          @map("inseam_cm") @db.Decimal(4, 1)
+  sleeveLengthCm Decimal?          @map("sleeve_length_cm") @db.Decimal(4, 1)
+  neckCm         Decimal?          @map("neck_cm") @db.Decimal(4, 1)
+  bodyShape      BodyShape?        @map("body_shape")
+  createdAt      DateTime          @default(now()) @map("created_at")
+  updatedAt      DateTime          @updatedAt @map("updated_at")
+
+  customer Customer             @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  avatar   AvatarConfiguration?
+
+  @@map("body_profiles")
+}
+
+/// How the customer's avatar looks — kept apart from the measurements so a
+/// future renderer (3D, generated) can grow its own settings here, or in
+/// tables beside it, without touching the sizing data. Every appearance
+/// field is nullable: "not chosen yet" draws a neutral figure rather than
+/// assuming anything about the customer. Glasses style and colour are only
+/// kept while `wearsGlasses` is true (enforced by the service and a CHECK).
+model AvatarConfiguration {
+  id                String             @id @default(uuid()) @db.Uuid
+  bodyProfileId     String             @unique @map("body_profile_id") @db.Uuid
+  skinTone          SkinTone?          @map("skin_tone")
+  hairStyle         HairStyle?         @map("hair_style")
+  hairColor         HairColor?         @map("hair_color")
+  facialHair        FacialHair?        @map("facial_hair")
+  wearsGlasses      Boolean            @default(false) @map("wears_glasses")
+  glassesStyle      GlassesStyle?      @map("glasses_style")
+  glassesFrameColor GlassesFrameColor? @map("glasses_frame_color")
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+
+  bodyProfile BodyProfile @relation(fields: [bodyProfileId], references: [id], onDelete: Cascade)
+
+  @@map("avatar_configurations")
 }
 
 // ---------------------------------------------------------------------------

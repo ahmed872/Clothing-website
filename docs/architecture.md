@@ -28,7 +28,7 @@ catalog data remains, as `scripts/data/demo-catalog.json`.
 
 ## Modules
 
-Fifteen modules, each owning one part of the domain. A module's `index.ts` is
+Sixteen modules, each owning one part of the domain. A module's `index.ts` is
 its public surface: other modules import `@/modules/<name>` and never a file
 inside it.
 
@@ -38,26 +38,27 @@ core → identity → media → catalog → search
                         inventory → pricing → cart → orders
                                                        ↓
                                      payments · notifications
- customers · content · settings · analytics
+ customers · body-profile · content · settings · analytics
 ```
 
-| Module          | Owns                                               | May import                                                                  |
-| --------------- | -------------------------------------------------- | --------------------------------------------------------------------------- |
-| `core`          | database client, environment, errors, money        | —                                                                           |
-| `identity`      | users, sessions, roles, audit log                  | core                                                                        |
-| `media`         | assets, uploads, storage providers                 | core                                                                        |
-| `catalog`       | products, categories, brands, attributes, variants | core, media                                                                 |
-| `search`        | search service and providers                       | core, catalog                                                               |
-| `inventory`     | stock levels, adjustment history                   | core, catalog                                                               |
-| `pricing`       | price resolution, discounts, coupons               | core, catalog                                                               |
-| `cart`          | cart lifecycle                                     | core, catalog, pricing, inventory                                           |
-| `customers`     | accounts, addresses, wishlist, reviews             | core, identity, catalog                                                     |
-| `payments`      | payment service, providers, webhooks               | core                                                                        |
-| `notifications` | channels, templates                                | core, settings                                                              |
-| `content`       | homepage sections, banners, navigation             | core, media, catalog                                                        |
-| `settings`      | store settings, branding, shipping config          | core, media                                                                 |
-| `analytics`     | reporting queries, rollups (read-only)             | core                                                                        |
-| `orders`        | order lifecycle, state machine, events             | core, catalog, pricing, inventory, cart, customers, payments, notifications |
+| Module          | Owns                                                                           | May import                                                                  |
+| --------------- | ------------------------------------------------------------------------------ | --------------------------------------------------------------------------- |
+| `core`          | database client, environment, errors, money                                    | —                                                                           |
+| `identity`      | users, sessions, roles, audit log                                              | core                                                                        |
+| `media`         | assets, uploads, storage providers                                             | core                                                                        |
+| `catalog`       | products, categories, brands, attributes, variants                             | core, media                                                                 |
+| `search`        | search service and providers                                                   | core, catalog                                                               |
+| `inventory`     | stock levels, adjustment history                                               | core, catalog                                                               |
+| `pricing`       | price resolution, discounts, coupons                                           | core, catalog                                                               |
+| `cart`          | cart lifecycle                                                                 | core, catalog, pricing, inventory                                           |
+| `customers`     | accounts, addresses, wishlist, reviews                                         | core, identity, catalog                                                     |
+| `body-profile`  | body measurements, avatar appearance, completion, size-recommendation contract | core                                                                        |
+| `payments`      | payment service, providers, webhooks                                           | core                                                                        |
+| `notifications` | channels, templates                                                            | core, settings                                                              |
+| `content`       | homepage sections, banners, navigation                                         | core, media, catalog                                                        |
+| `settings`      | store settings, branding, shipping config                                      | core, media                                                                 |
+| `analytics`     | reporting queries, rollups (read-only)                                         | core                                                                        |
+| `orders`        | order lifecycle, state machine, events                                         | core, catalog, pricing, inventory, cart, customers, payments, notifications |
 
 Two rules matter more than the rest:
 
@@ -98,6 +99,16 @@ worth describing rather than leaving to be discovered:
   visitor.
 - **`search` is Postgres-backed** behind a provider interface, so a real
   search service can replace it without touching `catalog`.
+- **`body-profile` holds a customer's own fit data and nothing about who
+  they look like** (clothing P01). Measurements are authoritative and stored
+  in metric at one decimal; the derived `bodyShape` is advisory, computed in
+  one place (`body-shape.service.ts`) and never accepted from a form.
+  Appearance (`AvatarConfiguration`) is only what the customer picked from
+  closed lists — there is no photo, no upload and no inference. Every
+  function takes the customer id the session names and none takes a profile
+  id, so there is no id to swap. The module also fixes the contract the size
+  recommendation engine (P02) will implement, with no implementation behind
+  it yet — so nothing can show a made-up size.
 
 Every admin section now has a screen of its own, and the shared "this
 section is being built" placeholder at `/admin/[section]` is gone with the

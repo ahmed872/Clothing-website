@@ -9,12 +9,13 @@ import { cn } from '@/lib/utils';
 export interface AccountNavLabels {
   navOverview: string;
   navProfile: string;
+  navBodyProfile: string;
   navOrders: string;
 }
 
 /**
  * A row of links, not an admin-style sidebar (P12 §20's "no generic SaaS
- * dashboard") — three destinations is not enough content to justify a
+ * dashboard") — a handful of destinations is not enough content to justify a
  * persistent rail, and the storefront's own header already anchors the
  * page. Active state comes from the real URL (`usePathname`), so it stays
  * correct through a plain navigation with no client state to get out of
@@ -26,11 +27,17 @@ export function AccountNav({ locale, labels }: { locale: Locale; labels: Account
   const links = [
     { href: `/${locale}/account`, label: labels.navOverview },
     { href: `/${locale}/account/profile`, label: labels.navProfile },
+    { href: `/${locale}/account/body-profile`, label: labels.navBodyProfile },
     { href: `/${locale}/account/orders`, label: labels.navOrders },
   ];
 
   return (
-    <nav aria-label={labels.navOverview} className="flex gap-1 border-b border-(--color-border)">
+    // Scrolls within itself on a narrow screen: four links can outgrow a
+    // 390px row, and the page itself must never scroll sideways.
+    <nav
+      aria-label={labels.navOverview}
+      className="flex gap-1 overflow-x-auto border-b border-(--color-border) whitespace-nowrap"
+    >
       {links.map((link) => {
         const active =
           link.href === `/${locale}/account`

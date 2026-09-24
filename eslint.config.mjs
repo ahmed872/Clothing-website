@@ -29,6 +29,11 @@ const MODULE_DEPENDENCIES = {
   settings: ['core', 'media'],
   content: ['core', 'media', 'catalog'],
   analytics: ['core'],
+  // Clothing P01. Deliberately `core` alone: the customer a profile belongs
+  // to arrives as a plain id from the caller (who took it from the session),
+  // so the module needs neither `identity` nor `customers`, and the size
+  // engine's contract names products structurally until it needs `catalog`.
+  'body-profile': ['core'],
   orders: [
     'core',
     // P10: orders write audit entries and name the staff member who moved a

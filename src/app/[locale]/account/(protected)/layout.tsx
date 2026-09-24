@@ -49,7 +49,12 @@ export default async function AccountProtectedLayout({
       </div>
       <AccountNav
         locale={locale}
-        labels={{ navOverview: t.navOverview, navProfile: t.navProfile, navOrders: t.navOrders }}
+        labels={{
+          navOverview: t.navOverview,
+          navProfile: t.navProfile,
+          navBodyProfile: t.navBodyProfile,
+          navOrders: t.navOrders,
+        }}
       />
       {children}
     </div>
