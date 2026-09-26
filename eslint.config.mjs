@@ -40,6 +40,10 @@ const MODULE_DEPENDENCIES = {
   sizing: ['core', 'body-profile'],
   // Clothing P04. Pure: handed the profile and the product by its caller.
   fitting: ['body-profile', 'sizing'],
+  // Clothing P05. Optional AI try-on: jobs in the database (`core`), and the
+  // callback signature scheme `payments` already implements and tests
+  // (HMAC over timestamp + raw body) rather than a second copy of it.
+  tryon: ['core', 'payments'],
   orders: [
     'core',
     // P10: orders write audit entries and name the staff member who moved a

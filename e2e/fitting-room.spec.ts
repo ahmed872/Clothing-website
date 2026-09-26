@@ -5,6 +5,7 @@ import type { Page } from '@playwright/test';
 import { expect, test } from '@playwright/test';
 
 import { test as adminTest } from './fixtures/authenticated';
+import { registerWithProfile } from './fixtures/customer-profile';
 import { E2E_SIZING_FIXTURE } from './fixtures/sizing-fixture';
 
 /**
@@ -27,39 +28,6 @@ test.beforeAll(() => {
 const TEE = E2E_SIZING_FIXTURE.fittingTee;
 const THOBE = E2E_SIZING_FIXTURE.fittingThobe;
 const ROOM = (locale: 'ar' | 'en', slug: string = TEE.slug) => `/${locale}/fitting-room/${slug}`;
-
-async function registerWithProfile(
-  page: Page,
-  locale: 'ar' | 'en',
-  { chest = '97', profile = true } = {},
-): Promise<void> {
-  const email = `p04-${locale}-${Date.now()}-${Math.floor(Math.random() * 100000)}@example.com`;
-  await page.goto(`/${locale}/account/register`);
-  const form = page.locator('main form');
-  await form.locator('input[name="name"]').fill('Fitting Tester');
-  await form.locator('input[name="email"]').fill(email);
-  await form.locator('input[name="password"]').fill('Password123');
-  await form.locator('input[name="passwordConfirmation"]').fill('Password123');
-  await form.locator('button[type="submit"]').click();
-  await page.waitForURL(/\/account$/, { timeout: 30_000 });
-  if (!profile) return;
-  await page.goto(`/${locale}/account/body-profile`, { waitUntil: 'networkidle' });
-  const ar = locale === 'ar';
-  const field = (en: string, arName: string) =>
-    page.getByRole('textbox', { name: ar ? arName : en, exact: true });
-  await page.getByRole('radio', { name: ar ? 'ذكر' : 'Male', exact: true }).click();
-  await field('Height (cm)', 'الطول (سم)').fill('177');
-  await field('Weight (kg)', 'الوزن (كجم)').fill('78');
-  await field('Waist (cm)', 'محيط الخصر (سم)').fill('84');
-  await field('Chest (cm)', 'محيط الصدر (سم)').fill(chest);
-  await field('Shoulder width (cm)', 'عرض الكتفين (سم)').fill('45');
-  await page.getByRole('button', { name: ar ? 'حفظ الملف' : 'Save profile' }).click();
-  await expect(
-    page.getByText(ar ? 'تم حفظ ملف المقاسات' : 'Fit profile saved').first(),
-  ).toBeVisible({
-    timeout: 20_000,
-  });
-}
 
 const avatar = (page: Page) => page.getByTestId('fitting-avatar').locator('svg');
 const garment = (page: Page) => avatar(page).locator('[data-part="garment"]');

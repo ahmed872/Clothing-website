@@ -30,6 +30,7 @@ import {
   type BodyProfileFormState,
 } from '@/lib/customers/body-profile-actions';
 import type { FittingRoomData } from '@/lib/fitting/fitting-room';
+import type { TryOnAvailability } from '@/lib/try-on/try-on';
 import type { getDictionary } from '@/lib/i18n/dictionary';
 import type { Locale } from '@/lib/i18n/locales';
 import {
@@ -39,8 +40,10 @@ import {
   type MeasurementKey,
 } from '@/modules/body-profile/options';
 import type { FittingResult } from '@/modules/fitting';
+import type { TryOnJobView } from '@/modules/tryon';
 
 import { garmentLayers } from './garment-layers';
+import { TryOnPanel } from './try-on-panel';
 
 type Dictionary = ReturnType<typeof getDictionary>;
 type Ready = Extract<FittingRoomData, { status: 'ready' }>;
@@ -63,12 +66,16 @@ export function FittingRoom({
   locale,
   data,
   currency,
+  tryOn,
   t,
 }: {
   locale: Locale;
   data: Ready;
   currency: string;
-  t: Pick<Dictionary, 'fitting' | 'sizing' | 'bodyProfile' | 'product' | 'cart'>;
+  /** Optional AI try-on (P05): whether it is on, and the customer's newest
+   * job for this product to resume. */
+  tryOn: { availability: TryOnAvailability; latestJob: TryOnJobView | null };
+  t: Pick<Dictionary, 'fitting' | 'sizing' | 'bodyProfile' | 'product' | 'cart' | 'tryOn'>;
 }) {
   const router = useRouter();
   const id = React.useId();
@@ -311,6 +318,14 @@ export function FittingRoom({
         </div>
         {!available ? <Alert variant="warning">{L.unavailable}</Alert> : null}
         <p className="text-caption text-(--color-text-muted)">{L.privacy}</p>
+
+        <TryOnPanel
+          availability={tryOn.availability}
+          slug={data.product.slug}
+          variantId={variant?.id ?? null}
+          initialJob={tryOn.latestJob}
+          t={t.tryOn}
+        />
       </div>
     </div>
   );

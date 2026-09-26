@@ -634,6 +634,7 @@ model Product {
   views         ProductView[]
   dailyStats    DailyProductStats[]
   sizing        ProductSizing?
+  tryOnJobs     TryOnJob[]
 
   @@index([categoryId, status])
   @@index([brandId])
@@ -715,6 +716,7 @@ model Variant {
   cartItems    CartItem[]
   orderItems   OrderItem[]
   adjustments  InventoryAdjustment[]
+  tryOnJobs    TryOnJob[]
 
   @@index([productId])
   @@index([stockQuantity])
@@ -790,6 +792,7 @@ model Customer {
   wishlistItems WishlistItem[]
   redemptions   CouponRedemption[]
   bodyProfile   BodyProfile?
+  tryOnJobs     TryOnJob[]
 
   @@map("customers")
 }
@@ -981,6 +984,69 @@ model SizeChartEntry {
 
   @@index([sizingId, position])
   @@map("size_chart_entries")
+}
+
+/// Where an AI try-on job is (clothing P05). PENDING until the provider
+/// accepts it; COMPLETED, FAILED, CANCELLED and EXPIRED are final.
+enum TryOnJobStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+  EXPIRED
+}
+
+/// One optional AI try-on request (clothing P05): this customer, this
+/// variant, sent to the configured provider. Deliberately holds no body
+/// measurements, no photo and no provider credential — only what is needed
+/// to follow the job: the provider's id for it, a hash of what was sent (so
+/// a reused idempotency key with different content is caught), and the
+/// result's URL once it passes the host allowlist.
+model TryOnJob {
+  id             String         @id @default(uuid()) @db.Uuid
+  customerId     String         @map("customer_id") @db.Uuid
+  productId      String         @map("product_id") @db.Uuid
+  variantId      String         @map("variant_id") @db.Uuid
+  /// The adapter's name ("mock"); an environment switched to another
+  /// provider leaves older jobs readable but not refreshable.
+  provider       String         @db.VarChar(32)
+  providerJobId  String?        @map("provider_job_id") @db.VarChar(128)
+  status         TryOnJobStatus @default(PENDING)
+  /// Chosen by the customer's browser, scoped to that customer.
+  idempotencyKey String         @map("idempotency_key") @db.VarChar(64)
+  /// sha256 of the variant and the profile version the request was built
+  /// from.
+  requestHash    String         @map("request_hash") @db.Char(64)
+  /// Provider submissions so far; capped by the service.
+  attempts       Int            @default(0)
+  errorCode      String?        @map("error_code") @db.VarChar(64)
+  resultUrl      String?        @map("result_url") @db.VarChar(2048)
+  /// The newest provider callback applied, to refuse older ones.
+  lastEventAt    DateTime?      @map("last_event_at")
+  lastPolledAt   DateTime?      @map("last_polled_at")
+  /// When the customer agreed to send their measurements to the provider.
+  consentedAt    DateTime       @map("consented_at")
+  /// When the provider was last asked to do the work — the processing
+  /// timeout runs from here, so a retry starts a fresh wait.
+  submittedAt    DateTime       @default(now()) @map("submitted_at")
+  /// After this the job (and any result) is gone from the customer's view.
+  expiresAt      DateTime       @map("expires_at")
+  completedAt    DateTime?      @map("completed_at")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variant  Variant  @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@unique([customerId, idempotencyKey])
+  @@unique([provider, providerJobId])
+  @@index([customerId, createdAt])
+  @@index([productId])
+  @@index([variantId])
+  @@index([status, expiresAt])
+  @@map("try_on_jobs")
 }
 
 // ---------------------------------------------------------------------------

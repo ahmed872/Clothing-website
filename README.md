@@ -54,6 +54,13 @@ marked and how the chosen one compares ("one size smaller"). Colour and size
 switch instantly; changing measurements or fit recalculates on the server.
 An illustration, never a photo — nothing is captured or stored.
 
+**AI try-on (optional)** — off by default (`AI_TRYON_PROVIDER="none"`): the
+fitting room says it is unavailable and everything else works. The
+architecture for a provider is in place — job lifecycle, consent per request,
+idempotency, limits, signed callbacks, a result-host allowlist — with one
+adapter: a clearly labelled **mock** for development and tests that generates
+no image. A real vendor has not been selected or integrated.
+
 **Admin** (`/admin`) — sign-in with real server-side sessions and
 role-based access control, then products and variants, categories, brands,
 inventory, pricing, promotions and coupons, orders, customers, store

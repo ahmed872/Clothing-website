@@ -7,9 +7,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { getOptionalCustomerAccount } from '@/lib/customers/customer-identity';
 import { loadFittingRoom } from '@/lib/fitting/fitting-room';
+import { getTryOnAvailability, tryOnContext } from '@/lib/try-on/try-on';
 import { getDictionary } from '@/lib/i18n/dictionary';
 import { isLocale, type Locale } from '@/lib/i18n/locales';
 import { FIT_PREFERENCES } from '@/modules/body-profile';
+import { getLatestTryOnJob } from '@/modules/tryon';
 import { getStoreSettings } from '@/modules/settings';
 
 /**
@@ -101,18 +103,24 @@ export default async function FittingRoomPage({
       </Card>
     );
   } else {
-    const settings = await getStoreSettings(locale);
+    const context = tryOnContext();
+    const [settings, latestJob] = await Promise.all([
+      getStoreSettings(locale),
+      context ? getLatestTryOnJob(account.customerId, data.product.id, context) : null,
+    ]);
     body = (
       <FittingRoom
         locale={locale}
         data={data}
         currency={settings.currency}
+        tryOn={{ availability: getTryOnAvailability(), latestJob }}
         t={{
           fitting: t.fitting,
           sizing: t.sizing,
           bodyProfile: t.bodyProfile,
           product: t.product,
           cart: t.cart,
+          tryOn: t.tryOn,
         }}
       />
     );

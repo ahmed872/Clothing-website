@@ -246,6 +246,20 @@ development run — `.env.test` is only ever loaded by Vitest and by
 lets a spec read what the app just tried to send out of
 `EMAIL_TEST_INBOX_DIR` and click the real verification link inside it.
 
+**AI try-on (clothing P05).** `pnpm test` does not need it — the try-on
+tests select the mock adapter themselves. The Playwright try-on spec
+(`e2e/try-on.spec.ts`) drives the development server's own configuration,
+so `.env` needs the labelled mock:
+
+```bash
+AI_TRYON_PROVIDER="mock"
+AI_TRYON_WEBHOOK_SECRET="…"                    # openssl rand -hex 32
+AI_TRYON_RESULT_HOSTS="results.example-cdn.test"
+```
+
+The mock generates no image and calls no service; it is never a real
+deployment's value.
+
 `PAYMENT_WEBHOOK_SECRET` must be the _same_ value in `.env` as the payment
 stub sees, since the stub signs its webhooks with it and the application
 verifies them with the real HMAC code — the stub loads `.env` itself
@@ -412,6 +426,15 @@ those two.
   button that cannot work. Required (`PAYMENT_API_BASE_URL`,
   `PAYMENT_API_KEY`, `PAYMENT_WEBHOOK_SECRET`) only once a provider is
   actually enabled.
+
+**AI try-on (clothing P05):**
+
+- `AI_TRYON_PROVIDER` — `none` (the default) is the supported production
+  configuration today: the fitting room says AI try-on is unavailable. `mock`
+  is for development and tests only. No real provider adapter exists yet.
+- `AI_TRYON_WEBHOOK_SECRET` — required once a provider is enabled.
+- `AI_TRYON_RESULT_HOSTS` — the exact hostnames a result image may come from;
+  unset refuses every result URL.
 
 ### What a multi-instance deployment changes (P14)
 

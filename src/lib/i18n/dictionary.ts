@@ -764,6 +764,57 @@ export const dictionary = {
       notAvailable: 'هذه القطعة غير متاحة في غرفة القياس بعد.',
     },
 
+    // Clothing P05 — optional AI try-on. Off unless a provider is configured;
+    // a mock provider is always called one, and never presented as AI.
+    tryOn: {
+      title: 'التجربة بالذكاء الاصطناعي',
+      unavailable:
+        'التجربة بالذكاء الاصطناعي غير متاحة حاليًا. ما زال بإمكانك استخدام غرفة القياس المخصّصة لك.',
+      description:
+        'اطلب من خدمة تجربة بالذكاء الاصطناعي صورة لهذه القطعة بالمقاس واللون المختارين أعلاه، اعتمادًا على قياساتك المحفوظة.',
+      mockBadge: 'مزوّد تجريبي',
+      mockNotice:
+        'وضع الاختبار: يستخدم المتجر مزوّد تجربة تجريبيًا. لا تُنشأ أي صورة بالذكاء الاصطناعي — المزوّد التجريبي يمرّ بالخطوات فقط. غرفة القياس المخصّصة أعلاه هي المعاينة.',
+      consent:
+        'أوافق على إرسال قياسات جسمي المحفوظة وبيانات هذه القطعة إلى مزوّد التجربة لهذا الطلب. لا تُرسل أي صورة لي.',
+      start: 'جرّبها بالذكاء الاصطناعي',
+      starting: 'جارٍ البدء…',
+      noVariant: 'هذا المزيج من اللون والمقاس غير متوفر للبيع، لذلك لا يمكن تجربته.',
+      status: {
+        PENDING: 'جارٍ إرسال طلبك…',
+        PROCESSING: 'مزوّد التجربة يعمل على طلبك…',
+        COMPLETED: 'تجربتك جاهزة.',
+        FAILED: 'لم تكتمل التجربة.',
+        CANCELLED: 'ألغيت هذه التجربة.',
+        EXPIRED: 'انتهت صلاحية هذه التجربة.',
+      },
+      errors: {
+        provider_failed: 'تعذّر على المزوّد إكمالها.',
+        provider_unavailable: 'تعذّر الوصول إلى المزوّد.',
+        timed_out: 'استغرق المزوّد وقتًا أطول من اللازم.',
+        unsafe_result_url: 'رُفضت نتيجة المزوّد لأنها جاءت من عنوان غير معتمد.',
+        missing_result: 'انتهى المزوّد دون نتيجة.',
+      },
+      actionErrors: {
+        unavailable:
+          'التجربة بالذكاء الاصطناعي غير متاحة حاليًا. ما زال بإمكانك استخدام غرفة القياس المخصّصة لك.',
+        consent_required: 'فعّل خانة الموافقة لبدء التجربة.',
+        invalid: 'الطلب غير صالح. أعد تحميل الصفحة وحاول مرة أخرى.',
+        not_found: 'هذه التجربة غير متاحة.',
+        rate_limited: 'بدأت تجارب كثيرة مؤخرًا. حاول مرة أخرى بعد قليل.',
+        not_allowed: 'لم يعد ذلك ممكنًا لهذه التجربة.',
+        session_expired: 'انتهت جلستك. سجّل الدخول مرة أخرى للمتابعة.',
+        generic: 'حدث خطأ ما. حاول مرة أخرى.',
+      },
+      resultAlt: 'صورة تجربة بالذكاء الاصطناعي للقطعة المختارة',
+      resultCaption: 'صورة مُنشأة بالذكاء الاصطناعي — قد تختلف الألوان والمقاس عن القطعة الحقيقية.',
+      mockResultCaption: 'صورة من المزوّد التجريبي — ليست مُنشأة بالذكاء الاصطناعي.',
+      mockCompleted:
+        'انتهى المزوّد التجريبي. لم تُنشأ أي صورة بالذكاء الاصطناعي — استخدم غرفة القياس المخصّصة أعلاه.',
+      cancel: 'إلغاء',
+      retry: 'حاول مرة أخرى',
+    },
+
     // P13 — transactional email copy. Deliberately its own section, not
     // reused from `account`: an email template has no session, no button
     // states, no live validation — it is static copy read once, so it gets
@@ -1540,6 +1591,58 @@ export const dictionary = {
         cta: 'Create your fit profile',
       },
       notAvailable: 'This piece is not available in the fitting room yet.',
+    },
+
+    // Clothing P05 — optional AI try-on. Off unless a provider is configured;
+    // a mock provider is always called one, and never presented as AI.
+    tryOn: {
+      title: 'AI try-on',
+      unavailable:
+        'AI Try-On is currently unavailable. You can still use the personalized fitting room.',
+      description:
+        'Ask an AI try-on service for an image of this garment in the size and colour selected above, from your saved measurements.',
+      mockBadge: 'Mock provider',
+      mockNotice:
+        'Test mode: this store uses a mock try-on provider. No AI image is generated — the mock only walks through the steps. Your personalized fitting above is the preview.',
+      consent:
+        'I agree to send my saved body measurements and this garment’s details to the try-on provider for this request. No photo of me is sent.',
+      start: 'Try on with AI',
+      starting: 'Starting…',
+      noVariant: 'This colour and size combination is not sold, so it cannot be tried on.',
+      status: {
+        PENDING: 'Sending your request…',
+        PROCESSING: 'The try-on provider is working on it…',
+        COMPLETED: 'Your try-on is ready.',
+        FAILED: 'The try-on did not complete.',
+        CANCELLED: 'You cancelled this try-on.',
+        EXPIRED: 'This try-on has expired.',
+      },
+      errors: {
+        provider_failed: 'The provider could not complete it.',
+        provider_unavailable: 'The provider could not be reached.',
+        timed_out: 'The provider took too long.',
+        unsafe_result_url:
+          'The provider’s result was refused because it came from an unapproved address.',
+        missing_result: 'The provider finished without a result.',
+      },
+      actionErrors: {
+        unavailable:
+          'AI Try-On is currently unavailable. You can still use the personalized fitting room.',
+        consent_required: 'Tick the consent box to start a try-on.',
+        invalid: 'That request was not valid. Reload the page and try again.',
+        not_found: 'This try-on is not available.',
+        rate_limited: 'You have started many try-ons recently. Try again in a while.',
+        not_allowed: 'That is no longer possible for this try-on.',
+        session_expired: 'Your session has ended. Sign in again to continue.',
+        generic: 'Something went wrong. Try again.',
+      },
+      resultAlt: 'AI try-on image of the selected garment',
+      resultCaption: 'AI-generated image — colours and fit may differ from the real garment.',
+      mockResultCaption: 'Mock provider image — not generated by AI.',
+      mockCompleted:
+        'The mock provider finished. No AI image was generated — use your personalized fitting above.',
+      cancel: 'Cancel',
+      retry: 'Try again',
     },
 
     email: {

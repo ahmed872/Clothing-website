@@ -283,3 +283,40 @@ describe('P06 security — no auth secret ever reaches the client env schema', (
     expect(allKeys).not.toContain('BOOTSTRAP_ADMIN_PASSWORD');
   });
 });
+
+describe('parseServerEnv — AI try-on (clothing P05)', () => {
+  it('is off by default, with nothing else to set', () => {
+    const result = parseServerEnv(validServer);
+    expect(result.success && result.data.AI_TRYON_PROVIDER).toBe('none');
+  });
+
+  it('refuses a provider without the callback signing secret, naming it', () => {
+    const result = parseServerEnv({ ...validServer, AI_TRYON_PROVIDER: 'mock' });
+    expect(result.success).toBe(false);
+    expect(!result.success && result.message).toContain('AI_TRYON_WEBHOOK_SECRET');
+  });
+
+  it('refuses a short secret and an unknown provider', () => {
+    expect(
+      parseServerEnv({ ...validServer, AI_TRYON_PROVIDER: 'mock', AI_TRYON_WEBHOOK_SECRET: 'x' })
+        .success,
+    ).toBe(false);
+    expect(
+      parseServerEnv({
+        ...validServer,
+        AI_TRYON_PROVIDER: 'some-vendor',
+        AI_TRYON_WEBHOOK_SECRET: 'd'.repeat(64),
+      }).success,
+    ).toBe(false);
+  });
+
+  it('accepts the mock with its secret', () => {
+    const result = parseServerEnv({
+      ...validServer,
+      AI_TRYON_PROVIDER: 'mock',
+      AI_TRYON_WEBHOOK_SECRET: 'd'.repeat(64),
+      AI_TRYON_RESULT_HOSTS: 'results.example-cdn.test',
+    });
+    expect(result.success && result.data.AI_TRYON_PROVIDER).toBe('mock');
+  });
+});

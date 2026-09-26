@@ -28,7 +28,7 @@ catalog data remains, as `scripts/data/demo-catalog.json`.
 
 ## Modules
 
-Eighteen modules, each owning one part of the domain. A module's `index.ts` is
+Nineteen modules, each owning one part of the domain. A module's `index.ts` is
 its public surface: other modules import `@/modules/<name>` and never a file
 inside it.
 
@@ -38,7 +38,7 @@ core → identity → media → catalog → search
                         inventory → pricing → cart → orders
                                                        ↓
                                      payments · notifications
- customers · body-profile → sizing → fitting · content · settings · analytics
+ customers · body-profile → sizing → fitting · tryon · content · settings · analytics
 ```
 
 | Module          | Owns                                                                   | May import                                                                  |
@@ -55,6 +55,7 @@ core → identity → media → catalog → search
 | `body-profile`  | body measurements, avatar appearance, completion, what sizing may read | core                                                                        |
 | `sizing`        | garment types, size charts, the size recommendation engine             | core, body-profile                                                          |
 | `fitting`       | the virtual fitting room's pure domain service                         | body-profile, sizing                                                        |
+| `tryon`         | optional AI try-on: provider interface, mock adapter, job lifecycle    | core, payments (callback signature scheme)                                  |
 | `payments`      | payment service, providers, webhooks                                   | core                                                                        |
 | `notifications` | channels, templates                                                    | core, settings                                                              |
 | `content`       | homepage sections, banners, navigation                                 | core, media, catalog                                                        |
@@ -140,6 +141,23 @@ worth describing rather than leaving to be discovered:
   (`components/storefront/fitting/garment-layers.tsx`) draw a result on the
   avatar. Recalculation (a new fit, new measurements) always goes back to
   the server. No image is captured or stored.
+- **`tryon` is optional** (clothing P05). `AI_TRYON_PROVIDER` defaults to
+  `none`, and then the fitting room says AI try-on is unavailable and
+  nothing is sent anywhere. Everything talks to `AITryOnProvider`
+  (`createJob`/`getJob`/`cancelJob`/`verifyCallback`); the one adapter is a
+  labelled, deterministic mock that generates no image — no vendor has been
+  selected, so none is guessed at. `TryOnJob` rows hold no measurements, no
+  photo and no credential; jobs are scoped to the session's customer (a
+  foreign id is "not found"), idempotent per customer key, deduplicated per
+  variant, rate-limited per hour in the database, capped at three attempts,
+  timed out and expired by time. The request sent to a provider is rebuilt
+  on the server (`lib/try-on/try-on.ts`) from the catalog and the saved
+  profile, only after explicit consent for that request. Callbacks
+  (`/api/try-on/callback/[provider]`) are verified as raw text with the same
+  HMAC-over-timestamp scheme as payment webhooks, bodies are capped while
+  read, finished jobs never change again, and a result URL is stored only if
+  it is HTTPS from a host in `AI_TRYON_RESULT_HOSTS`. Progress is read with
+  a GET route, so polling never queues behind Server Actions.
 
 Every admin section now has a screen of its own, and the shared "this
 section is being built" placeholder at `/admin/[section]` is gone with the

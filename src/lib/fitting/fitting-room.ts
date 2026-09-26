@@ -58,6 +58,9 @@ export interface FittingProductSummary {
   name: { ar: string; en: string };
   /** The catalog's own `fit` attribute, as the shopper reads it. */
   fit: { ar: string; en: string } | null;
+  /** The first product image's public URL (clothing P05: sent to an AI
+   * try-on provider, when one is configured). */
+  imageUrl: string | null;
 }
 
 export async function loadFittingRoom(
@@ -75,6 +78,7 @@ export async function loadFittingRoom(
     slug: product.slug,
     name: { ar: product.nameAr, en: product.nameEn },
     fit: fitValue ? { ar: fitSpec?.valueLabels[fitValue]?.ar ?? fitValue, en: fitValue } : null,
+    imageUrl: product.images[0]?.src ?? null,
   };
 
   const [sizing, chart] = await Promise.all([

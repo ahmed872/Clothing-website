@@ -59,6 +59,22 @@ const paymentProviderSchema = z.enum(['none', 'hosted_checkout']);
  */
 const emailProviderSchema = z.enum(['console', 'smtp', 'test']);
 
+/**
+ * Which AI try-on adapter runs (clothing P05). Optional by design — the
+ * store, the size recommendation and the personalized fitting room all
+ * work without one.
+ *
+ *   none  the default. The fitting room says AI try-on is unavailable and
+ *         nothing is ever sent anywhere.
+ *   mock  a labelled, deterministic adapter for development and tests. It
+ *         generates no image and calls nothing; the fitting room says so.
+ *
+ * No real vendor adapter exists: none has been selected, and no vendor's API
+ * is guessed at. Adding one is an adapter file in `src/modules/tryon` and a
+ * value here.
+ */
+const tryOnProviderSchema = z.enum(['none', 'mock']);
+
 const baseServerEnvSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   /** Set by Next.js itself during `next build` (`phase-production-build`) —
@@ -193,6 +209,18 @@ const baseServerEnvSchema = z.object({
       'EMAIL_DISPATCH_SECRET must contain only visible ASCII characters with no whitespace (it must be safe inside an HTTP Authorization header)',
     ),
 
+  /** Clothing P05. Which AI try-on adapter runs; `none` switches it off. */
+  AI_TRYON_PROVIDER: tryOnProviderSchema.default('none'),
+  /** Secret. HMAC key provider callbacks are signed with
+   * (`t=<unix seconds>,v1=<hex>` over `<timestamp>.<raw body>`). Required
+   * whenever a provider is enabled — there is no unverified callback mode.
+   * Generate with `openssl rand -hex 32`. */
+  AI_TRYON_WEBHOOK_SECRET: z.string().min(32).optional(),
+  /** Comma-separated hostnames a try-on result image may be served from
+   * (exact match, HTTPS only). Unset allows none — a provider result from
+   * anywhere is refused. Not a secret. */
+  AI_TRYON_RESULT_HOSTS: z.string().optional(),
+
   /** Script-only (`scripts/create-admin.mts`) — never read by the running
    * app, so a missing value here never breaks a normal boot. Deliberately
    * outside this schema's enforcement: requiring it at all times would mean
@@ -251,6 +279,15 @@ export const serverEnvSchema = baseServerEnvSchema.superRefine((value, ctx) => {
         });
       }
     }
+  }
+  if (value.AI_TRYON_PROVIDER !== 'none' && !value.AI_TRYON_WEBHOOK_SECRET) {
+    // Same reasoning as payments: a provider switched on without the key
+    // that authenticates its callbacks would have to accept them unverified.
+    ctx.addIssue({
+      code: 'custom',
+      path: ['AI_TRYON_WEBHOOK_SECRET'],
+      message: 'AI_TRYON_WEBHOOK_SECRET is required when AI_TRYON_PROVIDER is not "none"',
+    });
   }
   if (value.STORAGE_PROVIDER === 'local' && !value.MEDIA_UPLOAD_SIGNING_SECRET) {
     ctx.addIssue({
