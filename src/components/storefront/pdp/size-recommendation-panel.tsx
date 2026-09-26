@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { AlertCircle, Check, Info, Ruler, Sparkles } from 'lucide-react';
+import { AlertCircle, Check, Info, Ruler, Shirt, Sparkles } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -36,6 +36,9 @@ export interface SizeRecommendationPanelProps {
   /** The size currently chosen in the variant selector, if any. */
   selectedSizeId: string | undefined;
   onSelectSize: (sizeId: string) => void;
+  /** The fitting room for this product and the current selection (P04). */
+  tryOnHref: string;
+  tryOnLabel: string;
 }
 
 /**
@@ -57,6 +60,8 @@ export function SizeRecommendationPanel({
   sizeName,
   selectedSizeId,
   onSelectSize,
+  tryOnHref,
+  tryOnLabel,
 }: SizeRecommendationPanelProps) {
   const [view, setView] = React.useState<SizeRecommendationView | null>(null);
   const [fit, setFit] = React.useState<string | undefined>(undefined);
@@ -319,7 +324,20 @@ export function SizeRecommendationPanel({
         {labels.title}
       </h2>
       <div aria-live="polite">{body}</div>
-      {sizeGuide}
+      <div className="flex flex-wrap items-center gap-3">
+        {view &&
+        (view.status === 'recommended' ||
+          view.status === 'insufficient_data' ||
+          view.status === 'no_matching_size') ? (
+          <Button asChild size="sm" className="gap-1.5">
+            <Link href={tryOnHref} data-testid="try-it-on">
+              <Shirt aria-hidden="true" />
+              {tryOnLabel}
+            </Link>
+          </Button>
+        ) : null}
+        {sizeGuide}
+      </div>
     </section>
   );
 }

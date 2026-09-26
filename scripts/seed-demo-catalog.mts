@@ -56,7 +56,7 @@ const {
 } = await import('../src/modules/catalog/index.js');
 const { db } = await import('../src/modules/core/index.js');
 const { getStorageProvider } = await import('../src/modules/media/provider-factory.js');
-const { saveProductSizing } = await import('../src/modules/sizing/index.js');
+const { saveProductSizing, getProductSizing } = await import('../src/modules/sizing/index.js');
 const { seedDemoSizing } = await import('./lib/demo-sizing.mjs');
 const { sniffImage } = await import('../src/modules/media/validation.js');
 
@@ -333,6 +333,7 @@ async function main() {
   const sizing = await seedDemoSizing(catalog, {
     db,
     saveProductSizing,
+    getProductSizing,
   });
   console.log(`Created ${sizing.created} size charts`);
 

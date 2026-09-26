@@ -42,6 +42,15 @@ import {
   type GarmentType,
 } from '@/modules/sizing/garment-types';
 import { chartMeasurementsFor, requiredChartMeasurementsFor } from '@/modules/sizing/sizing-rules';
+import {
+  GARMENT_LENGTHS,
+  GARMENT_PATTERNS,
+  GARMENT_STYLE_DEFAULTS,
+  NECKLINES,
+  SLEEVE_LENGTHS,
+  SWATCH_HEX,
+  styleFieldsFor,
+} from '@/modules/sizing/garment-style';
 import type { SizeChartErrorCode, SizeChartFieldErrors } from '@/modules/sizing/size-chart.schemas';
 
 export type AdminSizingLabels = ReturnType<typeof getAdminDictionary>['sizing'];
@@ -62,7 +71,17 @@ interface EditorState {
   garmentType: GarmentType | '';
   sizeOptionId: string;
   rows: Row[];
+  // Clothing P04 — the fitting room's view of the garment.
+  colorOptionId: string;
+  sleeveLength: string;
+  neckline: string;
+  garmentLength: string;
+  pattern: string;
+  /** Colour option value id → the hex as typed. */
+  swatches: Record<string, string>;
 }
+
+const DEFAULT = '__default';
 
 function stateFrom(
   sizing: SerializedProductSizing | null,
@@ -73,11 +92,30 @@ function stateFrom(
     // preselect it so the common case is one click fewer. The admin can
     // pick another before saving.
     const guess = options.find((option) => /size|مقاس/i.test(`${option.nameEn} ${option.nameAr}`));
-    return { garmentType: '', sizeOptionId: guess?.id ?? '', rows: [] };
+    const colour = options.find((option) =>
+      /colou?r|لون/i.test(`${option.nameEn} ${option.nameAr}`),
+    );
+    return {
+      garmentType: '',
+      sizeOptionId: guess?.id ?? '',
+      rows: [],
+      colorOptionId: colour?.id ?? '',
+      sleeveLength: '',
+      neckline: '',
+      garmentLength: '',
+      pattern: '',
+      swatches: {},
+    };
   }
   return {
     garmentType: sizing.garmentType,
     sizeOptionId: sizing.sizeOption?.id ?? '',
+    colorOptionId: sizing.colorOption?.id ?? '',
+    sleeveLength: sizing.style.sleeveLength ?? '',
+    neckline: sizing.style.neckline ?? '',
+    garmentLength: sizing.style.garmentLength ?? '',
+    pattern: sizing.style.pattern ?? '',
+    swatches: { ...sizing.swatches },
     rows: sizing.entries.map((entry) => ({
       optionValueId: entry.optionValueId,
       values: Object.fromEntries(
@@ -119,6 +157,7 @@ export function SizeChartEditor({
   const [pending, startTransition] = useTransition();
 
   const option = sizeOptions.find((o) => o.id === state.sizeOptionId);
+  const colorOption = sizeOptions.find((o) => o.id === state.colorOptionId);
   const valueLabel = (valueId: string) => {
     const value = option?.values.find((v) => v.id === valueId);
     return value ? (locale === 'ar' ? value.valueAr : value.valueEn) : '—';
@@ -153,6 +192,7 @@ export function SizeChartEditor({
       return {
         ...current,
         garmentType,
+        ...(styleFieldsFor(garmentType).sleeveLength ? {} : { sleeveLength: '', neckline: '' }),
         rows: current.rows.map((row) => ({
           ...row,
           values: Object.fromEntries(
@@ -214,6 +254,17 @@ export function SizeChartEditor({
               Object.entries(row.values).filter(([, value]) => value && value.trim() !== ''),
             ),
           })),
+          colorOptionId: state.colorOptionId || null,
+          sleeveLength: state.sleeveLength,
+          neckline: state.neckline,
+          garmentLength: state.garmentLength,
+          pattern: state.pattern,
+          swatches: Object.entries(state.swatches)
+            .filter(
+              ([valueId, hex]) =>
+                hex.trim() !== '' && colorOption?.values.some((v) => v.id === valueId),
+            )
+            .map(([optionValueId, hex]) => ({ optionValueId, hex: hex.trim() })),
         },
         version,
         locale,
@@ -474,6 +525,21 @@ export function SizeChartEditor({
         </div>
       ) : null}
 
+      {state.garmentType ? (
+        <FittingAppearance
+          id={`${id}-fitting`}
+          locale={locale}
+          labels={labels.fitting}
+          errorText={errorText}
+          errors={errors}
+          garmentType={state.garmentType}
+          state={state}
+          options={sizeOptions.filter((o) => o.id !== state.sizeOptionId)}
+          colorOption={colorOption}
+          onChange={(patch) => update((current) => ({ ...current, ...patch }))}
+        />
+      ) : null}
+
       {formError ? (
         <Alert variant="error" data-testid="size-chart-error">
           {formError}
@@ -556,5 +622,204 @@ export function SizeChartEditor({
         onConfirm={removeSizing}
       />
     </div>
+  );
+}
+
+type StyleKey = 'sleeveLength' | 'neckline' | 'garmentLength' | 'pattern';
+
+/**
+ * Clothing P04 — how the garment is drawn in the fitting room: which option
+ * holds its colours, the colour each is drawn in, and its sleeves, neckline,
+ * length and pattern. "Default" leaves a choice to the garment type.
+ */
+function FittingAppearance({
+  id,
+  locale,
+  labels,
+  errorText,
+  errors,
+  garmentType,
+  state,
+  options,
+  colorOption,
+  onChange,
+}: {
+  id: string;
+  locale: Locale;
+  labels: AdminSizingLabels['fitting'];
+  errorText: (code: SizeChartErrorCode | undefined) => string | undefined;
+  errors: SizeChartFieldErrors;
+  garmentType: GarmentType;
+  state: EditorState;
+  options: SizeOptionChoice[];
+  colorOption: SizeOptionChoice | undefined;
+  onChange: (patch: Partial<EditorState>) => void;
+}) {
+  const fields = styleFieldsFor(garmentType);
+  const defaults = GARMENT_STYLE_DEFAULTS[garmentType];
+  const name = (o: { valueAr: string; valueEn: string }) =>
+    locale === 'ar' ? o.valueAr : o.valueEn;
+
+  const styleSelect = (
+    key: StyleKey,
+    label: string,
+    values: readonly string[],
+    optionLabels: Record<string, string>,
+    fallback: string | null,
+  ) => {
+    const selectId = `${id}-${key}`;
+    const current = state[key];
+    const defaultText = labels.defaultOption.replace(
+      '{value}',
+      fallback ? optionLabels[fallback]! : '—',
+    );
+    return (
+      <div className="flex flex-col gap-1.5" key={key}>
+        <Label htmlFor={selectId}>{label}</Label>
+        <Select
+          value={current || DEFAULT}
+          onValueChange={(value) => onChange({ [key]: value === DEFAULT ? '' : value })}
+        >
+          <SelectTrigger id={selectId} aria-invalid={errors[key] ? true : undefined}>
+            <SelectValue>{current ? optionLabels[current] : defaultText}</SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={DEFAULT}>{defaultText}</SelectItem>
+            {values.map((value) => (
+              <SelectItem key={value} value={value}>
+                {optionLabels[value]}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {errors[key] ? (
+          <p className="text-caption text-(--color-error)">{errorText(errors[key])}</p>
+        ) : null}
+      </div>
+    );
+  };
+
+  const colorId = `${id}-color-option`;
+  return (
+    <fieldset
+      className="flex flex-col gap-4 border-t border-(--color-border) pt-4"
+      data-testid="fitting-appearance"
+    >
+      <legend className="sr-only">{labels.title}</legend>
+      <div className="flex flex-col gap-1">
+        <p className="text-sm font-medium text-(--color-text)">{labels.title}</p>
+        <p className="text-small text-(--color-text-muted)">{labels.description}</p>
+      </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {fields.sleeveLength
+          ? styleSelect(
+              'sleeveLength',
+              labels.sleeveLength,
+              SLEEVE_LENGTHS,
+              labels.sleeveLengths,
+              defaults.sleeveLength,
+            )
+          : null}
+        {fields.neckline
+          ? styleSelect('neckline', labels.neckline, NECKLINES, labels.necklines, defaults.neckline)
+          : null}
+        {styleSelect(
+          'garmentLength',
+          labels.garmentLength,
+          GARMENT_LENGTHS,
+          labels.garmentLengths,
+          defaults.length,
+        )}
+        {styleSelect(
+          'pattern',
+          labels.pattern,
+          GARMENT_PATTERNS,
+          labels.patterns,
+          defaults.pattern,
+        )}
+      </div>
+
+      {options.length === 0 ? (
+        <p className="text-small text-(--color-text-muted)">{labels.noColorOption}</p>
+      ) : (
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-1.5 sm:w-72">
+            <Label htmlFor={colorId}>{labels.colorOption}</Label>
+            <Select
+              value={state.colorOptionId || DEFAULT}
+              onValueChange={(value) =>
+                onChange({ colorOptionId: value === DEFAULT ? '' : value, swatches: {} })
+              }
+            >
+              <SelectTrigger id={colorId} aria-invalid={errors.colorOptionId ? true : undefined}>
+                <SelectValue>
+                  {colorOption
+                    ? locale === 'ar'
+                      ? colorOption.nameAr
+                      : colorOption.nameEn
+                    : labels.colorOptionPlaceholder}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={DEFAULT}>{labels.colorOptionPlaceholder}</SelectItem>
+                {options.map((o) => (
+                  <SelectItem key={o.id} value={o.id}>
+                    {locale === 'ar' ? o.nameAr : o.nameEn}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {errors.colorOptionId ? (
+              <p className="text-caption text-(--color-error)">{errorText(errors.colorOptionId)}</p>
+            ) : null}
+          </div>
+          {colorOption ? (
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {colorOption.values.map((value) => {
+                const hex = state.swatches[value.id] ?? '';
+                const inputId = `${id}-swatch-${value.id}`;
+                const index = Object.keys(state.swatches)
+                  .filter((key) => (state.swatches[key] ?? '').trim() !== '')
+                  .indexOf(value.id);
+                const error = index >= 0 ? errors.swatches?.[index]?.hex : undefined;
+                const valid = SWATCH_HEX.test(hex.trim());
+                return (
+                  <div key={value.id} className="flex flex-col gap-1.5">
+                    <Label htmlFor={inputId}>
+                      {labels.swatchLabel.replace('{color}', name(value))}
+                    </Label>
+                    <div className="flex items-center gap-2">
+                      <span
+                        aria-hidden="true"
+                        className="size-8 shrink-0 rounded-(--radius-sm) border border-(--color-border)"
+                        style={valid ? { backgroundColor: hex.trim() } : undefined}
+                      />
+                      <Input
+                        id={inputId}
+                        dir="ltr"
+                        placeholder="#RRGGBB"
+                        autoComplete="off"
+                        spellCheck={false}
+                        value={hex}
+                        aria-invalid={error ? true : undefined}
+                        aria-describedby={`${inputId}-help`}
+                        onChange={(event) =>
+                          onChange({
+                            swatches: { ...state.swatches, [value.id]: event.target.value },
+                          })
+                        }
+                      />
+                    </div>
+                    <p id={`${inputId}-help`} className="text-caption text-(--color-text-muted)">
+                      {error ? errorText(error) : labels.swatchHelp}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          ) : null}
+        </div>
+      )}
+    </fieldset>
   );
 }

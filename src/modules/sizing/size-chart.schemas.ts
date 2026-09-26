@@ -10,6 +10,15 @@ import {
   type GarmentType,
   type SizeChartMeasurements,
 } from './garment-types';
+import {
+  GARMENT_LENGTHS,
+  GARMENT_PATTERNS,
+  NECKLINES,
+  SLEEVE_LENGTHS,
+  SWATCH_HEX,
+  styleFieldsFor,
+  type GarmentStyleOverrides,
+} from './garment-style';
 import { chartMeasurementsFor, requiredChartMeasurementsFor } from './sizing-rules';
 
 /**
@@ -33,6 +42,9 @@ export type SizeChartErrorCode =
   | 'duplicate_size'
   | 'too_many_sizes'
   | 'size_option_required'
+  | 'color_option_required'
+  | 'invalid_color'
+  | 'duplicate_color'
   | 'unknown_field';
 
 /** No product in this store sells more sizes than this; a longer list is a
@@ -40,6 +52,28 @@ export type SizeChartErrorCode =
 export const MAX_SIZE_CHART_ROWS = 40;
 
 const uuid = z.uuid({ error: () => 'invalid_option' });
+
+/** A style field left unset (absent, null or `''`) means "the garment
+ * type's default". */
+function optionalStyle<const T extends readonly [string, ...string[]]>(values: T) {
+  return z
+    .unknown()
+    .optional()
+    .transform((raw) => (raw === '' || raw === undefined ? null : raw))
+    .pipe(z.enum(values, { error: () => 'invalid_option' }).nullable());
+}
+
+const swatchSchema = z
+  .object({
+    optionValueId: uuid,
+    hex: z
+      .string({ error: () => 'invalid_color' })
+      .regex(SWATCH_HEX, { error: () => 'invalid_color' }),
+  })
+  .strict();
+
+/** No product has more colours than this; a longer list is malformed. */
+export const MAX_SWATCHES = 40;
 
 const entrySchema = z
   .object({
@@ -58,6 +92,16 @@ export const sizeChartInputSchema = z
     entries: z
       .array(entrySchema, { error: () => 'invalid_option' })
       .max(MAX_SIZE_CHART_ROWS, { error: () => 'too_many_sizes' })
+      .default([]),
+    // Clothing P04 — how the garment is drawn in the fitting room.
+    colorOptionId: uuid.nullable().default(null),
+    sleeveLength: optionalStyle(SLEEVE_LENGTHS),
+    neckline: optionalStyle(NECKLINES),
+    garmentLength: optionalStyle(GARMENT_LENGTHS),
+    pattern: optionalStyle(GARMENT_PATTERNS),
+    swatches: z
+      .array(swatchSchema, { error: () => 'invalid_option' })
+      .max(MAX_SWATCHES, { error: () => 'invalid_option' })
       .default([]),
   })
   .strict()
@@ -112,7 +156,44 @@ export const sizeChartInputSchema = z
       return { optionValueId: entry.optionValueId, measurements };
     });
 
-    return { garmentType: input.garmentType, sizeOptionId: input.sizeOptionId, entries };
+    const fields = styleFieldsFor(input.garmentType);
+    if (input.sleeveLength && !fields.sleeveLength) {
+      ctx.addIssue({ code: 'custom', path: ['sleeveLength'], message: 'not_applicable' });
+    }
+    if (input.neckline && !fields.neckline) {
+      ctx.addIssue({ code: 'custom', path: ['neckline'], message: 'not_applicable' });
+    }
+    if (input.swatches.length > 0 && !input.colorOptionId) {
+      ctx.addIssue({ code: 'custom', path: ['colorOptionId'], message: 'color_option_required' });
+    }
+    const seenColors = new Set<string>();
+    input.swatches.forEach((swatch, index) => {
+      if (seenColors.has(swatch.optionValueId)) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['swatches', index, 'optionValueId'],
+          message: 'duplicate_color',
+        });
+      }
+      seenColors.add(swatch.optionValueId);
+    });
+
+    return {
+      garmentType: input.garmentType,
+      sizeOptionId: input.sizeOptionId,
+      entries,
+      colorOptionId: input.colorOptionId,
+      style: {
+        sleeveLength: input.sleeveLength,
+        neckline: input.neckline,
+        garmentLength: input.garmentLength,
+        pattern: input.pattern,
+      },
+      swatches: input.swatches.map((swatch) => ({
+        optionValueId: swatch.optionValueId,
+        hex: swatch.hex.toUpperCase(),
+      })),
+    };
   });
 
 export type SizeChartInput = z.input<typeof sizeChartInputSchema>;
@@ -120,6 +201,9 @@ export interface SizeChartData {
   garmentType: GarmentType;
   sizeOptionId: string | null;
   entries: { optionValueId: string; measurements: SizeChartMeasurements }[];
+  colorOptionId: string | null;
+  style: GarmentStyleOverrides;
+  swatches: { optionValueId: string; hex: string }[];
 }
 
 /** Where an error belongs: the whole chart, a top-level field, or one cell
@@ -128,6 +212,13 @@ export interface SizeChartFieldErrors {
   form?: SizeChartErrorCode;
   garmentType?: SizeChartErrorCode;
   sizeOptionId?: SizeChartErrorCode;
+  colorOptionId?: SizeChartErrorCode;
+  sleeveLength?: SizeChartErrorCode;
+  neckline?: SizeChartErrorCode;
+  garmentLength?: SizeChartErrorCode;
+  pattern?: SizeChartErrorCode;
+  /** Per swatch row: its colour value or its hex. */
+  swatches?: Record<number, Partial<Record<'optionValueId' | 'hex', SizeChartErrorCode>>>;
   entries?: Record<
     number,
     Partial<Record<GarmentMeasurementKey | 'optionValueId', SizeChartErrorCode>>
@@ -144,6 +235,9 @@ const KNOWN_CODES = new Set<string>([
   'duplicate_size',
   'too_many_sizes',
   'size_option_required',
+  'color_option_required',
+  'invalid_color',
+  'duplicate_color',
   'unknown_field',
 ]);
 
@@ -164,7 +258,19 @@ export function sizeChartErrorsFromIssues(
       errors.entries ??= {};
       const row = (errors.entries[index] ??= {});
       row[cell as GarmentMeasurementKey | 'optionValueId'] ??= code;
-    } else if (first === 'garmentType' || first === 'sizeOptionId') {
+    } else if (first === 'swatches' && typeof index === 'number' && typeof cell === 'string') {
+      errors.swatches ??= {};
+      const row = (errors.swatches[index] ??= {});
+      row[cell as 'optionValueId' | 'hex'] ??= code;
+    } else if (
+      first === 'garmentType' ||
+      first === 'sizeOptionId' ||
+      first === 'colorOptionId' ||
+      first === 'sleeveLength' ||
+      first === 'neckline' ||
+      first === 'garmentLength' ||
+      first === 'pattern'
+    ) {
       errors[first] ??= code;
     } else {
       errors.form ??= code;

@@ -344,6 +344,44 @@ enum GarmentType {
   SKIRT
 }
 
+// Fitting room (clothing P04) — how a garment is drawn on the avatar. Each is
+// optional on a product: unset means the garment type's own default
+// (`sizing/garment-style.ts`).
+
+enum SleeveLength {
+  SLEEVELESS
+  SHORT
+  THREE_QUARTER
+  LONG
+}
+
+enum Neckline {
+  CREW
+  SCOOP
+  V_NECK
+  COLLAR
+  BAND
+  HOOD
+}
+
+enum GarmentLength {
+  CROPPED
+  HIP
+  THIGH
+  KNEE
+  MIDI
+  ANKLE
+  FLOOR
+}
+
+enum GarmentPattern {
+  SOLID
+  STRIPED
+  CHECKED
+  FLORAL
+  DOTTED
+}
+
 // ---------------------------------------------------------------------------
 // identity
 // ---------------------------------------------------------------------------
@@ -626,9 +664,10 @@ model ProductOption {
   nameEn    String @map("name_en")
   position  Int    @default(0)
 
-  product Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
-  values  OptionValue[]
-  sizings ProductSizing[]
+  product      Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  values       OptionValue[]
+  sizings      ProductSizing[] @relation("SizingSizeOption")
+  colorSizings ProductSizing[] @relation("SizingColorOption")
 
   @@unique([productId, nameEn])
   @@map("product_options")
@@ -644,6 +683,7 @@ model OptionValue {
   option        ProductOption        @relation(fields: [optionId], references: [id], onDelete: Cascade)
   variantValues VariantOptionValue[]
   sizeChartRow  SizeChartEntry?
+  swatch        GarmentSwatch?
 
   @@unique([optionId, valueEn])
   @@map("option_values")
@@ -873,21 +913,48 @@ model AvatarConfiguration {
 /// How a product is sized (clothing P02): what kind of garment it is, which
 /// of its options holds the sizes, and the size chart. One per product.
 model ProductSizing {
-  id           String      @id @default(uuid()) @db.Uuid
-  productId    String      @unique @map("product_id") @db.Uuid
-  garmentType  GarmentType @map("garment_type")
+  id            String          @id @default(uuid()) @db.Uuid
+  productId     String          @unique @map("product_id") @db.Uuid
+  garmentType   GarmentType     @map("garment_type")
   /// The product option whose values are the sizes ("Size"/"المقاس"). Null
   /// until the admin picks one; the chart is empty without it.
-  sizeOptionId String?     @map("size_option_id") @db.Uuid
-  createdAt    DateTime    @default(now()) @map("created_at")
-  updatedAt    DateTime    @updatedAt @map("updated_at")
+  sizeOptionId  String?         @map("size_option_id") @db.Uuid
+  /// Clothing P04 — the option whose values are colours, and how the garment
+  /// is drawn in the fitting room. Null style fields mean the garment
+  /// type's default.
+  colorOptionId String?         @map("color_option_id") @db.Uuid
+  sleeveLength  SleeveLength?   @map("sleeve_length")
+  neckline      Neckline?
+  garmentLength GarmentLength?  @map("garment_length")
+  pattern       GarmentPattern?
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
 
-  product    Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
-  sizeOption ProductOption?   @relation(fields: [sizeOptionId], references: [id], onDelete: SetNull)
-  entries    SizeChartEntry[]
+  product     Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sizeOption  ProductOption?   @relation("SizingSizeOption", fields: [sizeOptionId], references: [id], onDelete: SetNull)
+  colorOption ProductOption?   @relation("SizingColorOption", fields: [colorOptionId], references: [id], onDelete: SetNull)
+  entries     SizeChartEntry[]
+  swatches    GarmentSwatch[]
 
   @@index([sizeOptionId])
+  @@index([colorOptionId])
   @@map("product_sizing")
+}
+
+/// The colour a colour option value is drawn in on the avatar (clothing P04)
+/// — `#rrggbb`, set by the admin. Owned by sizing, keyed to the catalog's
+/// option value, so a deleted colour takes its swatch with it.
+model GarmentSwatch {
+  id            String @id @default(uuid()) @db.Uuid
+  sizingId      String @map("sizing_id") @db.Uuid
+  optionValueId String @unique @map("option_value_id") @db.Uuid
+  hex           String @db.VarChar(7)
+
+  sizing      ProductSizing @relation(fields: [sizingId], references: [id], onDelete: Cascade)
+  optionValue OptionValue   @relation(fields: [optionValueId], references: [id], onDelete: Cascade)
+
+  @@index([sizingId])
+  @@map("garment_swatches")
 }
 
 /// One size in a product's chart: the size itself is the product's own

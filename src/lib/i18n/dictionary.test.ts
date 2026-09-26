@@ -21,7 +21,7 @@ function leaves(tree: Tree, path = ''): [string, string][] {
 
 const ARABIC = /[؀-ۿ]/;
 
-for (const section of ['bodyProfile', 'sizing'] as const) {
+for (const section of ['bodyProfile', 'sizing', 'fitting'] as const) {
   const ar = leaves(dictionary.ar[section] as Tree);
   const en = leaves(dictionary.en[section] as Tree);
 

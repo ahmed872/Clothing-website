@@ -46,6 +46,14 @@ and looser-fitting alternatives, and a slim/regular/relaxed switch. It is
 rule-based and deterministic — no AI, no outside service — and when a
 measurement is missing it says which one instead of guessing.
 
+**Fitting room** (`/fitting-room/<product>`) — "Try it on" from a product
+page shows the customer's own avatar wearing that garment: the chosen colour
+(the admin sets a swatch per colour) and size, sleeves, neckline, length and
+pattern, drawn from the size's own chart numbers, with the recommended size
+marked and how the chosen one compares ("one size smaller"). Colour and size
+switch instantly; changing measurements or fit recalculates on the server.
+An illustration, never a photo — nothing is captured or stored.
+
 **Admin** (`/admin`) — sign-in with real server-side sessions and
 role-based access control, then products and variants, categories, brands,
 inventory, pricing, promotions and coupons, orders, customers, store

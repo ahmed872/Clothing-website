@@ -13,10 +13,11 @@
 export interface DemoSizing {
   garmentType: string;
   chart: string;
+  pattern?: string;
 }
 
 export interface DemoSizingCatalog {
-  products: { slug: string; sizing?: DemoSizing }[];
+  products: { slug: string; sizing?: DemoSizing; colors: { en: string; hex: string }[] }[];
   sizeCharts: Record<string, Record<string, number>[]>;
 }
 
@@ -27,13 +28,32 @@ import type { SizeChartInput } from '../../src/modules/sizing/index.js';
 interface Deps {
   db: (typeof import('../../src/modules/core/index.js'))['db'];
   saveProductSizing: (typeof import('../../src/modules/sizing/index.js'))['saveProductSizing'];
+  getProductSizing: (typeof import('../../src/modules/sizing/index.js'))['getProductSizing'];
+}
+
+/** Clothing P04 — the colour option and a swatch per colour, from the demo
+ * data's own hex codes, plus the pattern where the product has one. */
+function fittingAppearance(
+  entry: DemoSizingCatalog['products'][number],
+  colorOption: { id: string; values: { id: string; valueEn: string }[] } | undefined,
+) {
+  if (!colorOption) return {};
+  return {
+    colorOptionId: colorOption.id,
+    pattern: (entry.sizing?.pattern ?? '') as SizeChartInput['pattern'],
+    swatches: colorOption.values.flatMap((value) => {
+      const hex = entry.colors.find((c) => c.en === value.valueEn)?.hex;
+      return hex ? [{ optionValueId: value.id, hex }] : [];
+    }),
+  };
 }
 
 export async function seedDemoSizing(
   catalog: DemoSizingCatalog,
-  { db, saveProductSizing }: Deps,
-): Promise<{ created: number; skipped: number; missing: string[] }> {
+  { db, saveProductSizing, getProductSizing }: Deps,
+): Promise<{ created: number; updated: number; skipped: number; missing: string[] }> {
   let created = 0;
+  let updated = 0;
   let skipped = 0;
   const missing: string[] = [];
 
@@ -60,11 +80,35 @@ export async function seedDemoSizing(
       missing.push(entry.slug);
       continue;
     }
+    const sizeOption = product.options.find((option) => option.nameEn === 'Size');
+    const colorOption = product.options.find((option) => option.nameEn === 'Color');
     if (product.sizing) {
-      skipped += 1;
+      // A chart from before P04 gets its colours once; anything already
+      // set (by the admin, perhaps) is left alone.
+      const current = await getProductSizing(product.id);
+      if (current && !current.colorOption && colorOption) {
+        await saveProductSizing(
+          product.id,
+          {
+            garmentType: current.garmentType,
+            sizeOptionId: current.sizeOption?.id ?? null,
+            entries: current.entries.map((row) => ({
+              optionValueId: row.optionValueId,
+              measurements: Object.fromEntries(
+                Object.entries(row.measurements).map(([k, v]) => [k, String(v)]),
+              ),
+            })),
+            ...current.style,
+            ...fittingAppearance(entry, colorOption),
+          },
+          { expectedUpdatedAt: current.updatedAt },
+        );
+        updated += 1;
+      } else {
+        skipped += 1;
+      }
       continue;
     }
-    const sizeOption = product.options.find((option) => option.nameEn === 'Size');
     const rows = catalog.sizeCharts[entry.sizing.chart];
     if (!sizeOption || !rows || rows.length !== sizeOption.values.length) {
       throw new Error(`Demo sizing for "${entry.slug}" does not match its sizes`);
@@ -80,8 +124,9 @@ export async function seedDemoSizing(
           Object.entries(rows[index]!).map(([key, cm]) => [key, String(cm)]),
         ),
       })),
+      ...fittingAppearance(entry, colorOption),
     });
     created += 1;
   }
-  return { created, skipped, missing };
+  return { created, updated, skipped, missing };
 }

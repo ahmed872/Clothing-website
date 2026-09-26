@@ -28,6 +28,7 @@
 export {
   getBodyProfile,
   saveBodyProfile,
+  updateBodyMeasurements,
   deleteBodyProfile,
   serializeBodyProfile,
   type BodyProfileView,

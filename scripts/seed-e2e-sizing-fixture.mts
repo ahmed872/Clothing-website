@@ -98,5 +98,77 @@ if (!(await getProductSizing(teeId))) {
   }
 }
 
-console.log(JSON.stringify({ teeId, shirtId }));
+// Clothing P04 — the fitting room fixtures, each with its colours.
+async function ensureFittingProduct(
+  f: typeof F.fittingTee | typeof F.fittingThobe,
+): Promise<string> {
+  let product = await getProductBySlug(f.slug);
+  if (!product) {
+    try {
+      const created = await createProduct({
+        product: { slug: f.slug, nameAr: f.nameAr, nameEn: f.nameEn, categoryId: category.id },
+        options: [
+          {
+            nameAr: 'اللون',
+            nameEn: 'Color',
+            values: f.colors.map((c) => ({ valueAr: c.ar, valueEn: c.en })),
+          },
+          {
+            nameAr: 'المقاس',
+            nameEn: 'Size',
+            values: f.sizes.map((size) => ({ valueAr: size, valueEn: size })),
+          },
+        ],
+        variants: f.colors.flatMap((c, ci) =>
+          f.sizes.map((size, si) => ({
+            sku: `${f.skuPrefix}-${c.en.toUpperCase()}-${size}`,
+            priceMinor: 30_000,
+            stockQuantity: 500,
+            position: ci * f.sizes.length + si,
+            optionValues: [
+              { optionNameEn: 'Color', valueEn: c.en },
+              { optionNameEn: 'Size', valueEn: size },
+            ],
+          })),
+        ),
+      });
+      await publishProduct(created.id);
+    } catch {
+      // Another beforeAll created it first.
+    }
+    product = await getProductBySlug(f.slug);
+  }
+  const id = product!.id;
+  if (!(await getProductSizing(id))) {
+    const options = await db.productOption.findMany({
+      where: { productId: id },
+      include: { values: { orderBy: { position: 'asc' } } },
+    });
+    const size = options.find((o) => o.nameEn === 'Size')!;
+    const color = options.find((o) => o.nameEn === 'Color')!;
+    try {
+      await saveProductSizing(id, {
+        garmentType: f.garmentType,
+        sizeOptionId: size.id,
+        entries: size.values.map((value, index) => ({
+          optionValueId: value.id,
+          measurements: f.chart[index]!,
+        })),
+        colorOptionId: color.id,
+        swatches: color.values.map((value) => ({
+          optionValueId: value.id,
+          hex: `#${f.colors.find((c) => c.en === value.valueEn)!.swatch}`,
+        })),
+      });
+    } catch {
+      // Lost the race to an identical save.
+    }
+  }
+  return id;
+}
+
+const fittingTeeId = await ensureFittingProduct(F.fittingTee);
+const fittingThobeId = await ensureFittingProduct(F.fittingThobe);
+
+console.log(JSON.stringify({ teeId, shirtId, fittingTeeId, fittingThobeId }));
 await db.$disconnect();

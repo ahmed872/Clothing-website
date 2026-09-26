@@ -136,6 +136,12 @@ function valid(input: AvatarRenderInput, key: MeasurementKey): number | null {
   return value >= min && value <= max ? value : null;
 }
 
+/** A circumference as the half-width it draws at, front view — shared with
+ * garment layers so a garment's chest is drawn exactly as a body's is. */
+export function girthHalfPx(circumferenceCm: number, scale = RIG_PX_PER_CM): number {
+  return girthHalf(circumferenceCm, scale);
+}
+
 function girthHalf(circumferenceCm: number, scale: number): number {
   return ((circumferenceCm / Math.PI) * TORSO_ELLIPSE_FACTOR * scale) / 2;
 }

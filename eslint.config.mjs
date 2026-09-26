@@ -38,6 +38,8 @@ const MODULE_DEPENDENCIES = {
   // a chart only needs product/option rows, read directly as `cart` reads
   // variants.
   sizing: ['core', 'body-profile'],
+  // Clothing P04. Pure: handed the profile and the product by its caller.
+  fitting: ['body-profile', 'sizing'],
   orders: [
     'core',
     // P10: orders write audit entries and name the staff member who moved a

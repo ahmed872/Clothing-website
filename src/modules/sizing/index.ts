@@ -6,6 +6,8 @@
  * Must not depend on: identity, customers, orders
  *
  * What lives here:
+ *   - how a garment is drawn in the fitting room — sleeves, neckline,
+ *     length, pattern, colour swatches (`garment-style.ts`, clothing P04);
  *   - the closed garment list and chart bounds (`garment-types.ts`) and every
  *     number the engine uses (`sizing-rules.ts`) — both dependency-free, so
  *     the admin editor and the storefront read the same lists;
@@ -48,6 +50,25 @@ export {
   type MeasurementRule,
   type GarmentRules,
 } from './sizing-rules';
+
+export {
+  SLEEVE_LENGTHS,
+  NECKLINES,
+  GARMENT_LENGTHS,
+  GARMENT_PATTERNS,
+  GARMENT_LAYER_KIND,
+  GARMENT_STYLE_DEFAULTS,
+  SWATCH_HEX,
+  resolveGarmentStyle,
+  styleFieldsFor,
+  type GarmentLayerKind,
+  type GarmentStyle,
+  type GarmentStyleOverrides,
+  type SleeveLength,
+  type Neckline,
+  type GarmentLength,
+  type GarmentPattern,
+} from './garment-style';
 
 export {
   sizeChartInputSchema,

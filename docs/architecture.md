@@ -28,7 +28,7 @@ catalog data remains, as `scripts/data/demo-catalog.json`.
 
 ## Modules
 
-Seventeen modules, each owning one part of the domain. A module's `index.ts` is
+Eighteen modules, each owning one part of the domain. A module's `index.ts` is
 its public surface: other modules import `@/modules/<name>` and never a file
 inside it.
 
@@ -38,7 +38,7 @@ core → identity → media → catalog → search
                         inventory → pricing → cart → orders
                                                        ↓
                                      payments · notifications
- customers · body-profile → sizing · content · settings · analytics
+ customers · body-profile → sizing → fitting · content · settings · analytics
 ```
 
 | Module          | Owns                                                                   | May import                                                                  |
@@ -54,6 +54,7 @@ core → identity → media → catalog → search
 | `customers`     | accounts, addresses, wishlist, reviews                                 | core, identity, catalog                                                     |
 | `body-profile`  | body measurements, avatar appearance, completion, what sizing may read | core                                                                        |
 | `sizing`        | garment types, size charts, the size recommendation engine             | core, body-profile                                                          |
+| `fitting`       | the virtual fitting room's pure domain service                         | body-profile, sizing                                                        |
 | `payments`      | payment service, providers, webhooks                                   | core                                                                        |
 | `notifications` | channels, templates                                                    | core, settings                                                              |
 | `content`       | homepage sections, banners, navigation                                 | core, media, catalog                                                        |
@@ -130,6 +131,15 @@ worth describing rather than leaving to be discovered:
   by kind from one registry (`local`, the layered one; `basic`, P01's flat
   figure), so a 3D or external renderer would be one more entry, not a
   rewrite. No network, no model, no photo.
+- **`fitting` is pure** (clothing P04). `VirtualFittingService` takes a
+  profile, a product's chart and style, and a colour and size, and returns a
+  structured `FittingResult` — how that size sits, area by area, and how it
+  relates to the recommended size — for every size at once, so the fitting
+  room switches sizes without a request. `lib/fitting/fitting-room.ts`
+  composes it with the catalog and the session; the garment layers
+  (`components/storefront/fitting/garment-layers.tsx`) draw a result on the
+  avatar. Recalculation (a new fit, new measurements) always goes back to
+  the server. No image is captured or stored.
 
 Every admin section now has a screen of its own, and the shared "this
 section is being built" placeholder at `/admin/[section]` is gone with the

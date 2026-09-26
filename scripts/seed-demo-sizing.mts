@@ -17,7 +17,7 @@ import { config as loadDotenv } from 'dotenv';
 loadDotenv({ path: process.env.NODE_ENV === 'test' ? '.env.test' : '.env', quiet: true });
 
 const { db } = await import('../src/modules/core/index.js');
-const { saveProductSizing } = await import('../src/modules/sizing/index.js');
+const { saveProductSizing, getProductSizing } = await import('../src/modules/sizing/index.js');
 const { seedDemoSizing } = await import('./lib/demo-sizing.mjs');
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -26,9 +26,10 @@ const catalog = JSON.parse(readFileSync(path.join(here, 'data/demo-catalog.json'
 const result = await seedDemoSizing(catalog, {
   db,
   saveProductSizing,
+  getProductSizing,
 });
 console.log(
-  `Demo sizing: ${result.created} created, ${result.skipped} already had sizing` +
+  `Demo sizing: ${result.created} created, ${result.updated} given colours, ${result.skipped} left as they were` +
     (result.missing.length > 0 ? `, not found: ${result.missing.join(', ')}` : ''),
 );
 await db.$disconnect();

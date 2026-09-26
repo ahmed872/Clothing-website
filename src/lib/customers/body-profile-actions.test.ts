@@ -29,7 +29,8 @@ vi.mock('next/cache', () => ({
 const authMock = vi.hoisted(() => vi.fn());
 vi.mock('@/modules/identity/customer-auth', () => ({ customerAuth: authMock }));
 
-const { saveBodyProfileAction, deleteBodyProfileAction } = await import('./body-profile-actions');
+const { saveBodyProfileAction, deleteBodyProfileAction, updateBodyMeasurementsAction } =
+  await import('./body-profile-actions');
 const { revalidatePath } = await import('next/cache');
 const { getBodyProfile } = await import('@/modules/body-profile');
 
@@ -322,5 +323,101 @@ describe('ownership — IDOR and mass assignment', () => {
     for (const id of [me.customerId, me.userId, row.id, row.avatar!.id]) {
       expect(serialized).not.toContain(id);
     }
+  });
+});
+
+describe('updateBodyMeasurementsAction (clothing P04 — from the fitting room)', () => {
+  async function withProfile() {
+    const me = await newCustomer();
+    signInAs(me.userId);
+    const first = await saveBodyProfileAction(
+      'en',
+      IDLE,
+      form({ ...MINIMUM, chestCm: '97', skinTone: 'MEDIUM', hairStyle: 'COVERED' }),
+    );
+    return { me, version: first.profile!.updatedAt };
+  }
+
+  it('changes only the measurements sent, and keeps everything else', async () => {
+    const { me, version } = await withProfile();
+    const state = await updateBodyMeasurementsAction(
+      'en',
+      IDLE,
+      form({ chestCm: '102', expectedUpdatedAt: version }),
+    );
+    expect(state.status).toBe('saved');
+    const stored = await getBodyProfile(me.customerId);
+    expect(stored?.measurements).toMatchObject({ chestCm: 102, heightCm: 177, waistCm: 88 });
+    expect(stored?.avatar).toMatchObject({ skinTone: 'MEDIUM', hairStyle: 'COVERED' });
+    expect(stored?.gender).toBe('MALE');
+  });
+
+  it('needs the version it was shown — a stale or missing one is refused', async () => {
+    const { me, version } = await withProfile();
+    await updateBodyMeasurementsAction(
+      'en',
+      IDLE,
+      form({ chestCm: '100', expectedUpdatedAt: version }),
+    );
+    expect(
+      await updateBodyMeasurementsAction(
+        'en',
+        IDLE,
+        form({ chestCm: '90', expectedUpdatedAt: version }),
+      ),
+    ).toEqual({ status: 'error', formError: 'stale' });
+    expect(await updateBodyMeasurementsAction('en', IDLE, form({ chestCm: '90' }))).toEqual({
+      status: 'error',
+      formError: 'stale',
+    });
+    expect((await getBodyProfile(me.customerId))?.measurements.chestCm).toBe(100);
+  });
+
+  it('validates like the full form, and a required measurement cannot be cleared', async () => {
+    const { version } = await withProfile();
+    const state = await updateBodyMeasurementsAction(
+      'en',
+      IDLE,
+      form({ heightCm: '', chestCm: '9', expectedUpdatedAt: version }),
+    );
+    expect(state).toMatchObject({
+      status: 'error',
+      formError: 'invalid',
+      fieldErrors: { heightCm: 'required', chestCm: 'too_small' },
+    });
+  });
+
+  it("writes only the session's profile — a customer id in the form is ignored", async () => {
+    const victim = await newCustomer();
+    signInAs(victim.userId);
+    await saveBodyProfileAction('en', IDLE, form({ ...MINIMUM, chestCm: '97' }));
+    const { me, version } = await withProfile();
+    await updateBodyMeasurementsAction(
+      'en',
+      IDLE,
+      form({ chestCm: '120', customerId: victim.customerId, expectedUpdatedAt: version }),
+    );
+    expect((await getBodyProfile(victim.customerId))?.measurements.chestCm).toBe(97);
+    expect((await getBodyProfile(me.customerId))?.measurements.chestCm).toBe(120);
+  });
+
+  it('signed out, or without a profile: nothing is written', async () => {
+    signInAs(null);
+    expect(
+      await updateBodyMeasurementsAction(
+        'en',
+        IDLE,
+        form({ chestCm: '100', expectedUpdatedAt: new Date().toISOString() }),
+      ),
+    ).toEqual({ status: 'error', formError: 'session_expired' });
+    const me = await newCustomer();
+    signInAs(me.userId);
+    const none = await updateBodyMeasurementsAction(
+      'en',
+      IDLE,
+      form({ chestCm: '100', expectedUpdatedAt: new Date().toISOString() }),
+    );
+    expect(none.status).toBe('error');
+    expect(await getBodyProfile(me.customerId)).toBeNull();
   });
 });

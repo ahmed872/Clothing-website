@@ -380,7 +380,7 @@
       "price": 45,
       "garment": "stripedtee",
       "sizes": "kids",
-      "sizing": { "garmentType": "T_SHIRT", "chart": "kids-tee" },
+      "sizing": { "garmentType": "T_SHIRT", "chart": "kids-tee", "pattern": "STRIPED" },
       "colors": [
         { "en": "Yellow", "ar": "أصفر", "hex": "#F2C84B" },
         { "en": "Sky Blue", "ar": "سماوي", "hex": "#8CC3E6" }
@@ -440,7 +440,7 @@
       "price": 109,
       "garment": "girlsdress",
       "sizes": "kids",
-      "sizing": { "garmentType": "DRESS", "chart": "kids-girls-dress" },
+      "sizing": { "garmentType": "DRESS", "chart": "kids-girls-dress", "pattern": "FLORAL" },
       "colors": [
         { "en": "Pink", "ar": "وردي", "hex": "#F2A6B8" },
         { "en": "Mint", "ar": "نعناعي", "hex": "#A6DAC3" }

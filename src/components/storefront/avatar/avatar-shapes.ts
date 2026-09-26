@@ -117,20 +117,15 @@ export function torsoXAt(edge: readonly Point[], atY: number): number {
 }
 
 /**
- * A torso-shaped region between two heights — the body itself from neck
- * to crotch, or a garment's body from its neckline to its hem, widened by
- * `ease` units each side. Both sides are the same curve, mirrored.
+ * A region between two heights bounded by `edge` (a left-side outline, top
+ * to bottom) and its mirror — the body from neck to crotch, a garment's body
+ * from its neckline to its hem, a skirt from waist to hem.
  */
-export function torsoBand(
+export function edgeBand(
   rig: AvatarRig,
-  {
-    from,
-    to,
-    ease = 0,
-    hemCurve = 0,
-  }: { from?: number; to: number; ease?: number; hemCurve?: number },
+  edge: readonly Point[],
+  { from, to, hemCurve = 0 }: { from?: number; to: number; hemCurve?: number },
 ): string {
-  const edge = torsoEdge(rig, ease);
   const startY = from ?? edge[0]![1];
   const inside = edge.filter(([, py]) => py > startY + 0.5 && py < to - 0.5);
   const left: Point[] = [[torsoXAt(edge, startY), startY], ...inside, [torsoXAt(edge, to), to]];
@@ -143,6 +138,52 @@ export function torsoBand(
     smoothThrough(right),
     'Z',
   ].join(' ');
+}
+
+/** The torso's own region, widened by `ease` units each side. */
+export function torsoBand(
+  rig: AvatarRig,
+  {
+    from,
+    to,
+    ease = 0,
+    hemCurve = 0,
+  }: { from?: number; to: number; ease?: number; hemCurve?: number },
+): string {
+  return edgeBand(rig, torsoEdge(rig, ease), { from, to, hemCurve });
+}
+
+/** Cuts a limb chain at `t` (0–1) of its length — a sleeve or a trouser
+ * leg that stops partway down the arm or leg. `t` above 1 extends the last
+ * segment (a sleeve past the wrist). */
+export function chainUntil(
+  joints: readonly Point[],
+  widths: readonly number[],
+  t: number,
+): { joints: Point[]; widths: number[] } {
+  const lengths = joints
+    .slice(1)
+    .map((p, i) => Math.hypot(p[0] - joints[i]![0], p[1] - joints[i]![1]));
+  const total = lengths.reduce((a, b) => a + b, 0);
+  let remaining = Math.max(0.05, t) * total;
+  const outJoints: Point[] = [joints[0]!];
+  const outWidths: number[] = [widths[0]!];
+  for (let i = 0; i < lengths.length; i += 1) {
+    const segment = lengths[i]!;
+    const last = i === lengths.length - 1;
+    if (remaining <= segment || last) {
+      const f = segment > 0 ? remaining / segment : 0;
+      const a = joints[i]!;
+      const b = joints[i + 1]!;
+      outJoints.push([a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f]);
+      outWidths.push(widths[i]! + (widths[i + 1]! - widths[i]!) * Math.min(f, 1));
+      break;
+    }
+    remaining -= segment;
+    outJoints.push(joints[i + 1]!);
+    outWidths.push(widths[i + 1]!);
+  }
+  return { joints: outJoints, widths: outWidths };
 }
 
 /** A path and its mirror image across the centre line, as one string. */

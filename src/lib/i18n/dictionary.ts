@@ -715,6 +715,55 @@ export const dictionary = {
       },
     },
 
+    // Clothing P04 — the fitting room. An illustration, and always said to
+    // be one; the customer's size choice is theirs, the recommendation only
+    // informs it.
+    fitting: {
+      title: 'غرفة القياس',
+      intro: 'رسم توضيحي للقطعة بالمقاس الذي تختاره على مقاساتك — وليس صورة حقيقية.',
+      privacy: 'لا نلتقط صورًا ولا نحفظ لقطات — كل ما تراه مرسوم من البيانات التي أدخلتها.',
+      backToProduct: 'العودة إلى المنتج',
+      tryOn: 'جرّبه على صورتك',
+      color: 'اللون',
+      size: 'المقاس',
+      recommendedBadge: 'مقترح',
+      recommended: 'المقاس المقترح لك: {size}',
+      selected: 'اخترت {size}',
+      relation: {
+        recommended: 'هذا هو المقاس المقترح لك.',
+        smallerOne: 'هذا المقاس أصغر بمقاس واحد من المقاس المقترح لك.',
+        smallerTwo: 'هذا المقاس أصغر بمقاسين من المقاس المقترح لك.',
+        smallerMany: 'هذا المقاس أصغر بـ {count} مقاسات من المقاس المقترح لك.',
+        largerOne: 'هذا المقاس أكبر بمقاس واحد من المقاس المقترح لك.',
+        largerTwo: 'هذا المقاس أكبر بمقاسين من المقاس المقترح لك.',
+        largerMany: 'هذا المقاس أكبر بـ {count} مقاسات من المقاس المقترح لك.',
+        unknown: 'لا نستطيع مقارنة هذا المقاس بمقاساتك بعد.',
+      },
+      choiceIsYours: 'الاختيار لك دائمًا — يمكنك إضافة أي مقاس إلى السلة.',
+      useRecommended: 'استخدم المقاس المقترح',
+      fitTitle: 'كيف يجلس هذا المقاس',
+      fitScore: 'درجة التوافق: {score} من 100',
+      fitUnknown: 'أضف {measurements} إلى ملفك لنقارن هذا المقاس بمقاساتك.',
+      productFit: 'قَصّة القطعة: {fit}',
+      avatarTitle: 'صورتك التوضيحية بالقطعة',
+      avatarDescription: '{product}، {color}، مقاس {size}، على مقاساتك.',
+      avatarDescriptionNoColor: '{product}، مقاس {size}، على مقاساتك.',
+      changeProfile: 'تعديل المقاسات',
+      changeProfileTitle: 'عدّل مقاساتك',
+      changeProfileDescription: 'تُحفظ في ملف مقاساتك، ثم نعيد حساب المقاس المقترح من جديد.',
+      saveProfile: 'حفظ وإعادة الحساب',
+      savingProfile: 'جارٍ الحفظ…',
+      savedProfile: 'تم تحديث مقاساتك وإعادة الحساب.',
+      openFullProfile: 'فتح ملف المقاسات كاملًا',
+      unavailable: 'هذا الاختيار غير متوفر حاليًا',
+      noProfile: {
+        title: 'أنشئ ملف مقاساتك أولًا',
+        body: 'تحتاج غرفة القياس إلى مقاساتك لترسم القطعة عليك.',
+        cta: 'أنشئ ملف مقاساتك',
+      },
+      notAvailable: 'هذه القطعة غير متاحة في غرفة القياس بعد.',
+    },
+
     // P13 — transactional email copy. Deliberately its own section, not
     // reused from `account`: an email template has no session, no button
     // states, no live validation — it is static copy read once, so it gets
@@ -1442,6 +1491,55 @@ export const dictionary = {
         size: 'Size',
         unit: 'cm',
       },
+    },
+
+    fitting: {
+      title: 'Fitting room',
+      intro:
+        'An illustration of this piece, in the size you choose, on your measurements — not a photo.',
+      privacy:
+        'Nothing is photographed or saved as an image — everything here is drawn from the details you entered.',
+      backToProduct: 'Back to product',
+      tryOn: 'Try it on',
+      color: 'Colour',
+      size: 'Size',
+      recommendedBadge: 'Recommended',
+      recommended: 'Recommended for you: {size}',
+      selected: 'You selected {size}',
+      relation: {
+        recommended: 'This is your recommended size.',
+        smallerOne: 'This is one size smaller than your recommended size.',
+        smallerTwo: 'This is two sizes smaller than your recommended size.',
+        smallerMany: 'This is {count} sizes smaller than your recommended size.',
+        largerOne: 'This is one size larger than your recommended size.',
+        largerTwo: 'This is two sizes larger than your recommended size.',
+        largerMany: 'This is {count} sizes larger than your recommended size.',
+        unknown: 'We cannot compare this size with your measurements yet.',
+      },
+      choiceIsYours: 'The choice is always yours — any size can go in your cart.',
+      useRecommended: 'Use recommended size',
+      fitTitle: 'How this size sits',
+      fitScore: 'Fit score: {score} of 100',
+      fitUnknown: 'Add your {measurements} to your profile so we can compare this size with you.',
+      productFit: 'Cut: {fit}',
+      avatarTitle: 'Your illustration wearing this piece',
+      avatarDescription: '{product}, {color}, size {size}, on your measurements.',
+      avatarDescriptionNoColor: '{product}, size {size}, on your measurements.',
+      changeProfile: 'Adjust measurements',
+      changeProfileTitle: 'Adjust your measurements',
+      changeProfileDescription:
+        'Saved to your fit profile, then your recommended size is worked out again.',
+      saveProfile: 'Save and recalculate',
+      savingProfile: 'Saving…',
+      savedProfile: 'Your measurements were updated and recalculated.',
+      openFullProfile: 'Open your full fit profile',
+      unavailable: 'This combination is unavailable right now',
+      noProfile: {
+        title: 'Create your fit profile first',
+        body: 'The fitting room needs your measurements to draw this piece on you.',
+        cta: 'Create your fit profile',
+      },
+      notAvailable: 'This piece is not available in the fitting room yet.',
     },
 
     email: {

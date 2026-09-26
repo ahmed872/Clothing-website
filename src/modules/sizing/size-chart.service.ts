@@ -8,18 +8,21 @@ import {
   type GarmentType,
   type SizeChartMeasurements,
 } from './garment-types';
+import type { GarmentStyleOverrides } from './garment-style';
 import { sizeChartInputSchema, type SizeChartInput } from './size-chart.schemas';
 import type { SizeChartRow } from './size-recommendation';
 import { chartMeasurementsFor } from './sizing-rules';
 
 /**
- * A product's sizing — its garment type and size chart (clothing P02).
+ * A product's sizing — its garment type and size chart (clothing P02), and
+ * how the garment is drawn in the fitting room: its colour option, colour
+ * swatches and style (clothing P04).
  *
  * Reads and writes are keyed by the product id alone. Everything else a
  * write names — the size option, each size — is checked, inside the same
  * transaction as the write, to belong to *that* product: a crafted request
  * cannot attach another product's sizes (or a size that is not a size) to a
- * chart. The stored values are centimetres, locale-free; names come from
+ * chart, nor another product's colours to its swatches. The stored values are centimetres, locale-free; names come from
  * the product's own option values, in both languages.
  */
 
@@ -36,17 +39,28 @@ export interface ProductSizingView {
   sizeOption: { id: string; nameAr: string; nameEn: string } | null;
   /** Smallest first. */
   entries: SizeChartEntryView[];
+  /** Clothing P04 — the fitting room's view of the garment. */
+  colorOption: { id: string; nameAr: string; nameEn: string } | null;
+  style: GarmentStyleOverrides;
+  /** Colour option value id → `#RRGGBB`. */
+  swatches: Record<string, string>;
   updatedAt: Date;
 }
 
 type SizingWithEntries = ProductSizing & {
   sizeOption: { id: string; nameAr: string; nameEn: string } | null;
+  colorOption: { id: string; nameAr: string; nameEn: string } | null;
   entries: (SizeChartEntry & { optionValue: OptionValue })[];
+  swatches: { optionValueId: string; hex: string }[];
 };
 
+const optionSelect = { select: { id: true, nameAr: true, nameEn: true } } as const;
+
 const sizingInclude = {
-  sizeOption: { select: { id: true, nameAr: true, nameEn: true } },
+  sizeOption: optionSelect,
+  colorOption: optionSelect,
   entries: { orderBy: { position: 'asc' as const }, include: { optionValue: true } },
+  swatches: { select: { optionValueId: true, hex: true } },
 } satisfies Prisma.ProductSizingInclude;
 
 function measurementsOf(entry: SizeChartEntry): SizeChartMeasurements {
@@ -69,6 +83,14 @@ function toView(sizing: SizingWithEntries): ProductSizingView {
       labelEn: entry.optionValue.valueEn,
       measurements: measurementsOf(entry),
     })),
+    colorOption: sizing.colorOption,
+    style: {
+      sleeveLength: sizing.sleeveLength,
+      neckline: sizing.neckline,
+      garmentLength: sizing.garmentLength,
+      pattern: sizing.pattern,
+    },
+    swatches: Object.fromEntries(sizing.swatches.map((s) => [s.optionValueId, s.hex])),
     updatedAt: sizing.updatedAt,
   };
 }
@@ -125,9 +147,28 @@ export async function saveProductSizing(
       }
     }
 
+    if (data.colorOptionId) {
+      const option = await tx.productOption.findUnique({
+        where: { id: data.colorOptionId },
+        select: { productId: true, values: { select: { id: true } } },
+      });
+      if (!option || option.productId !== productId || data.colorOptionId === data.sizeOptionId) {
+        throw sizingError('sizing_color_option_not_on_product', 'VALIDATION_FAILED');
+      }
+      const valueIds = new Set(option.values.map((value) => value.id));
+      if (data.swatches.some((swatch) => !valueIds.has(swatch.optionValueId))) {
+        throw sizingError('sizing_swatch_not_in_option', 'VALIDATION_FAILED');
+      }
+    }
+
     const existing = await tx.productSizing.findUnique({ where: { productId } });
     const expected = options.expectedUpdatedAt;
-    const fields = { garmentType: data.garmentType, sizeOptionId: data.sizeOptionId };
+    const fields = {
+      garmentType: data.garmentType,
+      sizeOptionId: data.sizeOptionId,
+      colorOptionId: data.colorOptionId,
+      ...data.style,
+    };
 
     let sizingId: string;
     if (existing) {
@@ -144,6 +185,7 @@ export async function saveProductSizing(
       if (updated.count !== 1) throw sizingError('sizing_stale', 'CONFLICT');
       sizingId = existing.id;
       await tx.sizeChartEntry.deleteMany({ where: { sizingId } });
+      await tx.garmentSwatch.deleteMany({ where: { sizingId } });
     } else {
       if (expected) throw sizingError('sizing_stale', 'CONFLICT');
       const created = await tx.productSizing.create({ data: { productId, ...fields } });
@@ -158,6 +200,12 @@ export async function saveProductSizing(
           position,
           ...entry.measurements,
         })),
+      });
+    }
+
+    if (data.swatches.length > 0) {
+      await tx.garmentSwatch.createMany({
+        data: data.swatches.map((swatch) => ({ sizingId, ...swatch })),
       });
     }
 

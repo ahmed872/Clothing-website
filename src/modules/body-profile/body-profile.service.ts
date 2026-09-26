@@ -199,6 +199,39 @@ export async function saveBodyProfile(
   }
 }
 
+/**
+ * Changes only measurements (clothing P04 — from the fitting room), keeping
+ * everything else the customer saved. The merged profile goes through
+ * `saveBodyProfile` itself — the same validation, the same derived body
+ * shape, the same stale-save check — so there is no second path to the
+ * database. Keys other than measurements are ignored; `''` clears an
+ * optional measurement (and is refused for a required one).
+ */
+export async function updateBodyMeasurements(
+  customerId: string,
+  changes: Partial<Record<MeasurementKey, unknown>>,
+  options: { expectedUpdatedAt: Date },
+): Promise<BodyProfileView> {
+  const current = await getBodyProfile(customerId);
+  if (!current) throw new AppError('NOT_FOUND', { details: { entity: 'BodyProfile' } });
+  const measurements = Object.fromEntries(
+    MEASUREMENT_KEYS.map((key) => {
+      const value = key in changes ? changes[key] : current.measurements[key];
+      return [key, value === null ? undefined : value];
+    }),
+  );
+  return saveBodyProfile(
+    customerId,
+    {
+      gender: current.gender,
+      fitPreference: current.fitPreference,
+      ...measurements,
+      avatar: current.avatar,
+    } as BodyProfileInput,
+    { expectedUpdatedAt: options.expectedUpdatedAt },
+  );
+}
+
 /** Removes the profile and, by cascade, its avatar. Returns whether there
  * was one to remove; deleting nothing is not an error. */
 export async function deleteBodyProfile(customerId: string): Promise<boolean> {

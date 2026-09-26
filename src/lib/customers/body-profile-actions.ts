@@ -1,6 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { ZodError } from 'zod';
 
 import { isAppError, toAppError } from '@/modules/core';
 import { recordAuditEvent } from '@/modules/identity';
@@ -11,6 +12,7 @@ import {
   fieldErrorsFromIssues,
   saveBodyProfile,
   serializeBodyProfile,
+  updateBodyMeasurements,
   type BodyProfileErrorCode,
   type BodyProfileField,
   type BodyProfileInput,
@@ -149,5 +151,45 @@ export async function deleteBodyProfileAction(locale: Locale): Promise<DeleteBod
       ok: false,
       error: state.formError === 'invalid' || !state.formError ? 'generic' : state.formError,
     };
+  }
+}
+
+/**
+ * Clothing P04 — the fitting room's "adjust measurements": only the
+ * measurement fields the form sends, merged into the saved profile by
+ * `updateBodyMeasurements`. The customer is the session's; the version is
+ * required, so a fitting room opened before another change cannot
+ * overwrite it. The caller refreshes the page afterwards, so the fitting
+ * and the recommendation are recomputed from the database, never from what
+ * the browser was holding.
+ */
+export async function updateBodyMeasurementsAction(
+  locale: Locale,
+  _prevState: BodyProfileFormState,
+  formData: FormData,
+): Promise<BodyProfileFormState> {
+  try {
+    const account = await requireCustomerAccount();
+    const version = expectedVersionFromForm(formData);
+    if (!(version instanceof Date)) return { status: 'error', formError: 'stale' };
+
+    const changes = Object.fromEntries(
+      MEASUREMENT_KEYS.filter((key) => formData.has(key)).map((key) => [key, text(formData, key)]),
+    );
+    const saved = await updateBodyMeasurements(account.customerId, changes, {
+      expectedUpdatedAt: version,
+    });
+    await recordAuditEvent({ action: 'customer.body_profile_saved', userId: account.userId });
+    revalidateBodyProfile(locale);
+    return { status: 'saved', profile: serializeBodyProfile(saved) };
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return {
+        status: 'error',
+        formError: 'invalid',
+        fieldErrors: fieldErrorsFromIssues(error.issues),
+      };
+    }
+    return failure(error, 'updateBodyMeasurementsAction');
   }
 }

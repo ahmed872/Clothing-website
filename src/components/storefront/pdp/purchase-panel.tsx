@@ -138,6 +138,8 @@ export function PurchasePanel({ product, locale, currency, sizeChart }: Purchase
           sizeName={sizeName}
           selectedSizeId={selection[sizeOption.id]}
           onSelectSize={(sizeId) => select(sizeOption.id, sizeId)}
+          tryOnHref={tryOnHref(product, locale, selection, sizeOption.id)}
+          tryOnLabel={t.fitting.tryOn}
         />
       ) : null}
 
@@ -191,4 +193,21 @@ export function PurchasePanel({ product, locale, currency, sizeChart }: Purchase
       </div>
     </div>
   );
+}
+
+/** The fitting room for this product, starting on what is selected here —
+ * the size, and the other option's value as the colour (the fitting room
+ * checks both belong to the product, and ignores them otherwise). */
+function tryOnHref(
+  product: ProductDetail,
+  locale: Locale,
+  selection: Record<string, string>,
+  sizeOptionId: string,
+): string {
+  const params = new URLSearchParams();
+  const size = selection[sizeOptionId];
+  const color = Object.entries(selection).find(([optionId]) => optionId !== sizeOptionId)?.[1];
+  if (color) params.set('color', color);
+  if (size) params.set('size', size);
+  return `/${locale}/fitting-room/${product.slug}${params.size ? `?${params}` : ''}`;
 }

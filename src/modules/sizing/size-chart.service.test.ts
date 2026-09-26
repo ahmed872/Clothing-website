@@ -17,6 +17,9 @@ import {
 import { recommendSizeForCustomer } from './customer-recommendation.service';
 import { resetSizingTables } from './testing';
 
+/** A swatch value — data here, not a colour this code paints with. */
+const swatch = (digits: string) => `#${digits}`;
+
 /**
  * Size charts against the real database: validation, ownership of every id
  * a chart names, ordering, concurrency, and what a shopper may read.
@@ -401,5 +404,88 @@ describe('recommendSizeForCustomer', () => {
     const draft = await seedProduct('DRAFT');
     await saveProductSizing(draft.id, teeChart(draft));
     expect(await recommendSizeForCustomer(me, draft.id)).toEqual({ status: 'no_sizing' });
+  });
+});
+
+describe('fitting room appearance (clothing P04)', () => {
+  it('saves the colour option, a swatch per colour and the style; unset means default', async () => {
+    const p = await seedProduct();
+    const saved = await saveProductSizing(p.id, {
+      ...teeChart(p),
+      colorOptionId: p.colorOptionId,
+      sleeveLength: 'LONG',
+      neckline: '',
+      pattern: 'STRIPED',
+      swatches: [{ optionValueId: p.colors.Black!, hex: swatch('1d1d20') }],
+    });
+    expect(saved.colorOption).toMatchObject({ id: p.colorOptionId, nameEn: 'Color' });
+    expect(saved.style).toEqual({
+      sleeveLength: 'LONG',
+      neckline: null,
+      garmentLength: null,
+      pattern: 'STRIPED',
+    });
+    expect(saved.swatches).toEqual({ [p.colors.Black!]: swatch('1D1D20') });
+  });
+
+  it('refuses a swatch that is not a #rrggbb colour, and a sleeve on trousers', () => {
+    const ids = {
+      option: '5e0f3a4e-1111-4b8e-9c1f-111111111111',
+      a: '5e0f3a4e-2222-4b8e-9c1f-222222222222',
+    };
+    expect(
+      errorsFor({
+        garmentType: 'T_SHIRT',
+        colorOptionId: ids.option,
+        swatches: [{ optionValueId: ids.a, hex: 'red; stroke: url(x)' }],
+      }).swatches,
+    ).toEqual({ 0: { hex: 'invalid_color' } });
+    expect(errorsFor({ garmentType: 'JEANS', sleeveLength: 'LONG' }).sleeveLength).toBe(
+      'not_applicable',
+    );
+    expect(errorsFor({ garmentType: 'T_SHIRT', neckline: 'TURTLE' }).neckline).toBe(
+      'invalid_option',
+    );
+    expect(
+      errorsFor({
+        garmentType: 'T_SHIRT',
+        swatches: [{ optionValueId: ids.a, hex: swatch('000000') }],
+      }).colorOptionId,
+    ).toBe('color_option_required');
+  });
+
+  it("refuses another product's colour option, the size option as colours, and foreign swatches", async () => {
+    const mine = await seedProduct();
+    const theirs = await seedProduct();
+    await expect(
+      saveProductSizing(mine.id, { garmentType: 'T_SHIRT', colorOptionId: theirs.colorOptionId }),
+    ).rejects.toMatchObject({ details: { reasonCode: 'sizing_color_option_not_on_product' } });
+    await expect(
+      saveProductSizing(mine.id, {
+        ...teeChart(mine),
+        colorOptionId: mine.sizeOptionId,
+      }),
+    ).rejects.toMatchObject({ details: { reasonCode: 'sizing_color_option_not_on_product' } });
+    await expect(
+      saveProductSizing(mine.id, {
+        garmentType: 'T_SHIRT',
+        colorOptionId: mine.colorOptionId,
+        swatches: [{ optionValueId: theirs.colors.Black!, hex: swatch('000000') }],
+      }),
+    ).rejects.toMatchObject({ details: { reasonCode: 'sizing_swatch_not_in_option' } });
+    expect(await db.garmentSwatch.count()).toBe(0);
+  });
+
+  it('the database refuses a malformed swatch even past the service', async () => {
+    const p = await seedProduct();
+    const saved = await saveProductSizing(p.id, { garmentType: 'T_SHIRT' });
+    const sizing = await db.productSizing.findUniqueOrThrow({
+      where: { productId: saved.productId },
+    });
+    await expect(
+      db.garmentSwatch.create({
+        data: { sizingId: sizing.id, optionValueId: p.colors.Black!, hex: 'blue;x' },
+      }),
+    ).rejects.toThrow();
   });
 });
