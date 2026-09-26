@@ -140,6 +140,7 @@
       "price": 189,
       "garment": "thobe",
       "sizes": "thobe",
+      "sizing": { "garmentType": "THOBE", "chart": "men-thobe" },
       "colors": [
         { "en": "White", "ar": "أبيض", "hex": "#F4F2EC" },
         { "en": "Ivory", "ar": "عاجي", "hex": "#E6DCC6" }
@@ -159,6 +160,7 @@
       "price": 149,
       "garment": "shirt",
       "sizes": "adult",
+      "sizing": { "garmentType": "SHIRT", "chart": "men-shirt" },
       "colors": [
         { "en": "Light Blue", "ar": "أزرق فاتح", "hex": "#A9C3DF" },
         { "en": "White", "ar": "أبيض", "hex": "#F4F2EC" }
@@ -178,6 +180,7 @@
       "price": 59,
       "garment": "tshirt",
       "sizes": "adult",
+      "sizing": { "garmentType": "T_SHIRT", "chart": "men-tee" },
       "colors": [
         { "en": "Black", "ar": "أسود", "hex": "#232326" },
         { "en": "White", "ar": "أبيض", "hex": "#F4F2EC" },
@@ -198,6 +201,7 @@
       "price": 199,
       "garment": "jeans",
       "sizes": "waist",
+      "sizing": { "garmentType": "JEANS", "chart": "men-jeans" },
       "colors": [
         { "en": "Indigo", "ar": "نيلي", "hex": "#2F3F66" },
         { "en": "Black", "ar": "أسود", "hex": "#2A2A2E" }
@@ -217,6 +221,7 @@
       "price": 179,
       "garment": "hoodie",
       "sizes": "adult",
+      "sizing": { "garmentType": "HOODIE", "chart": "men-hoodie" },
       "colors": [
         { "en": "Charcoal", "ar": "فحمي", "hex": "#3E4046" },
         { "en": "Navy", "ar": "كحلي", "hex": "#1F2D4A" }
@@ -236,6 +241,7 @@
       "price": 289,
       "garment": "bomber",
       "sizes": "adult",
+      "sizing": { "garmentType": "JACKET", "chart": "men-bomber" },
       "colors": [
         { "en": "Olive", "ar": "زيتي", "hex": "#5F6640" },
         { "en": "Black", "ar": "أسود", "hex": "#232326" }
@@ -255,6 +261,7 @@
       "price": 249,
       "garment": "abaya",
       "sizes": "abaya",
+      "sizing": { "garmentType": "ABAYA", "chart": "women-abaya" },
       "stockBySize": { "52": 1 },
       "colors": [{ "en": "Black", "ar": "أسود", "hex": "#1D1D20" }]
     },
@@ -272,6 +279,7 @@
       "price": 219,
       "garment": "shirtdress",
       "sizes": "adult",
+      "sizing": { "garmentType": "DRESS", "chart": "women-shirt-dress" },
       "colors": [
         { "en": "Sand", "ar": "رملي", "hex": "#D8C4A2" },
         { "en": "Sage", "ar": "أخضر مريمي", "hex": "#A2B09A" }
@@ -291,6 +299,7 @@
       "price": 169,
       "garment": "widepants",
       "sizes": "adult",
+      "sizing": { "garmentType": "TROUSERS", "chart": "women-wide-trousers" },
       "colors": [
         { "en": "Beige", "ar": "بيج", "hex": "#D6C3A8" },
         { "en": "Black", "ar": "أسود", "hex": "#232326" }
@@ -310,6 +319,7 @@
       "price": 159,
       "garment": "skirt",
       "sizes": "adult",
+      "sizing": { "garmentType": "SKIRT", "chart": "women-midi-skirt" },
       "colors": [
         { "en": "Dusty Rose", "ar": "وردي باهت", "hex": "#C48E92" },
         { "en": "Navy", "ar": "كحلي", "hex": "#1F2D4A" }
@@ -329,6 +339,7 @@
       "price": 189,
       "garment": "cardigan",
       "sizes": "adult",
+      "sizing": { "garmentType": "CARDIGAN", "chart": "women-cardigan" },
       "colors": [
         { "en": "Cream", "ar": "كريمي", "hex": "#EEE4CF" },
         { "en": "Camel", "ar": "جملي", "hex": "#B8895B" }
@@ -348,6 +359,7 @@
       "price": 69,
       "garment": "oversizedtee",
       "sizes": "adult",
+      "sizing": { "garmentType": "T_SHIRT", "chart": "women-oversized-tee" },
       "colors": [
         { "en": "White", "ar": "أبيض", "hex": "#F4F2EC" },
         { "en": "Black", "ar": "أسود", "hex": "#232326" },
@@ -368,6 +380,7 @@
       "price": 45,
       "garment": "stripedtee",
       "sizes": "kids",
+      "sizing": { "garmentType": "T_SHIRT", "chart": "kids-tee" },
       "colors": [
         { "en": "Yellow", "ar": "أصفر", "hex": "#F2C84B" },
         { "en": "Sky Blue", "ar": "سماوي", "hex": "#8CC3E6" }
@@ -387,6 +400,7 @@
       "price": 99,
       "garment": "hoodie",
       "sizes": "kids",
+      "sizing": { "garmentType": "HOODIE", "chart": "kids-hoodie" },
       "colors": [
         { "en": "Red", "ar": "أحمر", "hex": "#C0392B" },
         { "en": "Mustard", "ar": "خردلي", "hex": "#D9A52B" }
@@ -406,6 +420,7 @@
       "price": 79,
       "garment": "joggers",
       "sizes": "kids",
+      "sizing": { "garmentType": "TROUSERS", "chart": "kids-joggers" },
       "colors": [
         { "en": "Grey", "ar": "رمادي", "hex": "#8D9096" },
         { "en": "Navy", "ar": "كحلي", "hex": "#1F2D4A" }
@@ -425,10 +440,440 @@
       "price": 109,
       "garment": "girlsdress",
       "sizes": "kids",
+      "sizing": { "garmentType": "DRESS", "chart": "kids-girls-dress" },
       "colors": [
         { "en": "Pink", "ar": "وردي", "hex": "#F2A6B8" },
         { "en": "Mint", "ar": "نعناعي", "hex": "#A6DAC3" }
       ]
     }
-  ]
+  ],
+  "sizeCharts": {
+    "men-thobe": [
+      {
+        "lengthCm": 132.1,
+        "chestCm": 108,
+        "shoulderCm": 44,
+        "sleeveCm": 58,
+        "neckCm": 39
+      },
+      {
+        "lengthCm": 137.2,
+        "chestCm": 112,
+        "shoulderCm": 45,
+        "sleeveCm": 60,
+        "neckCm": 40
+      },
+      {
+        "lengthCm": 142.2,
+        "chestCm": 116,
+        "shoulderCm": 46,
+        "sleeveCm": 61,
+        "neckCm": 41
+      },
+      {
+        "lengthCm": 147.3,
+        "chestCm": 120,
+        "shoulderCm": 47,
+        "sleeveCm": 62,
+        "neckCm": 42
+      },
+      {
+        "lengthCm": 152.4,
+        "chestCm": 124,
+        "shoulderCm": 48,
+        "sleeveCm": 63,
+        "neckCm": 43
+      }
+    ],
+    "men-shirt": [
+      {
+        "chestCm": 100,
+        "waistCm": 94,
+        "shoulderCm": 43,
+        "sleeveCm": 62,
+        "neckCm": 38,
+        "lengthCm": 74
+      },
+      {
+        "chestCm": 106,
+        "waistCm": 100,
+        "shoulderCm": 45,
+        "sleeveCm": 63,
+        "neckCm": 39.5,
+        "lengthCm": 76
+      },
+      {
+        "chestCm": 112,
+        "waistCm": 106,
+        "shoulderCm": 47,
+        "sleeveCm": 64,
+        "neckCm": 41,
+        "lengthCm": 78
+      },
+      {
+        "chestCm": 118,
+        "waistCm": 112,
+        "shoulderCm": 49,
+        "sleeveCm": 65,
+        "neckCm": 42.5,
+        "lengthCm": 80
+      }
+    ],
+    "men-tee": [
+      {
+        "chestCm": 101,
+        "shoulderCm": 42,
+        "sleeveCm": 19,
+        "lengthCm": 68
+      },
+      {
+        "chestCm": 107,
+        "shoulderCm": 44,
+        "sleeveCm": 20,
+        "lengthCm": 70
+      },
+      {
+        "chestCm": 113,
+        "shoulderCm": 46,
+        "sleeveCm": 21,
+        "lengthCm": 72
+      },
+      {
+        "chestCm": 119,
+        "shoulderCm": 48,
+        "sleeveCm": 22,
+        "lengthCm": 74
+      }
+    ],
+    "men-jeans": [
+      {
+        "waistCm": 78,
+        "hipCm": 94,
+        "inseamCm": 81,
+        "lengthCm": 104
+      },
+      {
+        "waistCm": 83,
+        "hipCm": 99,
+        "inseamCm": 82,
+        "lengthCm": 105
+      },
+      {
+        "waistCm": 88,
+        "hipCm": 104,
+        "inseamCm": 83,
+        "lengthCm": 106
+      },
+      {
+        "waistCm": 93,
+        "hipCm": 109,
+        "inseamCm": 84,
+        "lengthCm": 107
+      }
+    ],
+    "men-hoodie": [
+      {
+        "chestCm": 106,
+        "shoulderCm": 45,
+        "sleeveCm": 62,
+        "lengthCm": 68
+      },
+      {
+        "chestCm": 112,
+        "shoulderCm": 47,
+        "sleeveCm": 63,
+        "lengthCm": 70
+      },
+      {
+        "chestCm": 118,
+        "shoulderCm": 49,
+        "sleeveCm": 64,
+        "lengthCm": 72
+      },
+      {
+        "chestCm": 124,
+        "shoulderCm": 51,
+        "sleeveCm": 65,
+        "lengthCm": 74
+      }
+    ],
+    "men-bomber": [
+      {
+        "chestCm": 106,
+        "shoulderCm": 44,
+        "sleeveCm": 62,
+        "lengthCm": 64
+      },
+      {
+        "chestCm": 112,
+        "shoulderCm": 46,
+        "sleeveCm": 64,
+        "lengthCm": 66
+      },
+      {
+        "chestCm": 118,
+        "shoulderCm": 48,
+        "sleeveCm": 65,
+        "lengthCm": 68
+      },
+      {
+        "chestCm": 124,
+        "shoulderCm": 50,
+        "sleeveCm": 66,
+        "lengthCm": 70
+      }
+    ],
+    "women-abaya": [
+      {
+        "lengthCm": 132.1,
+        "chestCm": 110,
+        "shoulderCm": 38,
+        "sleeveCm": 56
+      },
+      {
+        "lengthCm": 137.2,
+        "chestCm": 114,
+        "shoulderCm": 39,
+        "sleeveCm": 57
+      },
+      {
+        "lengthCm": 142.2,
+        "chestCm": 118,
+        "shoulderCm": 40,
+        "sleeveCm": 58
+      },
+      {
+        "lengthCm": 147.3,
+        "chestCm": 122,
+        "shoulderCm": 41,
+        "sleeveCm": 59
+      }
+    ],
+    "women-shirt-dress": [
+      {
+        "chestCm": 92,
+        "waistCm": 80,
+        "hipCm": 100,
+        "shoulderCm": 38,
+        "lengthCm": 110
+      },
+      {
+        "chestCm": 98,
+        "waistCm": 86,
+        "hipCm": 106,
+        "shoulderCm": 39,
+        "lengthCm": 112
+      },
+      {
+        "chestCm": 104,
+        "waistCm": 92,
+        "hipCm": 112,
+        "shoulderCm": 40,
+        "lengthCm": 114
+      },
+      {
+        "chestCm": 110,
+        "waistCm": 98,
+        "hipCm": 118,
+        "shoulderCm": 41,
+        "lengthCm": 116
+      }
+    ],
+    "women-wide-trousers": [
+      {
+        "waistCm": 68,
+        "hipCm": 100,
+        "inseamCm": 78,
+        "lengthCm": 102
+      },
+      {
+        "waistCm": 74,
+        "hipCm": 106,
+        "inseamCm": 79,
+        "lengthCm": 103
+      },
+      {
+        "waistCm": 80,
+        "hipCm": 112,
+        "inseamCm": 80,
+        "lengthCm": 104
+      },
+      {
+        "waistCm": 86,
+        "hipCm": 118,
+        "inseamCm": 81,
+        "lengthCm": 105
+      }
+    ],
+    "women-midi-skirt": [
+      {
+        "waistCm": 66,
+        "hipCm": 100,
+        "lengthCm": 75
+      },
+      {
+        "waistCm": 72,
+        "hipCm": 106,
+        "lengthCm": 76
+      },
+      {
+        "waistCm": 78,
+        "hipCm": 112,
+        "lengthCm": 77
+      },
+      {
+        "waistCm": 84,
+        "hipCm": 118,
+        "lengthCm": 78
+      }
+    ],
+    "women-cardigan": [
+      {
+        "chestCm": 96,
+        "shoulderCm": 38,
+        "sleeveCm": 58,
+        "lengthCm": 60
+      },
+      {
+        "chestCm": 102,
+        "shoulderCm": 40,
+        "sleeveCm": 59,
+        "lengthCm": 62
+      },
+      {
+        "chestCm": 108,
+        "shoulderCm": 42,
+        "sleeveCm": 60,
+        "lengthCm": 64
+      },
+      {
+        "chestCm": 114,
+        "shoulderCm": 44,
+        "sleeveCm": 61,
+        "lengthCm": 66
+      }
+    ],
+    "women-oversized-tee": [
+      {
+        "chestCm": 104,
+        "shoulderCm": 44,
+        "sleeveCm": 20,
+        "lengthCm": 66
+      },
+      {
+        "chestCm": 110,
+        "shoulderCm": 46,
+        "sleeveCm": 21,
+        "lengthCm": 68
+      },
+      {
+        "chestCm": 116,
+        "shoulderCm": 48,
+        "sleeveCm": 22,
+        "lengthCm": 70
+      },
+      {
+        "chestCm": 122,
+        "shoulderCm": 50,
+        "sleeveCm": 23,
+        "lengthCm": 72
+      }
+    ],
+    "kids-tee": [
+      {
+        "chestCm": 58,
+        "shoulderCm": 26,
+        "lengthCm": 40
+      },
+      {
+        "chestCm": 62,
+        "shoulderCm": 28,
+        "lengthCm": 44
+      },
+      {
+        "chestCm": 66,
+        "shoulderCm": 30,
+        "lengthCm": 48
+      },
+      {
+        "chestCm": 70,
+        "shoulderCm": 32,
+        "lengthCm": 52
+      }
+    ],
+    "kids-hoodie": [
+      {
+        "chestCm": 64,
+        "shoulderCm": 27,
+        "sleeveCm": 32,
+        "lengthCm": 40
+      },
+      {
+        "chestCm": 68,
+        "shoulderCm": 29,
+        "sleeveCm": 36,
+        "lengthCm": 44
+      },
+      {
+        "chestCm": 72,
+        "shoulderCm": 31,
+        "sleeveCm": 40,
+        "lengthCm": 48
+      },
+      {
+        "chestCm": 76,
+        "shoulderCm": 33,
+        "sleeveCm": 44,
+        "lengthCm": 52
+      }
+    ],
+    "kids-joggers": [
+      {
+        "waistCm": 50,
+        "hipCm": 62,
+        "inseamCm": 34,
+        "lengthCm": 52
+      },
+      {
+        "waistCm": 53,
+        "hipCm": 66,
+        "inseamCm": 40,
+        "lengthCm": 58
+      },
+      {
+        "waistCm": 56,
+        "hipCm": 70,
+        "inseamCm": 46,
+        "lengthCm": 64
+      },
+      {
+        "waistCm": 59,
+        "hipCm": 74,
+        "inseamCm": 52,
+        "lengthCm": 70
+      }
+    ],
+    "kids-girls-dress": [
+      {
+        "chestCm": 58,
+        "waistCm": 54,
+        "lengthCm": 50
+      },
+      {
+        "chestCm": 62,
+        "waistCm": 57,
+        "lengthCm": 56
+      },
+      {
+        "chestCm": 66,
+        "waistCm": 60,
+        "lengthCm": 62
+      },
+      {
+        "chestCm": 70,
+        "waistCm": 63,
+        "lengthCm": 68
+      }
+    ]
+  }
 }

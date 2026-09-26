@@ -2,6 +2,7 @@ import type {
   BodyProfileGender,
   BodyShape,
   FacialHair,
+  FitPreference,
   GlassesFrameColor,
   GlassesStyle,
   HairColor,
@@ -87,6 +88,15 @@ export const BODY_SHAPES = [
   'WAIST_WIDEST',
 ] as const satisfies readonly BodyShape[];
 
+/** Clothing P02 — how close to the body the customer likes clothes to sit.
+ * REGULAR is what a profile starts with. */
+export const FIT_PREFERENCES = [
+  'SLIM',
+  'REGULAR',
+  'RELAXED',
+] as const satisfies readonly FitPreference[];
+export const DEFAULT_FIT_PREFERENCE = 'REGULAR' satisfies FitPreference;
+
 type Exhaustive<Enum, Listed> = [Exclude<Enum, Listed>] extends [never] ? true : never;
 /** Compile-time only: fails to type-check if a list above misses an enum value. */
 export const OPTION_LISTS_ARE_EXHAUSTIVE: [
@@ -98,7 +108,8 @@ export const OPTION_LISTS_ARE_EXHAUSTIVE: [
   Exhaustive<GlassesStyle, (typeof GLASSES_STYLES)[number]>,
   Exhaustive<GlassesFrameColor, (typeof GLASSES_FRAME_COLORS)[number]>,
   Exhaustive<BodyShape, (typeof BODY_SHAPES)[number]>,
-] = [true, true, true, true, true, true, true, true];
+  Exhaustive<FitPreference, (typeof FIT_PREFERENCES)[number]>,
+] = [true, true, true, true, true, true, true, true, true];
 
 /** The minimum a profile needs to be saved at all. */
 export const REQUIRED_MEASUREMENTS = ['heightCm', 'weightKg', 'waistCm'] as const;

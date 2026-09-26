@@ -34,8 +34,15 @@ shoulder, inseam, sleeve and neck optional) and how their avatar looks
 (skin tone, hair or head covering, facial hair, glasses), and sees a local,
 illustrated avatar redraw as they type, plus how complete the profile is.
 Private to its owner: no photos, nothing sent to an outside service, and the
-data can be deleted from the same page. It is the foundation the size
-recommendation will build on; it does not recommend sizes yet.
+data can be deleted from the same page.
+
+**Size recommendation** — the admin gives each product a garment type and a
+size chart (the garment's measurements per size, in centimetres) under
+_Products → Sizing_; the product page then recommends a size to a signed-in
+customer with a fit profile, with its reasons, a confidence level, closer-
+and looser-fitting alternatives, and a slim/regular/relaxed switch. It is
+rule-based and deterministic — no AI, no outside service — and when a
+measurement is missing it says which one instead of guessing.
 
 **Admin** (`/admin`) — sign-in with real server-side sessions and
 role-based access control, then products and variants, categories, brands,

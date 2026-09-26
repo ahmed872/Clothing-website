@@ -19,8 +19,8 @@
  *     reads them too);
  *   - the deterministic completion score (`profile-completion.ts`);
  *   - the isolated, replaceable body-shape rules (`body-shape.service.ts`);
- *   - the size recommendation *contract* (`size-recommendation.ts`) — the
- *     engine itself is P02's.
+ *   - what sizing may read from a profile (`size-recommendation.ts`) — the
+ *     engine itself, and its service contract, are `@/modules/sizing`'s.
  *
  * Other modules import `@/modules/body-profile`, never a file inside it.
  */
@@ -51,6 +51,8 @@ export {
 
 export {
   GENDERS,
+  FIT_PREFERENCES,
+  DEFAULT_FIT_PREFERENCE,
   SKIN_TONES,
   HAIR_STYLES,
   HAIR_COLORS,
@@ -90,12 +92,4 @@ export {
   type BodyShapeMeasurements,
 } from './body-shape.service';
 
-export {
-  toSizingProfile,
-  type SizingProfile,
-  type SizeRecommendationService,
-  type SizeRecommendationRequest,
-  type SizeRecommendationResult,
-  type SizeRecommendation,
-  type SizeRecommendationConfidence,
-} from './size-recommendation';
+export { toSizingProfile, type SizingProfile } from './size-recommendation';

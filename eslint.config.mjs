@@ -34,6 +34,10 @@ const MODULE_DEPENDENCIES = {
   // so the module needs neither `identity` nor `customers`, and the size
   // engine's contract names products structurally until it needs `catalog`.
   'body-profile': ['core'],
+  // Clothing P02. Reads profiles (to recommend) but not the catalog module:
+  // a chart only needs product/option rows, read directly as `cart` reads
+  // variants.
+  sizing: ['core', 'body-profile'],
   orders: [
     'core',
     // P10: orders write audit entries and name the staff member who moved a

@@ -10,6 +10,8 @@
  *   - every product as a DRAFT, with a Color × Size option matrix and one
  *     variant per combination — price, stock and SKU on the variant, the
  *     same shape the admin's own product form produces;
+ *   - each product's garment type and size chart (clothing P02), from the
+ *     same file's `sizeCharts`, through the sizing domain;
  *   - one image per colour, uploaded from `scripts/data/demo-images/`
  *     through whichever storage provider `STORAGE_PROVIDER` configures
  *     (local disk or S3), plus the homepage hero image.
@@ -54,6 +56,8 @@ const {
 } = await import('../src/modules/catalog/index.js');
 const { db } = await import('../src/modules/core/index.js');
 const { getStorageProvider } = await import('../src/modules/media/provider-factory.js');
+const { saveProductSizing } = await import('../src/modules/sizing/index.js');
+const { seedDemoSizing } = await import('./lib/demo-sizing.mjs');
 const { sniffImage } = await import('../src/modules/media/validation.js');
 
 interface Localized {
@@ -79,6 +83,8 @@ interface DemoProduct {
   price: number;
   garment: string;
   sizes: string;
+  /** Clothing P02 — garment type and the `sizeCharts` entry to use. */
+  sizing?: { garmentType: string; chart: string };
   stockBySize?: Record<string, number>;
   colors: DemoColor[];
 }
@@ -110,6 +116,7 @@ interface DemoCatalog {
   }[];
   brands: { slug: string; nameAr: string; nameEn: string }[];
   sizeSets: Record<string, Localized[]>;
+  sizeCharts: Record<string, Record<string, number>[]>;
   products: DemoProduct[];
 }
 
@@ -127,6 +134,7 @@ const PRODUCT_FIELDS = [
   'price',
   'garment',
   'sizes',
+  'sizing',
   'stockBySize',
   'colors',
 ];
@@ -319,6 +327,14 @@ async function main() {
     }
   }
   console.log(`Created ${catalog.products.length} products, ${variantsCreated} variants`);
+
+  // Clothing P02: each product's garment type and size chart, from the same
+  // data file, through the sizing domain's own validation.
+  const sizing = await seedDemoSizing(catalog, {
+    db,
+    saveProductSizing,
+  });
+  console.log(`Created ${sizing.created} size charts`);
 
   for (const category of catalog.categories) {
     const imageMediaId = mediaIds.get(category.image);

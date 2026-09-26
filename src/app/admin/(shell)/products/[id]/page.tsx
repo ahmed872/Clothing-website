@@ -32,7 +32,9 @@ import {
   type VariantRow,
 } from '@/components/admin/variant-builder';
 import { ProductStatusBar } from '@/components/admin/product-status-bar';
+import { SizeChartEditor } from '@/components/admin/size-chart-editor';
 import type { AttributeFieldDefinition } from '@/lib/admin/product-actions';
+import { getProductSizing } from '@/modules/sizing';
 
 export const metadata: Metadata = { title: 'Edit product' };
 
@@ -53,13 +55,14 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
   const product = await getProduct(id);
   if (!product || product.deletedAt) notFound();
 
-  const [tree, brands, definitions, images, options, variants] = await Promise.all([
+  const [tree, brands, definitions, images, options, variants, sizing] = await Promise.all([
     getCategoryTree(),
     listBrands(),
     getEffectiveAttributeDefinitions(product.categoryId),
     listProductImages(product.id),
     listProductOptions(product.id),
     listVariantsWithOptionValues(product.id),
+    getProductSizing(product.id),
   ]);
 
   const imageRows: ProductImageRow[] = [];
@@ -274,6 +277,20 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
               deletedSuccessfully: t.common.deletedSuccessfully,
               requiredField: t.common.requiredField,
             }}
+          />
+        </FormSection>
+
+        <FormSection
+          className="border-t border-(--color-border)"
+          title={t.sizing.title}
+          description={t.sizing.description}
+        >
+          <SizeChartEditor
+            productId={product.id}
+            locale={locale}
+            sizing={sizing ? { ...sizing, updatedAt: sizing.updatedAt.toISOString() } : null}
+            sizeOptions={optionRows}
+            labels={t.sizing}
           />
         </FormSection>
 

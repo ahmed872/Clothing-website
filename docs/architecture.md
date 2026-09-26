@@ -28,7 +28,7 @@ catalog data remains, as `scripts/data/demo-catalog.json`.
 
 ## Modules
 
-Sixteen modules, each owning one part of the domain. A module's `index.ts` is
+Seventeen modules, each owning one part of the domain. A module's `index.ts` is
 its public surface: other modules import `@/modules/<name>` and never a file
 inside it.
 
@@ -38,27 +38,28 @@ core → identity → media → catalog → search
                         inventory → pricing → cart → orders
                                                        ↓
                                      payments · notifications
- customers · body-profile · content · settings · analytics
+ customers · body-profile → sizing · content · settings · analytics
 ```
 
-| Module          | Owns                                                                           | May import                                                                  |
-| --------------- | ------------------------------------------------------------------------------ | --------------------------------------------------------------------------- |
-| `core`          | database client, environment, errors, money                                    | —                                                                           |
-| `identity`      | users, sessions, roles, audit log                                              | core                                                                        |
-| `media`         | assets, uploads, storage providers                                             | core                                                                        |
-| `catalog`       | products, categories, brands, attributes, variants                             | core, media                                                                 |
-| `search`        | search service and providers                                                   | core, catalog                                                               |
-| `inventory`     | stock levels, adjustment history                                               | core, catalog                                                               |
-| `pricing`       | price resolution, discounts, coupons                                           | core, catalog                                                               |
-| `cart`          | cart lifecycle                                                                 | core, catalog, pricing, inventory                                           |
-| `customers`     | accounts, addresses, wishlist, reviews                                         | core, identity, catalog                                                     |
-| `body-profile`  | body measurements, avatar appearance, completion, size-recommendation contract | core                                                                        |
-| `payments`      | payment service, providers, webhooks                                           | core                                                                        |
-| `notifications` | channels, templates                                                            | core, settings                                                              |
-| `content`       | homepage sections, banners, navigation                                         | core, media, catalog                                                        |
-| `settings`      | store settings, branding, shipping config                                      | core, media                                                                 |
-| `analytics`     | reporting queries, rollups (read-only)                                         | core                                                                        |
-| `orders`        | order lifecycle, state machine, events                                         | core, catalog, pricing, inventory, cart, customers, payments, notifications |
+| Module          | Owns                                                                   | May import                                                                  |
+| --------------- | ---------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| `core`          | database client, environment, errors, money                            | —                                                                           |
+| `identity`      | users, sessions, roles, audit log                                      | core                                                                        |
+| `media`         | assets, uploads, storage providers                                     | core                                                                        |
+| `catalog`       | products, categories, brands, attributes, variants                     | core, media                                                                 |
+| `search`        | search service and providers                                           | core, catalog                                                               |
+| `inventory`     | stock levels, adjustment history                                       | core, catalog                                                               |
+| `pricing`       | price resolution, discounts, coupons                                   | core, catalog                                                               |
+| `cart`          | cart lifecycle                                                         | core, catalog, pricing, inventory                                           |
+| `customers`     | accounts, addresses, wishlist, reviews                                 | core, identity, catalog                                                     |
+| `body-profile`  | body measurements, avatar appearance, completion, what sizing may read | core                                                                        |
+| `sizing`        | garment types, size charts, the size recommendation engine             | core, body-profile                                                          |
+| `payments`      | payment service, providers, webhooks                                   | core                                                                        |
+| `notifications` | channels, templates                                                    | core, settings                                                              |
+| `content`       | homepage sections, banners, navigation                                 | core, media, catalog                                                        |
+| `settings`      | store settings, branding, shipping config                              | core, media                                                                 |
+| `analytics`     | reporting queries, rollups (read-only)                                 | core                                                                        |
+| `orders`        | order lifecycle, state machine, events                                 | core, catalog, pricing, inventory, cart, customers, payments, notifications |
 
 Two rules matter more than the rest:
 
@@ -108,7 +109,18 @@ worth describing rather than leaving to be discovered:
   function takes the customer id the session names and none takes a profile
   id, so there is no id to swap. The module also fixes the contract the size
   recommendation engine (P02) will implement, with no implementation behind
-  it yet — so nothing can show a made-up size.
+  it yet — so nothing can show a made-up size. (P02 has since moved that
+  contract into `sizing`, with its implementation; what stays here is
+  which parts of a profile sizing may read.)
+- **`sizing` recommends sizes by rule, and says why** (clothing P02). A
+  product's size chart holds the _garment's_ measurements, keyed to the
+  product's own size option values — so a recommendation can only ever
+  name a size the product is sold in. The engine (`size-engine.ts`) is
+  pure and deterministic and holds no numbers of its own: every ease,
+  tolerance, weight and confidence threshold is in `sizing-rules.ts`,
+  documented beside its value. Missing data is an answer
+  (`insufficient_data`, `no_size_data`, `no_matching_size`), never a guess,
+  and the storefront receives sizes and reason codes, never a measurement.
 
 Every admin section now has a screen of its own, and the shared "this
 section is being built" placeholder at `/admin/[section]` is gone with the

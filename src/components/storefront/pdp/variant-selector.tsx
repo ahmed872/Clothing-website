@@ -1,18 +1,34 @@
 'use client';
 
-import * as React from 'react';
-
 import type { ProductDetailOption, ProductDetailVariant } from '@/modules/catalog';
-import { availableValuesForOption, findMatchingVariant } from '@/lib/variant-selection';
+import { availableValuesForOption } from '@/lib/variant-selection';
 import { cn } from '@/lib/utils';
 import type { Locale } from '@/lib/i18n/locales';
 
 export interface VariantSelectorProps {
   options: ProductDetailOption[];
   variants: ProductDetailVariant[];
-  defaultVariantId: string;
+  /** Option id → chosen value id. Owned by the caller (the purchase panel),
+   * so something else on the page — a size recommendation's "select this
+   * size" — can choose a value too, through the same state. */
+  selection: Record<string, string>;
+  onSelect: (optionId: string, valueId: string) => void;
   locale: Locale;
-  onVariantChange: (variant: ProductDetailVariant | undefined) => void;
+}
+
+/** The option values of `variant`, keyed by option — the selection a page
+ * opens on. */
+export function selectionForVariant(
+  options: ProductDetailOption[],
+  variant: ProductDetailVariant | undefined,
+): Record<string, string> {
+  const selection: Record<string, string> = {};
+  if (!variant) return selection;
+  for (const option of options) {
+    const match = option.values.find((v) => variant.optionValueIds.includes(v.id));
+    if (match) selection[option.id] = match.id;
+  }
+  return selection;
 }
 
 /**
@@ -22,35 +38,17 @@ export interface VariantSelectorProps {
  * nothing here ever asks what the product *is*. A product with no options
  * (`options.length === 0`) renders nothing — there's exactly one variant,
  * already selected.
+ *
+ * Controlled (clothing P02): it renders `selection` and reports clicks; the
+ * variant that selection resolves to is the caller's to compute.
  */
 export function VariantSelector({
   options,
   variants,
-  defaultVariantId,
+  selection,
+  onSelect,
   locale,
-  onVariantChange,
 }: VariantSelectorProps) {
-  const defaultVariant = variants.find((v) => v.id === defaultVariantId);
-  const initialSelection = React.useMemo(() => {
-    const selection: Record<string, string> = {};
-    if (!defaultVariant) return selection;
-    for (const option of options) {
-      const match = option.values.find((v) => defaultVariant.optionValueIds.includes(v.id));
-      if (match) selection[option.id] = match.id;
-    }
-    return selection;
-  }, [defaultVariant, options]);
-
-  const [selection, setSelection] = React.useState<Record<string, string>>(initialSelection);
-
-  React.useEffect(() => {
-    const matched = findMatchingVariant(variants, selection);
-    onVariantChange(matched);
-    // Only re-resolve when the selection itself changes — `variants` and
-    // `onVariantChange` are stable for the life of this component instance.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selection]);
-
   if (options.length === 0) return null;
 
   return (
@@ -90,7 +88,7 @@ export function VariantSelector({
                     role="radio"
                     aria-checked={isSelected}
                     disabled={!isAvailable}
-                    onClick={() => setSelection((prev) => ({ ...prev, [option.id]: value.id }))}
+                    onClick={() => onSelect(option.id, value.id)}
                     className={cn(
                       'min-w-11 rounded-(--radius-control) border px-3 py-2 text-sm font-medium outline-none',
                       'transition-colors duration-(--duration-fast) focus-visible:ring-2 focus-visible:ring-(--color-ring)/25',

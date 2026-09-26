@@ -6,7 +6,10 @@ import { useRouter } from 'next/navigation';
 import type { ProductDetail } from '@/modules/catalog';
 import type { Locale } from '@/lib/i18n/locales';
 import { getDictionary } from '@/lib/i18n/dictionary';
-import { VariantSelector } from '@/components/storefront/pdp/variant-selector';
+import { VariantSelector, selectionForVariant } from '@/components/storefront/pdp/variant-selector';
+import { SizeRecommendationPanel } from '@/components/storefront/pdp/size-recommendation-panel';
+import { findMatchingVariant } from '@/lib/variant-selection';
+import type { StorefrontSizeChart } from '@/modules/sizing';
 import { WishlistToggleButton } from '@/components/storefront/wishlist-toggle-button';
 import { ProductPrice } from '@/components/commerce/product-price';
 import { StockBadge } from '@/components/commerce/stock-badge';
@@ -21,6 +24,8 @@ export interface PurchasePanelProps {
   product: ProductDetail;
   locale: Locale;
   currency: string;
+  /** The product's public size chart (clothing P02), when it has one. */
+  sizeChart?: StorefrontSizeChart | null;
 }
 
 /**
@@ -35,10 +40,35 @@ export interface PurchasePanelProps {
  * and the quantity and nothing else: the price the panel is displaying is
  * never posted back, so it cannot be substituted on the way.
  */
-export function PurchasePanel({ product, locale, currency }: PurchasePanelProps) {
+export function PurchasePanel({ product, locale, currency, sizeChart }: PurchasePanelProps) {
   const t = getDictionary(locale);
-  const [selectedVariant, setSelectedVariant] = React.useState(
-    product.variants.find((v) => v.id === product.defaultVariantId),
+  // The selection is owned here, not inside the selector, so the size
+  // recommendation can choose a size through the same state the buttons do.
+  const [selection, setSelection] = React.useState<Record<string, string>>(() =>
+    selectionForVariant(
+      product.options,
+      product.variants.find((v) => v.id === product.defaultVariantId),
+    ),
+  );
+  const selectedVariant = findMatchingVariant(product.variants, selection);
+  const select = React.useCallback(
+    (optionId: string, valueId: string) =>
+      setSelection((current) => ({ ...current, [optionId]: valueId })),
+    [],
+  );
+
+  // The option the chart's sizes belong to — the product's own size option.
+  const sizeOption = sizeChart
+    ? product.options.find((option) =>
+        option.values.some((value) => value.id === sizeChart.rows[0]?.sizeId),
+      )
+    : undefined;
+  const sizeName = React.useCallback(
+    (sizeId: string) => {
+      const value = sizeOption?.values.find((v) => v.id === sizeId);
+      return value ? (locale === 'ar' ? value.valueAr : value.valueEn) : '';
+    },
+    [sizeOption, locale],
   );
   const [quantity, setQuantity] = React.useState(1);
   const router = useRouter();
@@ -94,10 +124,22 @@ export function PurchasePanel({ product, locale, currency }: PurchasePanelProps)
       <VariantSelector
         options={product.options}
         variants={product.variants}
-        defaultVariantId={product.defaultVariantId}
+        selection={selection}
+        onSelect={select}
         locale={locale}
-        onVariantChange={setSelectedVariant}
       />
+
+      {sizeChart && sizeOption ? (
+        <SizeRecommendationPanel
+          productId={product.id}
+          locale={locale}
+          labels={t.sizing}
+          chart={sizeChart}
+          sizeName={sizeName}
+          selectedSizeId={selection[sizeOption.id]}
+          onSelectSize={(sizeId) => select(sizeOption.id, sizeId)}
+        />
+      ) : null}
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <p className="text-sm font-medium text-(--color-text)">{t.product.quantity}</p>

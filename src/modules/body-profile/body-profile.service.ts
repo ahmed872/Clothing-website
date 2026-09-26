@@ -4,6 +4,7 @@ import type {
   BodyProfileGender,
   BodyShape,
   FacialHair,
+  FitPreference,
   GlassesFrameColor,
   GlassesStyle,
   HairColor,
@@ -51,6 +52,8 @@ export type BodyMeasurements = Record<MeasurementKey, number | null> & {
 export interface BodyProfileView {
   gender: BodyProfileGender;
   measurements: BodyMeasurements;
+  /** Clothing P02 — the ease the size engine aims for by default. */
+  fitPreference: FitPreference;
   /** Derived and advisory — see `body-shape.service.ts`. */
   bodyShape: BodyShape | null;
   avatar: AvatarConfigurationView;
@@ -85,6 +88,7 @@ function toView(profile: BodyProfile & { avatar: AvatarConfiguration | null }): 
   return {
     gender: profile.gender,
     measurements,
+    fitPreference: profile.fitPreference,
     bodyShape: profile.bodyShape,
     avatar: avatar
       ? {

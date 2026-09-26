@@ -2,7 +2,9 @@ import { z } from 'zod';
 
 import { checkMeasurement } from './measurement-input';
 import {
+  DEFAULT_FIT_PREFERENCE,
   FACIAL_HAIR,
+  FIT_PREFERENCES,
   GENDERS,
   GLASSES_FRAME_COLORS,
   GLASSES_STYLES,
@@ -88,9 +90,18 @@ export const avatarConfigurationInputSchema = z
 export type AvatarConfigurationInput = z.input<typeof avatarConfigurationInputSchema>;
 export type AvatarConfigurationData = z.output<typeof avatarConfigurationInputSchema>;
 
+/** Absent or `''` is the default fit, not an error: the preference always
+ * has a value, and a profile saved before it existed reads as REGULAR. */
+const fitPreference = z
+  .unknown()
+  .optional()
+  .transform((raw) => (raw === '' || raw === undefined ? DEFAULT_FIT_PREFERENCE : raw))
+  .pipe(choice(FIT_PREFERENCES));
+
 export const bodyProfileInputSchema = z
   .object({
     gender: choice(GENDERS),
+    fitPreference,
     heightCm: requiredMeasurement('heightCm'),
     weightKg: requiredMeasurement('weightKg'),
     waistCm: requiredMeasurement('waistCm'),

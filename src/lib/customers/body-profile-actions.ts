@@ -62,6 +62,7 @@ function inputFromForm(formData: FormData): BodyProfileInput {
   const wearsGlasses = text(formData, 'wearsGlasses');
   return {
     gender: text(formData, 'gender'),
+    fitPreference: text(formData, 'fitPreference'),
     ...measurements,
     avatar: {
       skinTone: text(formData, 'skinTone'),

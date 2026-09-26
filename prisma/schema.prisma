@@ -314,6 +314,36 @@ enum GlassesFrameColor {
   CLEAR
 }
 
+// Sizing (clothing P02).
+
+/// How close to the body the customer likes clothes to sit. Changes the ease
+/// the size engine aims for — never the measurements themselves.
+enum FitPreference {
+  SLIM
+  REGULAR
+  RELAXED
+}
+
+/// What kind of garment a product is, which decides which measurements size
+/// it and how much room each should have (`sizing/sizing-rules.ts`). A
+/// closed list so every value has rules, labels and tests; adding one is a
+/// migration plus a rules entry, never a free-text field.
+enum GarmentType {
+  T_SHIRT
+  SHIRT
+  HOODIE
+  SWEATER
+  JACKET
+  CARDIGAN
+  DRESS
+  ABAYA
+  THOBE
+  JEANS
+  TROUSERS
+  SHORTS
+  SKIRT
+}
+
 // ---------------------------------------------------------------------------
 // identity
 // ---------------------------------------------------------------------------
@@ -565,6 +595,7 @@ model Product {
   wishlistItems WishlistItem[]
   views         ProductView[]
   dailyStats    DailyProductStats[]
+  sizing        ProductSizing?
 
   @@index([categoryId, status])
   @@index([brandId])
@@ -595,8 +626,9 @@ model ProductOption {
   nameEn    String @map("name_en")
   position  Int    @default(0)
 
-  product Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
   values  OptionValue[]
+  sizings ProductSizing[]
 
   @@unique([productId, nameEn])
   @@map("product_options")
@@ -611,6 +643,7 @@ model OptionValue {
 
   option        ProductOption        @relation(fields: [optionId], references: [id], onDelete: Cascade)
   variantValues VariantOptionValue[]
+  sizeChartRow  SizeChartEntry?
 
   @@unique([optionId, valueEn])
   @@map("option_values")
@@ -801,6 +834,9 @@ model BodyProfile {
   sleeveLengthCm Decimal?          @map("sleeve_length_cm") @db.Decimal(4, 1)
   neckCm         Decimal?          @map("neck_cm") @db.Decimal(4, 1)
   bodyShape      BodyShape?        @map("body_shape")
+  /// Clothing P02 — the customer's default fit; the product page can try
+  /// another without saving it.
+  fitPreference  FitPreference     @default(REGULAR) @map("fit_preference")
   createdAt      DateTime          @default(now()) @map("created_at")
   updatedAt      DateTime          @updatedAt @map("updated_at")
 
@@ -832,6 +868,52 @@ model AvatarConfiguration {
   bodyProfile BodyProfile @relation(fields: [bodyProfileId], references: [id], onDelete: Cascade)
 
   @@map("avatar_configurations")
+}
+
+/// How a product is sized (clothing P02): what kind of garment it is, which
+/// of its options holds the sizes, and the size chart. One per product.
+model ProductSizing {
+  id           String      @id @default(uuid()) @db.Uuid
+  productId    String      @unique @map("product_id") @db.Uuid
+  garmentType  GarmentType @map("garment_type")
+  /// The product option whose values are the sizes ("Size"/"المقاس"). Null
+  /// until the admin picks one; the chart is empty without it.
+  sizeOptionId String?     @map("size_option_id") @db.Uuid
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+  product    Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sizeOption ProductOption?   @relation(fields: [sizeOptionId], references: [id], onDelete: SetNull)
+  entries    SizeChartEntry[]
+
+  @@index([sizeOptionId])
+  @@map("product_sizing")
+}
+
+/// One size in a product's chart: the size itself is the product's own
+/// option value (so its Arabic and English names are the ones the shopper
+/// picks, and a size that is not sold cannot appear), and the numbers are
+/// the *garment's* measurements, in centimetres, whatever the display.
+model SizeChartEntry {
+  id            String   @id @default(uuid()) @db.Uuid
+  sizingId      String   @map("sizing_id") @db.Uuid
+  optionValueId String   @unique @map("option_value_id") @db.Uuid
+  /// Smallest first; the order "one size smaller/larger" is read from.
+  position      Int
+  chestCm       Decimal? @map("chest_cm") @db.Decimal(4, 1)
+  waistCm       Decimal? @map("waist_cm") @db.Decimal(4, 1)
+  hipCm         Decimal? @map("hip_cm") @db.Decimal(4, 1)
+  shoulderCm    Decimal? @map("shoulder_cm") @db.Decimal(4, 1)
+  sleeveCm      Decimal? @map("sleeve_cm") @db.Decimal(4, 1)
+  inseamCm      Decimal? @map("inseam_cm") @db.Decimal(4, 1)
+  lengthCm      Decimal? @map("length_cm") @db.Decimal(4, 1)
+  neckCm        Decimal? @map("neck_cm") @db.Decimal(4, 1)
+
+  sizing      ProductSizing @relation(fields: [sizingId], references: [id], onDelete: Cascade)
+  optionValue OptionValue   @relation(fields: [optionValueId], references: [id], onDelete: Cascade)
+
+  @@index([sizingId, position])
+  @@map("size_chart_entries")
 }
 
 // ---------------------------------------------------------------------------

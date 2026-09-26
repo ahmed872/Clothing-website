@@ -7,7 +7,9 @@ import { Ruler, Trash2 } from 'lucide-react';
 // Dependency-free files of the module (type-only Prisma imports), shared
 // with the server's validation so the form reads input exactly as it does.
 import {
+  DEFAULT_FIT_PREFERENCE,
   FACIAL_HAIR,
+  FIT_PREFERENCES,
   GENDERS,
   GLASSES_FRAME_COLORS,
   GLASSES_STYLES,
@@ -62,6 +64,7 @@ export type { BodyProfileLabels } from './labels';
 
 interface Values {
   gender: string;
+  fitPreference: string;
   measurements: Record<MeasurementKey, string>;
   skinTone: string;
   hairStyle: string;
@@ -82,6 +85,7 @@ function valuesFrom(profile: BodyProfileSnapshot | null): Values {
   const a = profile?.avatar;
   return {
     gender: profile?.gender ?? '',
+    fitPreference: profile?.fitPreference ?? DEFAULT_FIT_PREFERENCE,
     measurements,
     skinTone: a?.skinTone ?? '',
     hairStyle: a?.hairStyle ?? '',
@@ -372,6 +376,7 @@ export function BodyProfileForm({
 
         <input type="hidden" name="expectedUpdatedAt" value={version} />
         <input type="hidden" name="gender" value={values.gender} />
+        <input type="hidden" name="fitPreference" value={values.fitPreference} />
         <input type="hidden" name="skinTone" value={values.skinTone} />
         <input type="hidden" name="hairStyle" value={values.hairStyle} />
         <input type="hidden" name="hairColor" value={covered ? '' : values.hairColor} />
@@ -408,6 +413,21 @@ export function BodyProfileForm({
               direction={direction}
               layout="grid"
             />
+            <div className="mt-5">
+              <ChoiceGroup
+                id={fieldId('fitPreference')}
+                label={labels.fitPreference.label}
+                help={labels.fitPreference.help}
+                value={values.fitPreference}
+                onChange={(value) => setChoice('fitPreference', value)}
+                options={FIT_PREFERENCES.map((value) => ({
+                  value,
+                  label: labels.fitPreference.options[value],
+                }))}
+                error={errorMessage('fitPreference', fieldErrors?.fitPreference)}
+                direction={direction}
+              />
+            </div>
           </CardContent>
         </Card>
 

@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 
 import { getProductDetailBySlug, getProductReviews, getRelatedProducts } from '@/modules/catalog';
 import { getStoreSettings } from '@/modules/settings';
+import { getStorefrontSizeChart } from '@/modules/sizing';
 import { clientEnv } from '@/modules/core/env.client';
 import { isLocale, type Locale } from '@/lib/i18n/locales';
 import { getDictionary } from '@/lib/i18n/dictionary';
@@ -72,10 +73,13 @@ export default async function ProductPage({ params }: { params: Promise<ProductP
   if (!product) notFound();
 
   const t = getDictionary(locale);
-  const [reviews, related, settings] = await Promise.all([
+  const [reviews, related, settings, sizeChart] = await Promise.all([
     getProductReviews(product.id),
     getRelatedProducts(product.id, product.category.id, locale),
     getStoreSettings(locale),
+    // Public product data, like the price: safe in the cached page. The
+    // customer's own recommendation is fetched by the panel after load.
+    getStorefrontSizeChart(product.id),
   ]);
 
   const name = locale === 'ar' ? product.nameAr : product.nameEn;
@@ -176,7 +180,12 @@ export default async function ProductPage({ params }: { params: Promise<ProductP
             />
           ) : null}
 
-          <PurchasePanel product={product} locale={locale} currency={settings.currency} />
+          <PurchasePanel
+            product={product}
+            locale={locale}
+            currency={settings.currency}
+            sizeChart={sizeChart}
+          />
         </div>
       </div>
 

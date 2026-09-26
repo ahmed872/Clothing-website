@@ -16,6 +16,7 @@ const PROFILE: BodyProfileView = {
     sleeveLengthCm: null,
     neckCm: null,
   },
+  fitPreference: 'SLIM',
   bodyShape: 'STRAIGHT',
   avatar: {
     skinTone: 'MEDIUM',
@@ -37,6 +38,7 @@ describe('toSizingProfile — the size engine contract', () => {
       waistCm: 88,
       weightKg: 82,
       bodyShape: 'STRAIGHT',
+      fitPreference: 'SLIM',
       optional: {
         chestCm: 100,
         hipCm: 98,
