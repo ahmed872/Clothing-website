@@ -553,6 +553,13 @@ export const dictionary = {
         caption: 'رسم توضيحي من مقاساتك واختياراتك — وليس صورة حقيقية.',
         heightUnset: 'أدخل طولك لرسم الصورة بالحجم الصحيح.',
         glasses: 'نظارة',
+        bodyShape: {
+          STRAIGHT: 'قوام متناسق الخطوط',
+          DEFINED_WAIST: 'خصر واضح',
+          HIPS_WIDER: 'الورك أعرض من الصدر',
+          CHEST_WIDER: 'الصدر أعرض من الورك',
+          WAIST_WIDEST: 'الخصر أعرض من الصدر والورك',
+        },
       },
       completion: {
         title: 'اكتمال الملف',
@@ -1276,6 +1283,13 @@ export const dictionary = {
         caption: 'Drawn from your measurements and choices — an illustration, not a photo.',
         heightUnset: 'Add your height to draw the figure to scale.',
         glasses: 'glasses',
+        bodyShape: {
+          STRAIGHT: 'straight proportions',
+          DEFINED_WAIST: 'defined waist',
+          HIPS_WIDER: 'hips wider than chest',
+          CHEST_WIDER: 'chest wider than hips',
+          WAIST_WIDEST: 'waist wider than chest and hips',
+        },
       },
       completion: {
         title: 'Profile completeness',

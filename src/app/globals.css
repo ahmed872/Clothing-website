@@ -383,6 +383,11 @@
   --avatar-garment-bottom: oklch(0.36 0.03 250);
   --avatar-garment-shoe: oklch(0.3 0.01 250);
   --avatar-feature: oklch(0.25 0.01 250);
+  /* Clothing P03 — the layered avatar's shading and face. */
+  --avatar-shade: oklch(0.2 0.02 40 / 10%);
+  --avatar-highlight: oklch(1 0 0 / 16%);
+  --avatar-eye-white: oklch(0.97 0.005 90);
+  --avatar-mouth: oklch(0.45 0.08 20);
   --avatar-outline: oklch(0.3 0.01 250 / 35%);
   --avatar-shadow: oklch(0 0 0 / 12%);
   --avatar-guide: var(--color-border-strong);
@@ -434,6 +439,20 @@
   ::selection {
     background-color: var(--color-accent);
     color: var(--color-accent-foreground);
+  }
+
+  /* Clothing P03 — the avatar eases from one shape to the next as the
+     customer types a measurement or picks a colour, instead of jumping.
+     Nothing loops or plays on its own, and the reduced-motion rule below
+     takes the transition away entirely. */
+  .avatar-motion :is(path, ellipse, circle, rect) {
+    transition:
+      d var(--duration-slow) var(--ease-standard),
+      cx var(--duration-slow) var(--ease-standard),
+      cy var(--duration-slow) var(--ease-standard),
+      rx var(--duration-slow) var(--ease-standard),
+      ry var(--duration-slow) var(--ease-standard),
+      fill var(--duration-base) var(--ease-standard);
   }
 
   @media (prefers-reduced-motion: reduce) {

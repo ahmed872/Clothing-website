@@ -5,24 +5,21 @@ import { AVATAR_CANVAS, computeAvatarGeometry } from '@/lib/avatar/local-avatar-
 import type { AvatarRendererProps } from './avatar-types';
 
 /**
- * The avatar drawn locally, as SVG — no network, no model, no photo.
+ * The P01 avatar — a flat SVG figure with no layers — kept as the `basic`
+ * renderer: a second, much simpler implementation of the same contract,
+ * which is what proves the renderer seam is real (the page switches
+ * between them by kind, not by component). It ignores garment `layers`.
  *
- * An illustration built from the customer's own numbers and choices, and
- * labelled as one on the page: it makes height, proportions, skin tone,
- * hair, facial hair and glasses visible, and it does not pretend to be what
- * they look like. Anything unset is drawn neutrally (a grey figure, no
- * hair) rather than filled in.
- *
- * Every colour is a design token (`--avatar-*` in `globals.css`), so the
- * palette lives in one place and nothing here is a raw colour value.
- * `data-*` attributes on the root expose what was drawn, for tests.
+ * Like every renderer: local, no network, no model, no photo; anything
+ * unset drawn neutrally; every colour a design token; `data-*` attributes
+ * on the root say what was drawn.
  */
 
 const slug = (value: string) => value.toLowerCase().replaceAll('_', '-');
 const token = (group: string, value: string | null, fallback: string) =>
   value ? `var(--avatar-${group}-${slug(value)})` : `var(--avatar-${group}-${fallback})`;
 
-export function LocalAvatarRenderer({
+export function BasicAvatarRenderer({
   input,
   title,
   description,
@@ -215,7 +212,7 @@ export function LocalAvatarRenderer({
       aria-labelledby={titleId}
       aria-describedby={descId}
       className="h-auto w-full"
-      data-renderer="local"
+      data-renderer="basic"
       data-height-cm={g.heightCm ?? ''}
       data-skin-tone={a.skinTone ?? 'unset'}
       data-hair-style={a.hairStyle ?? 'unset'}

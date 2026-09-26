@@ -1,3 +1,5 @@
+import type { BodyShape } from '@generated/prisma';
+
 import type {
   AvatarConfigurationView,
   BodyProfileSnapshot,
@@ -22,6 +24,10 @@ export type AvatarAppearance = AvatarConfigurationView;
 export interface AvatarRenderInput {
   measurements: Partial<Record<MeasurementKey, number | null>>;
   appearance: AvatarAppearance;
+  /** The proportion the measurements describe (`deriveBodyShape`), for the
+   * figure's description. Not drawn from: the measurements themselves
+   * already shape the figure, so this never adds a second opinion. */
+  bodyShape?: BodyShape | null;
 }
 
 export const NEUTRAL_APPEARANCE: AvatarAppearance = {
@@ -36,6 +42,10 @@ export const NEUTRAL_APPEARANCE: AvatarAppearance = {
 
 export function avatarInputFromProfile(profile: BodyProfileSnapshot | null): AvatarRenderInput {
   return profile
-    ? { measurements: profile.measurements, appearance: profile.avatar }
+    ? {
+        measurements: profile.measurements,
+        appearance: profile.avatar,
+        bodyShape: profile.bodyShape,
+      }
     : { measurements: {}, appearance: NEUTRAL_APPEARANCE };
 }

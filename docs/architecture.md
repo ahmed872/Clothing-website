@@ -121,6 +121,15 @@ worth describing rather than leaving to be discovered:
   documented beside its value. Missing data is an answer
   (`insufficient_data`, `no_size_data`, `no_matching_size`), never a guess,
   and the storefront receives sizes and reason codes, never a measurement.
+- **The avatar is layered SVG drawn in the browser** (clothing P03; not a
+  module — it is presentation, under `components/storefront/avatar/`). A
+  pure rig (`avatar-rig.ts`) turns the profile's measurements into
+  landmarks and widths; a fixed stack of layer slots (`avatar-layers.ts`:
+  body, hair, face, glasses, top, bottom, shoes, accessories, …) draws from
+  that rig; garments are layers that take a slot over. Renderers are picked
+  by kind from one registry (`local`, the layered one; `basic`, P01's flat
+  figure), so a 3D or external renderer would be one more entry, not a
+  rewrite. No network, no model, no photo.
 
 Every admin section now has a screen of its own, and the shared "this
 section is being built" placeholder at `/admin/[section]` is gone with the

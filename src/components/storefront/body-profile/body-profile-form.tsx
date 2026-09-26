@@ -24,6 +24,7 @@ import {
 } from '@/modules/body-profile/options';
 import { checkMeasurement } from '@/modules/body-profile/measurement-input';
 import { computeProfileCompletion } from '@/modules/body-profile/profile-completion';
+import { deriveBodyShape } from '@/modules/body-profile/body-shape.service';
 import type {
   BodyProfileErrorCode,
   BodyProfileField,
@@ -54,7 +55,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/components/ui/toast';
 
-import { AvatarPreview } from './avatar/avatar-renderer';
+import { AvatarPreview } from '@/components/storefront/avatar/avatar-renderer';
 import { ChoiceGroup, type ChoiceOption } from './choice-group';
 import { CompletionCard } from './completion-card';
 import type { BodyProfileLabels } from './labels';
@@ -213,7 +214,14 @@ export function BodyProfileForm({
       ? values.glassesFrameColor
       : null) as AvatarAppearance['glassesFrameColor'],
   };
-  const avatarInput: AvatarRenderInput = { measurements: parsed, appearance };
+  // The same derivation the server stores on save, run on what the form
+  // says now — so the preview's description follows the customer's typing.
+  const bodyShape = deriveBodyShape({
+    chestCm: parsed.chestCm,
+    waistCm: parsed.waistCm,
+    hipCm: parsed.hipCm,
+  });
+  const avatarInput: AvatarRenderInput = { measurements: parsed, appearance, bodyShape };
   const completion = computeProfileCompletion({
     gender: values.gender || null,
     measurements: parsed,
@@ -257,6 +265,7 @@ export function BodyProfileForm({
     parsed.heightCm !== null ? `${parsed.heightCm} ${labels.units.cm}` : labels.preview.heightUnset;
   const previewDescription = [
     parsed.heightCm !== null ? `${labels.measurements.heightCm.label}: ${heightText}` : null,
+    bodyShape ? labels.preview.bodyShape[bodyShape] : null,
     appearance.skinTone ? labels.appearance.skinTone.options[appearance.skinTone] : null,
     appearance.hairStyle ? labels.appearance.hairStyle.options[appearance.hairStyle] : null,
     appearance.hairColor && !covered

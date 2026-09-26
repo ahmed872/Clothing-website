@@ -32,7 +32,9 @@ their account when they create one.
 their measurements (height, weight and waist required; chest, hip,
 shoulder, inseam, sleeve and neck optional) and how their avatar looks
 (skin tone, hair or head covering, facial hair, glasses), and sees a local,
-illustrated avatar redraw as they type, plus how complete the profile is.
+layered avatar redraw as they type — height, shoulders, chest, waist, hips,
+leg and arm length from their own numbers — plus how complete the profile
+is.
 Private to its owner: no photos, nothing sent to an outside service, and the
 data can be deleted from the same page.
 
